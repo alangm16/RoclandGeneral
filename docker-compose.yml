@@ -1,0 +1,15 @@
+services:
+  angular-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+      - /app/node_modules # Evita que los node_modules locales sobreescriban los del contenedor
+    environment:
+      - NODE_ENV=development
+      - NG_ALLOWED_HOSTNAMES=localhost,127.0.0.1,0.0.0.0,host.docker.internal
+    command: >
+      sh -c "npm install && npx ng serve --host 0.0.0.0 --poll 2000"

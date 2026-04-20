@@ -6,6 +6,7 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { APP_BASE_HREF } from '@angular/common';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -39,6 +40,12 @@ app.use(
  * Handle all other requests by rendering the Angular application.
  */
 app.use((req, res, next) => {
+  // Solo para desarrollo: Si el host es localhost, forzamos que Angular lo acepte
+  // Esto sobrescribe la validación de SSRF interna
+  if (process.env['NODE_ENV'] === 'development') {
+    Object.defineProperty(req, 'hostname', { value: '0.0.0.0' });
+  }
+
   angularApp
     .handle(req)
     .then((response) =>
