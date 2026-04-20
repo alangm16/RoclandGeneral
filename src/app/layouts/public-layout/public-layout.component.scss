@@ -1,0 +1,139 @@
+/* public-layout.component.scss */
+
+/* ── Layout raíz del host ────────────────────────────────────────── */
+/*  El componente Angular ocupa todo el espacio disponible del body   */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;          /* llena toda la ventana              */
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.acceso-header {
+  background: var(--rocland-black);
+  border-bottom: 3px solid var(--rocland-green);
+  padding: 0.75rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;             /* nunca se encoge                    */
+}
+
+.header-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;               /* permite truncar en pantallas chicas */
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--rocland-white);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-sub {
+  font-size: 0.7rem;
+  color: var(--rocland-green);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(74, 156, 31, 0.15);
+  border: 1px solid rgba(74, 156, 31, 0.4);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.65rem;
+  color: var(--rocland-green);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Main ───────────────────────────────────────────────────────── */
+.acceso-main {
+  flex: 1 0 auto;             /* crece para empujar el footer abajo */
+  padding: 1.5rem 1rem 2.5rem;
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.acceso-footer {
+  flex-shrink: 0;             /* nunca se encoge                    */
+  background: var(--rocland-dark);
+  color: var(--rocland-silver);
+  text-align: center;
+  padding: 0.85rem 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  width: 100%;
+
+  p { margin: 0; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Tablet pequeña y móvil grande (≤ 600px) */
+@media (max-width: 600px) {
+  .acceso-header { padding: 0.65rem 1rem; }
+  .brand-sub { display: none; }
+  .brand-logo { height: 34px; }
+  .header-badge span { display: none; }       /* solo el ícono    */
+  .header-badge { padding: 0.3rem 0.5rem; }
+  .acceso-main { padding: 1rem 0.875rem 2rem; }
+}
+
+/* Móvil pequeño (≤ 380px) */
+@media (max-width: 380px) {
+  .brand-title { font-size: 0.95rem; }
+  .brand-logo { height: 28px; }
+  .acceso-main { padding: 0.875rem 0.75rem 1.75rem; }
+}
+
+/* Monitor grande (≥ 1280px) — limitar el ancho del main un poco más */
+@media (min-width: 1280px) {
+  .acceso-main {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+}

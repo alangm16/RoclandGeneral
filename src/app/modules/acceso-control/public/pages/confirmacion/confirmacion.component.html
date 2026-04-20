@@ -1,0 +1,55 @@
+<!-- confirmacion.component.html -->
+<div class="confirm-page fade-in">
+
+  <div class="confirm-icon">
+    <i class="bi bi-check-lg"></i>
+  </div>
+
+  <h1 class="confirm-title">¡Solicitud Enviada!</h1>
+  <p class="confirm-subtitle">
+    Tu registro fue recibido. El guardia de seguridad revisará
+    tu solicitud en breve.
+  </p>
+
+  <!-- Indicador de espera -->
+  <div class="waiting-animation" aria-hidden="true">
+    <div class="waiting-dot"></div>
+    <div class="waiting-dot"></div>
+    <div class="waiting-dot"></div>
+  </div>
+
+  <!-- Detalle del registro -->
+  <div class="confirm-detail-box">
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">Nombre</span>
+      <span class="confirm-detail-value">{{ datos?.nombre || '—' }}</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">Tipo</span>
+      <span class="confirm-detail-value">{{ datos?.tipo || '—' }}</span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">Estado</span>
+      <span class="confirm-detail-value">
+        <span class="status-badge status-pendiente">
+          <i class="bi bi-clock-fill"></i> Pendiente
+        </span>
+      </span>
+    </div>
+    <div class="confirm-detail-row">
+      <span class="confirm-detail-label">Hora</span>
+      <span class="confirm-detail-value">{{ datos?.hora || '—' }}</span>
+    </div>
+  </div>
+
+  <p class="confirm-hint">
+    <i class="bi bi-info-circle me-1"></i>
+    Permanece en recepción. El guardia te indicará cuando tu
+    acceso haya sido autorizado.
+  </p>
+
+  <a routerLink="/acceso" class="btn-back-home">
+    <i class="bi bi-house-door"></i> Nuevo registro
+  </a>
+
+</div>

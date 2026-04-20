@@ -1,0 +1,36 @@
+/* confirmacion.component.scss */
+
+/* Hereda estilos de styles.scss (confirm-page, confirm-icon, etc.) */
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .confirm-page { padding: 1.5rem 0; }
+
+  .confirm-icon {
+    width: 68px;
+    height: 68px;
+    font-size: 1.9rem;
+  }
+
+  .confirm-detail-box {
+    padding: 1rem;
+  }
+
+  .confirm-detail-row {
+    /* En móvil muy estrecho, apilar label/value */
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .confirm-detail-value {
+    text-align: left;         /* alineado a la izquierda cuando se apila */
+  }
+}
+
+@media (max-width: 380px) {
+  .confirm-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.6rem;
+  }
+}

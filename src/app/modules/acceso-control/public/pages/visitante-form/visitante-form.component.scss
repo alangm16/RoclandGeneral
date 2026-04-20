@@ -1,114 +1,27 @@
-/* ── Contenedor del buscador de ID ──────────────────────────────── */
-.id-search-wrapper {
-  position: relative;
+/* visitante-form.component.scss */
 
-  .form-control {
-    padding-right: 2.5rem;
-  }
+/* El componente hereda el padding del .acceso-main — no se necesita padding extra aquí */
 
-  .id-search-spinner {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: none;
-
-    &.active {
-      display: block;
-    }
-  }
+/* ── Spinner de búsqueda ────────────────────────────────────────── */
+.spinner-icon {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--rocland-border);
+  border-top-color: var(--rocland-green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 
-/* ── Estilos de Tarjeta de Sección ──────────────────────────────── */
-.form-section-card {
-  background: var(--rocland-white);
-  border: 1px solid var(--rocland-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-card);
+/* ── Responsive ─────────────────────────────────────────────────── */
 
-  .form-section-title {
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--rocland-green-dark);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid var(--rocland-border);
-  }
-}
-
-/* ── Mensajes y Alertas ─────────────────────────────────────────── */
-.invalid-feedback {
-  font-size: 0.78rem;
-  color: var(--rocland-danger);
-  margin-top: 0.28rem;
-  font-weight: 500;
-  display: block; /* Asegura que se muestre con los *ngIf de Angular */
-}
-
-.alert-form-error {
-  background: rgba(192, 57, 43, 0.06);
-  border: 1px solid rgba(192, 57, 43, 0.25);
-  border-radius: var(--radius-md);
-  color: var(--rocland-danger);
-  padding: 0.75rem 1rem;
-  font-size: 0.88rem;
-  margin-bottom: 1rem;
-  display: none;
-
-  &.show {
-    display: block;
-  }
-}
-
-/* ── Caja de Consentimiento ─────────────────────────────────────── */
-.consent-card {
-  background: #fefffd;
-  border: 1.5px solid var(--rocland-border);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-
-  .consent-text {
-    font-size: 0.82rem;
-    color: var(--rocland-gray);
-    line-height: 1.55;
-    margin-bottom: 0.85rem;
-  }
-}
-
-/* ── Badge de Visita Recurrente ─────────────────────────────────── */
-.returning-badge {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(74, 156, 31, 0.08);
-  border: 1px solid rgba(74, 156, 31, 0.3);
-  border-radius: var(--radius-md);
-  padding: 0.55rem 0.85rem;
-  margin-top: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--rocland-green-dark);
-  animation: fadeIn 0.3s ease;
-
-  &.show {
-    display: flex;
-  }
-
-  strong {
-    font-weight: 700;
-  }
-}
-
-/* ── Responsive Local ───────────────────────────────────────────── */
-@media (max-width: 480px) {
-  .form-section-card {
-    padding: 1rem;
+/* En móvil, los campos col-sm-5 / col-sm-7 se apilan */
+@media (max-width: 575.98px) {
+  /* Bootstrap ya lo maneja con las clases col-12 col-sm-*, pero
+     por si acaso hay columnas sin el col-12, forzamos aquí */
+  .row > .col-sm-5,
+  .row > .col-sm-7,
+  .row > .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }

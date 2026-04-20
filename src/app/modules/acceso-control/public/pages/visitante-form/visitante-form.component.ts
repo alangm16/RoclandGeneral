@@ -1,142 +1,265 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { debounceTime, distinctUntilChanged, filter, switchMap, catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { AccesoService } from '../../../services/acceso.service';
+// visitante-form.component.ts
+// Sprint 2 — Conectado a la API real. Reemplaza el archivo del Sprint 1 completo.
+
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterLink, Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Subject, Subscription, forkJoin } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+
+import { AccesoService } from '../../../services/acceso.service'
+import {
+  TipoIdentificacion,
+  Area,
+  MotivoVisita,
+  PersonaAutocompletado,
+  DatosConfirmacion,
+} from '../../../models/acceso.models';
 
 @Component({
   selector: 'app-visitante-form',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: 'visitante-form.component.html',
-  styleUrls: ['visitante-form.component.scss'] // O .css si no usas scss
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  templateUrl: './visitante-form.component.html',
+  styleUrl: './visitante-form.component.scss',
 })
-export class VisitanteFormComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private accesoService = inject(AccesoService);
+export class VisitanteFormComponent implements OnInit, OnDestroy {
 
-  visitanteForm!: FormGroup;
-  
-  isSubmitting = false;
-  buscandoPersona = false;
-  personaEncontrada = false;
-  submitError: string | null = null;
-  submitSuccess = false;
+  // ── Inyecciones ───────────────────────────────────────────────────
+  private readonly fb         = inject(FormBuilder);
+  private readonly router     = inject(Router);
+  private readonly service    = inject(AccesoService);
+  private readonly platformId = inject(PLATFORM_ID);
 
-  // Catálogos mockeados (luego puedes consumirlos de tu AdminService)
-  tiposIdentificacion = [
-    { id: 1, nombre: 'INE' },
-    { id: 2, nombre: 'Pasaporte' },
-    { id: 3, nombre: 'Licencia' }
-  ];
-  areas = [
-    { id: 1, nombre: 'Recursos Humanos' },
-    { id: 2, nombre: 'Sistemas' },
-    { id: 3, nombre: 'Producción' }
-  ];
-  motivos = [
-    { id: 1, nombre: 'Entrevista' },
-    { id: 2, nombre: 'Reunión de trabajo' },
-    { id: 3, nombre: 'Mantenimiento' }
-  ];
+  // ── Estado ────────────────────────────────────────────────────────
+  form!:      FormGroup;
+  submitted   = false;
+  loading     = false;
+  errorMsg    = '';
 
+  // Estado de carga de catálogos
+  cargandoCatalogos = true;
+  errorCatalogos    = false;
+
+  // ── Catálogos ─────────────────────────────────────────────────────
+  tiposIdentificacion: TipoIdentificacion[] = [];
+  areas:               Area[]               = [];
+  motivos:             MotivoVisita[]        = [];
+
+  // ── Autocompletado ─────────────────────────────────────────────────
+  buscando          = false;
+  personaRecurrente = false;
+  totalVisitas      = 0;
+  autofilled: Record<string, boolean> = {};
+
+  private subs = new Subscription();
+
+  // ── Lifecycle ──────────────────────────────────────────────────────
   ngOnInit(): void {
-    this.iniciarFormulario();
-    this.configurarAutocompletado();
+    this.buildForm();
+    this.cargarCatalogos();
+
+    // El autocompletado solo corre en browser (no en SSR)
+    if (isPlatformBrowser(this.platformId)) {
+      this.setupAutocomplete();
+    }
   }
 
-  private iniciarFormulario(): void {
-    this.visitanteForm = this.fb.group({
-      numeroIdentificacion: ['', [Validators.required, Validators.minLength(3)]],
-      tipoIdentificacionId: ['', Validators.required],
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
-      telefono: [''],
-      email: ['', Validators.email],
-      areaId: ['', Validators.required],
-      motivoId: ['', Validators.required],
-      observaciones: [''],
-      consentimientoFirmado: [false, Validators.requiredTrue]
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  // ── Formulario ────────────────────────────────────────────────────
+  private buildForm(): void {
+    this.form = this.fb.group({
+      tipoIdentificacionId  : ['', [Validators.required]],
+      numeroIdentificacion  : ['', [Validators.required, Validators.minLength(3), Validators.maxLength(60)]],
+      nombre                : ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
+      telefono              : ['', [Validators.maxLength(20)]],
+      email                 : ['', [Validators.email, Validators.maxLength(100)]],
+      empresa               : ['', [Validators.maxLength(150)]],
+      areaId                : ['', [Validators.required]],
+      motivoId              : ['', [Validators.required]],
+      observaciones         : ['', [Validators.maxLength(500)]],
+      consentimientoFirmado : [false, [Validators.requiredTrue]],
     });
   }
 
-  // ── ESTA ES LA MAGIA QUE REEMPLAZA A autocompletado.js ──
-  private configurarAutocompletado(): void {
-    this.visitanteForm.get('numeroIdentificacion')?.valueChanges
-      .pipe(
-        // Espera 500ms después de que el usuario deja de escribir
-        debounceTime(500),
-        // Solo dispara si el valor realmente cambió
-        distinctUntilChanged(),
-        // Solo busca si tiene 3 caracteres o más
-        filter(val => val && val.length >= 3),
-        // Cancela peticiones anteriores si el usuario sigue escribiendo
-        switchMap(val => {
-          this.buscandoPersona = true;
-          this.submitError = null;
-          return this.accesoService.buscarPersona(val).pipe(
-            catchError(err => {
-              // Si da 404 (No existe), atrapamos el error para no romper el flujo
-              return of(null);
-            }),
-            finalize(() => this.buscandoPersona = false)
-          );
-        })
-      )
-      .subscribe((persona: any) => {
-        if (persona) {
-          this.personaEncontrada = true;
-          // Autocompletamos los campos
-          this.visitanteForm.patchValue({
-            nombre: persona.nombre,
-            tipoIdentificacionId: persona.tipoIdentificacionId,
-            telefono: persona.telefono,
-            email: persona.email
-          });
-          // Si quieres que no modifique su nombre una vez registrado:
-          // this.visitanteForm.get('nombre')?.disable(); 
-        } else {
-          this.personaEncontrada = false;
-          // Limpiamos los campos para que registre uno nuevo
-          const numIdActual = this.visitanteForm.get('numeroIdentificacion')?.value;
-          this.visitanteForm.reset({
-            numeroIdentificacion: numIdActual, // Mantenemos lo que escribió
-            tipoIdentificacionId: '',
-            nombre: '',
-            telefono: '',
-            email: '',
-            areaId: this.visitanteForm.get('areaId')?.value,
-            motivoId: this.visitanteForm.get('motivoId')?.value,
-          });
-          this.visitanteForm.get('nombre')?.enable();
-        }
-      });
+  // ── Catálogos ─────────────────────────────────────────────────────
+  // Carga los 3 catálogos en paralelo con forkJoin para un solo ciclo HTTP
+  cargarCatalogos(): void {
+    this.cargandoCatalogos = true;
+    this.errorCatalogos    = false;
+
+    const sub = forkJoin({
+      tipos  : this.service.getTiposIdentificacion(),
+      areas  : this.service.getAreas(),
+      motivos: this.service.getMotivos(),
+    }).subscribe({
+      next: ({ tipos, areas, motivos }) => {
+        this.tiposIdentificacion = tipos;
+        this.areas               = areas;
+        this.motivos             = motivos;
+        this.cargandoCatalogos   = false;
+      },
+      error: () => {
+        this.cargandoCatalogos = false;
+        this.errorCatalogos    = true;
+      },
+    });
+
+    this.subs.add(sub);
   }
 
+  // ── Autocompletado ────────────────────────────────────────────────
+  // Equivalente Angular del autocompletado.js original:
+  // - debounceTime(500)        = DEBOUNCE_MS del JS
+  // - distinctUntilChanged()   = evita relanzar si el valor no cambió
+  // - switchMap()              = cancela la petición anterior automáticamente
+  //                              (equivale al AbortController del JS original)
+  private setupAutocomplete(): void {
+    const sub = this.form.get('numeroIdentificacion')!.valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        switchMap((val: string) => {
+          this.clearAutofill();
+
+          if (!val || val.trim().length < 3) {
+            this.buscando = false;
+            return [];  // Observable vacío — no hace ninguna petición
+          }
+
+          this.buscando = true;
+          return this.service.buscarPersona(val.trim());
+        })
+      )
+      .subscribe({
+        next: (persona: PersonaAutocompletado | null) => {
+          this.buscando = false;
+          if (persona) {
+            this.applyPersona(persona);
+          }
+          // Si es null (404 o error) → clearAutofill ya limpió los campos
+        },
+        error: () => {
+          // El servicio ya maneja errores silenciosamente en buscarPersona()
+          this.buscando = false;
+        },
+      });
+
+    this.subs.add(sub);
+  }
+
+  private clearAutofill(): void {
+    const campos = ['nombre', 'empresa', 'telefono', 'email'];
+    campos.forEach(campo => {
+      if (this.autofilled[campo]) {
+        this.form.get(campo)?.setValue('', { emitEvent: false });
+      }
+    });
+    this.autofilled       = {};
+    this.personaRecurrente = false;
+    this.totalVisitas      = 0;
+  }
+
+  private applyPersona(persona: PersonaAutocompletado): void {
+    const map: Record<string, string> = {
+      nombre  : persona.nombre,
+      empresa : persona.empresa  ?? '',
+      telefono: persona.telefono ?? '',
+      email   : persona.email    ?? '',
+    };
+
+    Object.entries(map).forEach(([campo, valor]) => {
+      if (valor) {
+        this.form.get(campo)?.setValue(valor, { emitEvent: false });
+        this.autofilled[campo] = true;
+      }
+    });
+
+    if (persona.totalVisitas > 0) {
+      this.personaRecurrente = true;
+      this.totalVisitas      = persona.totalVisitas;
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────
   onSubmit(): void {
-    if (this.visitanteForm.invalid) {
-      this.visitanteForm.markAllAsTouched();
+    this.submitted = true;
+    this.errorMsg  = '';
+
+    if (this.form.invalid) {
+      setTimeout(() => {
+        const firstInvalid = document.querySelector(
+          'input.ng-invalid, select.ng-invalid, textarea.ng-invalid'
+        ) as HTMLElement | null;
+        firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstInvalid?.focus();
+      }, 0);
       return;
     }
 
-    this.isSubmitting = true;
-    this.submitError = null;
+    this.loading = true;
 
-    // getRawValue incluye campos deshabilitados si llegaras a usar .disable()
-    const payload = this.visitanteForm.getRawValue(); 
-
-    this.accesoService.registrarVisitante(payload).subscribe({
-      next: (res) => {
-        this.submitSuccess = true;
-        this.isSubmitting = false;
-        // Opcional: Redirigir a una ruta de "Confirmación" 
-        // this.router.navigate(['/acceso/confirmacion', res.registroId]);
+    const sub = this.service.registrarVisitante(this.buildPayload()).subscribe({
+      next: (data) => {
+        const confirmacion: DatosConfirmacion = {
+          nombre: data.nombre,
+          tipo:   'Visitante',
+          id:     data.registroId,
+          hora:   new Date(data.fechaEntrada).toLocaleTimeString('es-MX', {
+            hour: '2-digit', minute: '2-digit',
+          }),
+        };
+        sessionStorage.setItem('rocland_confirm', JSON.stringify(confirmacion));
+        this.router.navigate(['/acceso/confirmacion']);
       },
-      error: (err) => {
-        console.error('Error al registrar', err);
-        this.submitError = err.error?.message || 'Ocurrió un error al procesar tu solicitud.';
-        this.isSubmitting = false;
-      }
+      error: (err: Error) => {
+        this.errorMsg = err.message;
+        this.loading  = false;
+        // Scroll al alert de error
+        setTimeout(() => {
+          document.getElementById('alertError')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 0);
+      },
     });
+
+    this.subs.add(sub);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  isInvalid(campo: string): boolean {
+    const ctrl = this.form.get(campo);
+    return !!(this.submitted && ctrl?.invalid);
+  }
+
+  private buildPayload() {
+    const v = this.form.value;
+    return {
+      nombre               : (v.nombre as string).trim(),
+      tipoIdentificacionId : Number(v.tipoIdentificacionId),
+      numeroIdentificacion : (v.numeroIdentificacion as string).trim(),
+      empresa              : v.empresa?.trim()      || null,
+      telefono             : v.telefono?.trim()     || null,
+      email                : v.email?.trim()        || null,
+      areaId               : Number(v.areaId),
+      motivoId             : Number(v.motivoId),
+      consentimientoFirmado: v.consentimientoFirmado as boolean,
+      observaciones        : v.observaciones?.trim() || null,
+    };
   }
 }

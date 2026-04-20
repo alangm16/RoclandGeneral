@@ -1,0 +1,172 @@
+/* acceso-selector.component.scss */
+
+.selector-page {
+  padding-top: 1rem;
+}
+
+/* ── Encabezado de seguridad ────────────────────────────────────── */
+.form-page-back {
+  /* Reutiliza el estilo global; aquí solo ajustamos el color del ícono */
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--rocland-gray);
+  margin-bottom: 1.25rem;
+}
+
+/* ── Type cards ─────────────────────────────────────────────────── */
+.type-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--rocland-white);
+  border: 2px solid var(--rocland-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--rocland-black);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  /* Área táctil mínima */
+  min-height: 80px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--rocland-green);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform var(--transition);
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--rocland-green);
+    box-shadow: var(--shadow-card);
+    color: var(--rocland-black);
+    transform: translateX(4px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--rocland-green);
+    outline-offset: 2px;
+  }
+
+  &:hover::before,
+  &:focus-visible::before { transform: scaleY(1); }
+
+  /* En táctil, quitar el translateX para no verse raro */
+  @media (hover: none) {
+    &:active {
+      border-color: var(--rocland-green);
+      box-shadow: var(--shadow-card);
+      transform: none;
+    }
+    &:hover { transform: none; }
+  }
+}
+
+.type-card-icon {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;            /* evita que se comprima */
+  border-radius: var(--radius-md);
+  background: var(--rocland-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--rocland-green);
+  flex-shrink: 0;
+  transition: background var(--transition);
+
+  .type-card:hover & {
+    background: rgba(74, 156, 31, 0.12);
+  }
+}
+
+.type-card-body {
+  flex: 1;
+  min-width: 0;               /* permite truncar si es necesario */
+}
+
+.type-card-label {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.type-card-desc {
+  font-size: 0.85rem;
+  color: var(--rocland-gray);
+  line-height: 1.4;
+}
+
+.type-card-arrow {
+  color: var(--rocland-silver);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: color var(--transition), transform var(--transition);
+
+  .type-card:hover & {
+    color: var(--rocland-green);
+    transform: translateX(4px);
+  }
+}
+
+/* ── Nota informativa ───────────────────────────────────────────── */
+/* (selector-note está definida en styles.scss globalmente) */
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Móvil estándar (≤ 575px) */
+@media (max-width: 575.98px) {
+  .type-card {
+    padding: 1.1rem 1rem;
+    gap: 1rem;
+  }
+
+  .type-card-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    font-size: 1.35rem;
+  }
+
+  .type-card-label { font-size: 1.1rem; }
+  .type-card-desc  { font-size: 0.8rem; }
+}
+
+/* Móvil pequeño (≤ 380px) */
+@media (max-width: 380px) {
+  .type-card {
+    padding: 0.9rem 0.875rem;
+    gap: 0.75rem;
+  }
+
+  .type-card-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    font-size: 1.2rem;
+  }
+
+  .type-card-label { font-size: 1rem; }
+  /* flecha: ocultarla en pantallas muy pequeñas para ganar espacio */
+  .type-card-arrow { display: none; }
+}
+
+/* Desktop amplio (≥ 900px): las cards se ven muy anchas — limitar con el contenedor global */

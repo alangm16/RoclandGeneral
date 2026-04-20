@@ -1,0 +1,7 @@
+/* app.scss */
+/* El componente raíz sólo renderiza el router-outlet.
+   El sticky footer y el flex layout se manejan en:
+     - body (styles.scss)
+     - app-root (styles.scss)
+     - :host del public-layout (public-layout.component.scss)
+   No se requieren estilos adicionales aquí. */

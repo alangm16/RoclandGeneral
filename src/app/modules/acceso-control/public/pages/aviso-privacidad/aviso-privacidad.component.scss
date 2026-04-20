@@ -1,0 +1,23 @@
+/* aviso-privacidad.component.scss */
+
+/* Hereda estilos de styles.scss (selector-page, form-section-card, etc.) */
+.selector-page { padding-top: 1rem; }
+
+/* Lista de puntos del aviso */
+.privacy-list {
+  padding-left: 1.25rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+
+  li {
+    font-size: 0.82rem;
+    color: var(--rocland-gray);
+    line-height: 1.5;
+    margin-bottom: 0.3rem;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .privacy-list { padding-left: 1rem; }
+}

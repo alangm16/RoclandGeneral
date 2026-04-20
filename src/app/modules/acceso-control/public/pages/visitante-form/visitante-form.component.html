@@ -1,123 +1,295 @@
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white text-center py-3">
-          <h4 class="mb-0">Registro de Visitantes</h4>
-          <p class="mb-0 small text-white-50">Completa tus datos para solicitar acceso</p>
-        </div>
+<!-- visitante-form.component.html -->
+<!-- Sprint 2: Agrega estados de carga para catálogos y manejo de error de catálogos -->
+<div class="fade-in">
 
-        <div class="card-body p-4">
-          
-          <div *ngIf="submitSuccess" class="alert alert-success text-center">
-            <h5>¡Registro Exitoso!</h5>
-            <p>Tu solicitud ha sido enviada. Por favor, acércate con el guardia.</p>
-            <button class="btn btn-outline-success mt-2" (click)="submitSuccess = false; visitanteForm.reset()">Registrar otra persona</button>
-          </div>
+  <!-- Volver -->
+  <a routerLink="/acceso" class="form-page-back">
+    <i class="bi bi-arrow-left"></i> Volver
+  </a>
 
-          <div *ngIf="submitError" class="alert alert-danger">
-            {{ submitError }}
-          </div>
-
-          <form *ngIf="!submitSuccess" [formGroup]="visitanteForm" (ngSubmit)="onSubmit()">
-            
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label fw-bold">Número de Identificación <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <input type="text" class="form-control" formControlName="numeroIdentificacion" 
-                         placeholder="Ej. CURP, Pasaporte o Matrícula"
-                         [ngClass]="{'is-invalid': visitanteForm.get('numeroIdentificacion')?.touched && visitanteForm.get('numeroIdentificacion')?.invalid,
-                                     'is-valid': personaEncontrada}">
-                  <span class="input-group-text bg-white" *ngIf="buscandoPersona">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                  </span>
-                </div>
-                <div class="form-text text-success" *ngIf="personaEncontrada && !buscandoPersona">
-                  <i class="bi bi-check-circle"></i> ¡Bienvenido de nuevo! Autocompletamos tus datos.
-                </div>
-                <div class="invalid-feedback d-block" *ngIf="visitanteForm.get('numeroIdentificacion')?.touched && visitanteForm.get('numeroIdentificacion')?.errors?.['required']">
-                  El número de identificación es obligatorio.
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <label class="form-label">Tipo de ID <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="tipoIdentificacionId" [ngClass]="{'is-invalid': visitanteForm.get('tipoIdentificacionId')?.touched && visitanteForm.get('tipoIdentificacionId')?.invalid}">
-                  <option value="" disabled selected>Seleccione...</option>
-                  <option *ngFor="let tipo of tiposIdentificacion" [value]="tipo.id">{{ tipo.nombre }}</option>
-                </select>
-              </div>
-
-              <div class="col-md-8">
-                <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo"
-                       [ngClass]="{'is-invalid': visitanteForm.get('nombre')?.touched && visitanteForm.get('nombre')?.invalid}">
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
-                <input type="tel" class="form-control" formControlName="telefono" placeholder="Opcional">
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" formControlName="email" placeholder="Opcional"
-                       [ngClass]="{'is-invalid': visitanteForm.get('email')?.touched && visitanteForm.get('email')?.invalid}">
-              </div>
-
-              <hr class="my-4">
-
-              <div class="col-md-6">
-                <label class="form-label fw-bold">Área a Visitar <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="areaId" [ngClass]="{'is-invalid': visitanteForm.get('areaId')?.touched && visitanteForm.get('areaId')?.invalid}">
-                  <option value="" disabled selected>Seleccione área...</option>
-                  <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
-                </select>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label fw-bold">Motivo de Visita <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="motivoId" [ngClass]="{'is-invalid': visitanteForm.get('motivoId')?.touched && visitanteForm.get('motivoId')?.invalid}">
-                  <option value="" disabled selected>Seleccione motivo...</option>
-                  <option *ngFor="let motivo of motivos" [value]="motivo.id">{{ motivo.nombre }}</option>
-                </select>
-              </div>
-
-              <div class="col-12">
-                <label class="form-label">Observaciones</label>
-                <textarea class="form-control" formControlName="observaciones" rows="2" placeholder="Detalles adicionales (opcional)"></textarea>
-              </div>
-
-              <div class="col-12 mt-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="consentimiento" formControlName="consentimientoFirmado"
-                         [ngClass]="{'is-invalid': visitanteForm.get('consentimientoFirmado')?.touched && visitanteForm.get('consentimientoFirmado')?.invalid}">
-                  <label class="form-check-label" for="consentimiento">
-                    He leído y acepto el <a href="#" target="_blank">Aviso de Privacidad</a> y las políticas de acceso a las instalaciones. <span class="text-danger">*</span>
-                  </label>
-                  <div class="invalid-feedback">
-                    Debes aceptar el aviso de privacidad para continuar.
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" [disabled]="isSubmitting">
-                  <span *ngIf="!isSubmitting">Solicitar Acceso</span>
-                  <span *ngIf="isSubmitting">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Procesando...
-                  </span>
-                </button>
-              </div>
-
-            </div>
-          </form>
-
-        </div>
-      </div>
-      </div>
+  <!-- Encabezado -->
+  <div class="form-page-header">
+    <div class="form-page-tag">
+      <i class="bi bi-person-badge-fill"></i> Visitante
+    </div>
+    <h1 class="form-page-title">Registro de Entrada</h1>
   </div>
+
+  <!-- ── Error cargando catálogos ───────────────────────────────── -->
+  <div class="alert-form-error show" *ngIf="errorCatalogos" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+    <span>
+      No se pudieron cargar los datos del formulario. 
+      <button class="btn-retry" (click)="cargarCatalogos()">Reintentar</button>
+    </span>
+  </div>
+
+  <!-- ── Skeleton de carga ──────────────────────────────────────── -->
+  <div *ngIf="cargandoCatalogos" class="skeleton-wrap" aria-busy="true" aria-label="Cargando formulario">
+    <div class="form-section-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-field"></div>
+      <div class="skeleton skeleton-field"></div>
+    </div>
+    <div class="form-section-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-field"></div>
+      <div class="skeleton skeleton-field-half"></div>
+      <div class="skeleton skeleton-field-half"></div>
+    </div>
+  </div>
+
+  <!-- ── Formulario real (visible cuando los catálogos cargaron) ── -->
+  <ng-container *ngIf="!cargandoCatalogos && !errorCatalogos">
+
+    <!-- Alert error global -->
+    <div id="alertError" class="alert-form-error" [class.show]="errorMsg" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      <span>{{ errorMsg }}</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" [class.show-errors]="submitted" novalidate autocomplete="off">
+
+      <!-- ── 1. Identificación ────────────────────────────────── -->
+      <div class="form-section-card">
+        <div class="form-section-title">
+          <i class="bi bi-fingerprint"></i> Identificación
+        </div>
+
+        <div class="row g-3">
+
+          <!-- Tipo de ID -->
+          <div class="col-12 col-sm-5">
+            <label class="form-label" for="tipoIdentificacionId">
+              Tipo de ID <span class="req">*</span>
+            </label>
+            <select
+              id="tipoIdentificacionId"
+              formControlName="tipoIdentificacionId"
+              class="form-select"
+              [class.is-invalid]="isInvalid('tipoIdentificacionId')"
+            >
+              <option value="">— Selecciona —</option>
+              <option *ngFor="let tipo of tiposIdentificacion" [value]="tipo.id">
+                {{ tipo.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Selecciona el tipo de identificación.</div>
+          </div>
+
+          <!-- Número de ID + autocompletado -->
+          <div class="col-12 col-sm-7">
+            <label class="form-label" for="numeroIdentificacion">
+              Número de ID <span class="req">*</span>
+            </label>
+            <div class="id-search-wrapper">
+              <input
+                type="text"
+                id="numeroIdentificacion"
+                formControlName="numeroIdentificacion"
+                class="form-control"
+                [class.is-invalid]="isInvalid('numeroIdentificacion')"
+                minlength="3"
+                maxlength="60"
+                placeholder="Ej. ABCD123456HDFXXX00"
+                inputmode="text"
+                autocomplete="off"
+              />
+              <div class="id-search-spinner" [class.active]="buscando">
+                <div class="spinner-icon"></div>
+              </div>
+            </div>
+            <div class="invalid-feedback">Ingresa al menos 3 caracteres.</div>
+
+            <!-- Badge visitante recurrente -->
+            <div class="returning-badge" [class.show]="personaRecurrente">
+              <i class="bi bi-star-fill"></i>
+              <span>
+                Visitante recurrente —
+                <strong>{{ totalVisitas }}</strong> visita(s) previas
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── 2. Datos Personales ──────────────────────────────── -->
+      <div class="form-section-card">
+        <div class="form-section-title">
+          <i class="bi bi-person-lines-fill"></i> Datos Personales
+        </div>
+
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label" for="nombre">
+              Nombre completo <span class="req">*</span>
+            </label>
+            <input
+              type="text"
+              id="nombre"
+              formControlName="nombre"
+              class="form-control prefilled-field"
+              [class.is-invalid]="isInvalid('nombre')"
+              [class.filled]="form.get('nombre')?.value && autofilled['nombre']"
+              minlength="2"
+              maxlength="150"
+              placeholder="Como aparece en tu identificación"
+            />
+            <div class="invalid-feedback">El nombre es obligatorio.</div>
+          </div>
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="telefono"
+              formControlName="telefono"
+              class="form-control prefilled-field"
+              [class.filled]="form.get('telefono')?.value && autofilled['telefono']"
+              maxlength="20"
+              placeholder="10 dígitos"
+              inputmode="tel"
+            />
+          </div>
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="email">Correo electrónico</label>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              class="form-control prefilled-field"
+              [class.filled]="form.get('email')?.value && autofilled['email']"
+              [class.is-invalid]="isInvalid('email')"
+              maxlength="100"
+              placeholder="correo@empresa.com"
+              inputmode="email"
+            />
+            <div class="invalid-feedback">Ingresa un correo válido.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="empresa">Empresa / Organización</label>
+            <input
+              type="text"
+              id="empresa"
+              formControlName="empresa"
+              class="form-control prefilled-field"
+              [class.filled]="form.get('empresa')?.value && autofilled['empresa']"
+              maxlength="150"
+              placeholder="Opcional"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── 3. Información de la Visita ──────────────────────── -->
+      <div class="form-section-card">
+        <div class="form-section-title">
+          <i class="bi bi-building"></i> Información de la Visita
+        </div>
+
+        <div class="row g-3">
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="areaId">
+              Área a visitar <span class="req">*</span>
+            </label>
+            <select
+              id="areaId"
+              formControlName="areaId"
+              class="form-select"
+              [class.is-invalid]="isInvalid('areaId')"
+            >
+              <option value="">— Selecciona —</option>
+              <option *ngFor="let area of areas" [value]="area.id">
+                {{ area.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Selecciona el área.</div>
+          </div>
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="motivoId">
+              Motivo <span class="req">*</span>
+            </label>
+            <select
+              id="motivoId"
+              formControlName="motivoId"
+              class="form-select"
+              [class.is-invalid]="isInvalid('motivoId')"
+            >
+              <option value="">— Selecciona —</option>
+              <option *ngFor="let motivo of motivos" [value]="motivo.id">
+                {{ motivo.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Selecciona el motivo.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="observaciones">Observaciones</label>
+            <textarea
+              id="observaciones"
+              formControlName="observaciones"
+              class="form-control"
+              rows="2"
+              maxlength="500"
+              placeholder="Información adicional (opcional)"
+            ></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── 4. Consentimiento ────────────────────────────────── -->
+      <div class="form-section-card">
+        <div class="form-section-title">
+          <i class="bi bi-file-earmark-check"></i> Consentimiento
+        </div>
+
+        <div class="consent-card">
+          <p class="consent-text">
+            Al ingresar a las instalaciones de <strong>Rocland</strong>, acepta que sus datos personales
+            (nombre, identificación, empresa, teléfono y correo electrónico) serán registrados
+            con la finalidad de controlar el acceso a las instalaciones. Esta información es
+            tratada conforme a nuestra
+            <a routerLink="/acceso/aviso-privacidad"><strong>Política de Privacidad</strong></a>
+            y no será compartida con terceros.
+          </p>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="consentimientoFirmado"
+              formControlName="consentimientoFirmado"
+              [class.is-invalid]="isInvalid('consentimientoFirmado')"
+            />
+            <label class="form-check-label" for="consentimientoFirmado">
+              Acepto el tratamiento de mis datos personales conforme al aviso de privacidad
+              <span class="req">*</span>
+            </label>
+          </div>
+          <div class="invalid-feedback"
+               *ngIf="isInvalid('consentimientoFirmado')"
+               style="display:block; margin-top:0.35rem;">
+            Debes aceptar el consentimiento para continuar.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Botón Enviar ─────────────────────────────────────── -->
+      <button type="submit" class="btn-rocland mt-1" [disabled]="loading">
+        <i class="bi bi-send-fill" [class.d-none]="loading"></i>
+        <div class="btn-spinner" [class.active]="loading"></div>
+        <span>{{ loading ? 'Enviando...' : 'Enviar Solicitud' }}</span>
+      </button>
+
+    </form>
+
+  </ng-container>
+
 </div>

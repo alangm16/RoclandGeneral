@@ -1,0 +1,30 @@
+<!-- public-layout.component.html -->
+<header class="acceso-header">
+  <div class="header-inner">
+    <div class="brand">
+      <!-- Logo: reemplaza el src por la ruta real en tu proyecto -->
+      <img
+        class="brand-logo"
+        src="assets/images/logo_rocland.png"
+        alt="Rocland"
+      />
+      <div class="brand-text">
+        <span class="brand-title">Rocland</span>
+        <span class="brand-sub">Control de Acceso</span>
+      </div>
+    </div>
+
+    <div class="header-badge">
+      <i class="bi bi-shield-fill-check"></i>
+      <span>Acceso Seguro</span>
+    </div>
+  </div>
+</header>
+
+<main class="acceso-main">
+  <router-outlet />
+</main>
+
+<footer class="acceso-footer">
+  <p>© {{ year }} Rocland — Sistema de Control de Acceso</p>
+</footer>
