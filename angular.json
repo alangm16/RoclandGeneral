@@ -37,7 +37,7 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": ["localhost", "0.0.0.0", "host.docker.internal"]
             },
             "ssr": {
               "entry": "src/server.ts"

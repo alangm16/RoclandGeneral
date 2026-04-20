@@ -9,11 +9,13 @@ const serverConfig: ApplicationConfig = {
     {
       provide: 'NG_ALLOWED_HOSTNAMES',
       useValue: [
-        'localhost', 
-        '127.0.0.1', 
-        '192.168.1.170', // <--- LA IP DE TU MV
-        'angular-app.local' // Opcional: si le pones un nombre en el hosts
-      ]
+      'localhost', 
+      '127.0.0.1', 
+      '0.0.0.0', // <-- ¡Faltaba este!
+      'host.docker.internal', // <-- Crucial para WSL2/Windows
+      '192.168.1.170', 
+      'angular-app.local' 
+    ]
     }
   ]
 };
