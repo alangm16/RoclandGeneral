@@ -1,11 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet],
+  templateUrl: './app.html'
+  // styleUrl: './app.scss' <-- Si tenías esta línea, déjala; si no, la puedes omitir
 })
-export class App {
-  protected readonly title = signal('rocland-general');
+export class App {  // <--- ¡Aquí está el cambio clave!
+  title = 'roclandgeneral';
 }

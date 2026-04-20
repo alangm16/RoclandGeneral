@@ -1,0 +1,123 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+          <h4 class="mb-0">Registro de Visitantes</h4>
+          <p class="mb-0 small text-white-50">Completa tus datos para solicitar acceso</p>
+        </div>
+
+        <div class="card-body p-4">
+          
+          <div *ngIf="submitSuccess" class="alert alert-success text-center">
+            <h5>¡Registro Exitoso!</h5>
+            <p>Tu solicitud ha sido enviada. Por favor, acércate con el guardia.</p>
+            <button class="btn btn-outline-success mt-2" (click)="submitSuccess = false; visitanteForm.reset()">Registrar otra persona</button>
+          </div>
+
+          <div *ngIf="submitError" class="alert alert-danger">
+            {{ submitError }}
+          </div>
+
+          <form *ngIf="!submitSuccess" [formGroup]="visitanteForm" (ngSubmit)="onSubmit()">
+            
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-bold">Número de Identificación <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="text" class="form-control" formControlName="numeroIdentificacion" 
+                         placeholder="Ej. CURP, Pasaporte o Matrícula"
+                         [ngClass]="{'is-invalid': visitanteForm.get('numeroIdentificacion')?.touched && visitanteForm.get('numeroIdentificacion')?.invalid,
+                                     'is-valid': personaEncontrada}">
+                  <span class="input-group-text bg-white" *ngIf="buscandoPersona">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </span>
+                </div>
+                <div class="form-text text-success" *ngIf="personaEncontrada && !buscandoPersona">
+                  <i class="bi bi-check-circle"></i> ¡Bienvenido de nuevo! Autocompletamos tus datos.
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="visitanteForm.get('numeroIdentificacion')?.touched && visitanteForm.get('numeroIdentificacion')?.errors?.['required']">
+                  El número de identificación es obligatorio.
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Tipo de ID <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="tipoIdentificacionId" [ngClass]="{'is-invalid': visitanteForm.get('tipoIdentificacionId')?.touched && visitanteForm.get('tipoIdentificacionId')?.invalid}">
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option *ngFor="let tipo of tiposIdentificacion" [value]="tipo.id">{{ tipo.nombre }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo"
+                       [ngClass]="{'is-invalid': visitanteForm.get('nombre')?.touched && visitanteForm.get('nombre')?.invalid}">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" formControlName="telefono" placeholder="Opcional">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" formControlName="email" placeholder="Opcional"
+                       [ngClass]="{'is-invalid': visitanteForm.get('email')?.touched && visitanteForm.get('email')?.invalid}">
+              </div>
+
+              <hr class="my-4">
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Área a Visitar <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="areaId" [ngClass]="{'is-invalid': visitanteForm.get('areaId')?.touched && visitanteForm.get('areaId')?.invalid}">
+                  <option value="" disabled selected>Seleccione área...</option>
+                  <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Motivo de Visita <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="motivoId" [ngClass]="{'is-invalid': visitanteForm.get('motivoId')?.touched && visitanteForm.get('motivoId')?.invalid}">
+                  <option value="" disabled selected>Seleccione motivo...</option>
+                  <option *ngFor="let motivo of motivos" [value]="motivo.id">{{ motivo.nombre }}</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Observaciones</label>
+                <textarea class="form-control" formControlName="observaciones" rows="2" placeholder="Detalles adicionales (opcional)"></textarea>
+              </div>
+
+              <div class="col-12 mt-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="consentimiento" formControlName="consentimientoFirmado"
+                         [ngClass]="{'is-invalid': visitanteForm.get('consentimientoFirmado')?.touched && visitanteForm.get('consentimientoFirmado')?.invalid}">
+                  <label class="form-check-label" for="consentimiento">
+                    He leído y acepto el <a href="#" target="_blank">Aviso de Privacidad</a> y las políticas de acceso a las instalaciones. <span class="text-danger">*</span>
+                  </label>
+                  <div class="invalid-feedback">
+                    Debes aceptar el aviso de privacidad para continuar.
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" [disabled]="isSubmitting">
+                  <span *ngIf="!isSubmitting">Solicitar Acceso</span>
+                  <span *ngIf="isSubmitting">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Procesando...
+                  </span>
+                </button>
+              </div>
+
+            </div>
+          </form>
+
+        </div>
+      </div>
+      </div>
+  </div>
+</div>
