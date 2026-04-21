@@ -1,0 +1,287 @@
+/* private-layout.component.scss
+   Migrado de admin.css — Sprint 4
+   Fuentes: IBM Plex Mono + IBM Plex Sans (ya cargadas en login)
+*/
+
+// ── Variables (mismas que admin.css) ─────────────────────────────
+:host {
+  --bg:           #F1F5F1;
+  --surface:      #FFFFFF;
+  --surface-2:    #F9FAFB;
+  --border:       #E5E7EB;
+  --accent:       #22C55E;
+  --accent-dim:   #16A34A;
+  --red:          #DC2626;
+  --text:         #111827;
+  --text-sec:     #374151;
+  --muted:        #6B7280;
+  --muted-light:  #9CA3AF;
+  --mono:         'IBM Plex Mono', monospace;
+  --sans:         'IBM Plex Sans', sans-serif;
+  --sidebar-w:    240px;
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.06);
+  --radius-card:  14px;
+  --transition:   0.2s ease;
+}
+
+// ── Shell ─────────────────────────────────────────────────────────
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), width var(--transition);
+  overflow: hidden;
+
+  &.collapsed {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+  }
+}
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.brand-tag {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.brand-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Nav links
+.nav-links {
+  flex: 1;
+  list-style: none;
+  padding: 16px 0;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  margin: 0 8px;
+  color: var(--text-sec);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  &.active {
+    background: #F0FDF4;
+    color: var(--accent);
+    font-weight: 600;
+  }
+}
+
+.nav-icon-bi {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+// Footer del sidebar
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-rol {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #FEF2F2;
+    color: var(--red);
+    border-color: #FECACA;
+  }
+}
+
+// ── Contenido principal ───────────────────────────────────────────
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  transition: margin-left var(--transition);
+}
+
+.admin-shell.sidebar-collapsed .main-content {
+  margin-left: 0;
+}
+
+// ── Topbar ────────────────────────────────────────────────────────
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #2D6A2D 0%, #4CAF50 100%);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-toggle {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+
+  &:hover { background: rgba(255,255,255,0.25); }
+}
+
+.page-title {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.topbar-time {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  white-space: nowrap;
+}
+
+// ── Cuerpo de la página ───────────────────────────────────────────
+.page-body {
+  padding: 24px 28px;
+  flex: 1;
+}
+
+// ── Responsive ───────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 200;
+    box-shadow: var(--shadow-md);
+
+    // En mobile el sidebar arranca cerrado y se abre sobre el contenido
+    &:not(.collapsed) {
+      box-shadow: 0 0 0 100vw rgba(0,0,0,0.3);
+    }
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .topbar { padding: 12px 16px; }
+  .page-body { padding: 16px; }
+  .topbar-time { display: none; }
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 15px; }
+}

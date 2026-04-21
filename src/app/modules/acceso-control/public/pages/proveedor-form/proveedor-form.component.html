@@ -1,5 +1,4 @@
-<!-- visitante-form.component.html -->
-<!-- Sprint 2: Agrega estados de carga para catálogos y manejo de error de catálogos -->
+<!-- proveedor-form.component.html -->
 <div class="fade-in">
 
   <!-- Volver -->
@@ -10,22 +9,22 @@
   <!-- Encabezado -->
   <div class="form-page-header">
     <div class="form-page-tag">
-      <i class="bi bi-person-badge-fill"></i> Visitante
+      <i class="bi bi-truck"></i> Proveedor / Cliente
     </div>
     <h1 class="form-page-title">Registro de Entrada</h1>
   </div>
 
-  <!-- ── Error cargando catálogos ───────────────────────────────── -->
+  <!-- ── Error cargando catálogos ──────────────────────────────── -->
   <div class="alert-form-error show" *ngIf="errorCatalogos" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-1"></i>
     <span>
-      No se pudieron cargar los datos del formulario. 
+      No se pudieron cargar los datos del formulario.
       <button class="btn-retry" (click)="cargarCatalogos()">Reintentar</button>
     </span>
   </div>
 
-  <!-- ── Skeleton de carga ──────────────────────────────────────── -->
-  <div *ngIf="cargandoCatalogos" class="skeleton-wrap" aria-busy="true" aria-label="Cargando formulario">
+  <!-- ── Skeleton de carga ─────────────────────────────────────── -->
+  <div *ngIf="cargandoCatalogos" class="skeleton-wrap" aria-busy="true">
     <div class="form-section-card">
       <div class="skeleton skeleton-title"></div>
       <div class="skeleton skeleton-field"></div>
@@ -33,13 +32,14 @@
     </div>
     <div class="form-section-card">
       <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-field"></div>
       <div class="skeleton skeleton-field"></div>
       <div class="skeleton skeleton-field-half"></div>
       <div class="skeleton skeleton-field-half"></div>
     </div>
   </div>
 
-  <!-- ── Formulario real (visible cuando los catálogos cargaron) ── -->
+  <!-- ── Formulario real ───────────────────────────────────────── -->
   <ng-container *ngIf="!cargandoCatalogos && !errorCatalogos">
 
     <!-- Alert error global -->
@@ -50,7 +50,7 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" [class.show-errors]="submitted" novalidate autocomplete="off">
 
-      <!-- ── 1. Identificación ────────────────────────────────── -->
+      <!-- ── 1. Identificación ──────────────────────────────── -->
       <div class="form-section-card">
         <div class="form-section-title">
           <i class="bi bi-fingerprint"></i> Identificación
@@ -101,7 +101,7 @@
             </div>
             <div class="invalid-feedback">Ingresa al menos 3 caracteres.</div>
 
-            <!-- Badge visitante recurrente -->
+            <!-- Badge recurrente -->
             <div class="returning-badge" [class.show]="personaRecurrente">
               <i class="bi bi-star-fill"></i>
               <span>
@@ -114,17 +114,18 @@
         </div>
       </div>
 
-      <!-- ── 2. Datos Personales ──────────────────────────────── -->
+      <!-- ── 2. Datos de la Empresa ─────────────────────────── -->
       <div class="form-section-card">
         <div class="form-section-title">
-          <i class="bi bi-person-lines-fill"></i> Datos Personales
+          <i class="bi bi-building-fill"></i> Datos de la Empresa
         </div>
 
         <div class="row g-3">
 
+          <!-- Nombre del contacto -->
           <div class="col-12">
             <label class="form-label" for="nombre">
-              Nombre completo <span class="req">*</span>
+              Nombre del contacto <span class="req">*</span>
             </label>
             <input
               type="text"
@@ -140,6 +141,25 @@
             <div class="invalid-feedback">El nombre es obligatorio.</div>
           </div>
 
+          <!-- Empresa (requerida en proveedor) -->
+          <div class="col-12">
+            <label class="form-label" for="empresa">
+              Empresa / Organización <span class="req">*</span>
+            </label>
+            <input
+              type="text"
+              id="empresa"
+              formControlName="empresa"
+              class="form-control prefilled-field"
+              [class.is-invalid]="isInvalid('empresa')"
+              [class.filled]="form.get('empresa')?.value && autofilled['empresa']"
+              maxlength="150"
+              placeholder="Nombre de tu empresa"
+            />
+            <div class="invalid-feedback">La empresa es obligatoria.</div>
+          </div>
+
+          <!-- Teléfono -->
           <div class="col-12 col-sm-6">
             <label class="form-label" for="telefono">Teléfono</label>
             <input
@@ -154,6 +174,7 @@
             />
           </div>
 
+          <!-- Email -->
           <div class="col-12 col-sm-6">
             <label class="form-label" for="email">Correo electrónico</label>
             <input
@@ -170,48 +191,18 @@
             <div class="invalid-feedback">Ingresa un correo válido.</div>
           </div>
 
-          <div class="col-12">
-            <label class="form-label" for="empresa">Empresa / Organización</label>
-            <input
-              type="text"
-              id="empresa"
-              formControlName="empresa"
-              class="form-control prefilled-field"
-              [class.filled]="form.get('empresa')?.value && autofilled['empresa']"
-              maxlength="150"
-              placeholder="Opcional"
-            />
-          </div>
-
         </div>
       </div>
 
-      <!-- ── 3. Información de la Visita ──────────────────────── -->
+      <!-- ── 3. Información de la Visita ────────────────────── -->
       <div class="form-section-card">
         <div class="form-section-title">
-          <i class="bi bi-building"></i> Información de la Visita
+          <i class="bi bi-box-seam"></i> Información de la Visita
         </div>
 
         <div class="row g-3">
 
-          <div class="col-12 col-sm-6">
-            <label class="form-label" for="areaId">
-              Área a visitar <span class="req">*</span>
-            </label>
-            <select
-              id="areaId"
-              formControlName="areaId"
-              class="form-select"
-              [class.is-invalid]="isInvalid('areaId')"
-            >
-              <option value="">— Selecciona —</option>
-              <option *ngFor="let area of areas" [value]="area.id">
-                {{ area.nombre }}
-              </option>
-            </select>
-            <div class="invalid-feedback">Selecciona el área.</div>
-          </div>
-
+          <!-- Motivo -->
           <div class="col-12 col-sm-6">
             <label class="form-label" for="motivoId">
               Motivo <span class="req">*</span>
@@ -230,6 +221,34 @@
             <div class="invalid-feedback">Selecciona el motivo.</div>
           </div>
 
+          <!-- Placas (uppercase automático vía evento) -->
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="unidadPlacas">Placas del vehículo</label>
+            <input
+              type="text"
+              id="unidadPlacas"
+              formControlName="unidadPlacas"
+              class="form-control placas-input"
+              maxlength="30"
+              placeholder="Ej. ABC-123-D"
+              (input)="onPlacasInput($event)"
+            />
+          </div>
+
+          <!-- Factura / Remisión -->
+          <div class="col-12">
+            <label class="form-label" for="facturaRemision">Factura / Remisión</label>
+            <input
+              type="text"
+              id="facturaRemision"
+              formControlName="facturaRemision"
+              class="form-control"
+              maxlength="100"
+              placeholder="Número de factura o remisión (opcional)"
+            />
+          </div>
+
+          <!-- Observaciones -->
           <div class="col-12">
             <label class="form-label" for="observaciones">Observaciones</label>
             <textarea
@@ -238,14 +257,14 @@
               class="form-control"
               rows="2"
               maxlength="500"
-              placeholder="Información adicional (opcional)"
+              placeholder="Descripción del servicio u observaciones adicionales"
             ></textarea>
           </div>
 
         </div>
       </div>
 
-      <!-- ── 4. Consentimiento ────────────────────────────────── -->
+      <!-- ── 4. Consentimiento ──────────────────────────────── -->
       <div class="form-section-card">
         <div class="form-section-title">
           <i class="bi bi-file-earmark-check"></i> Consentimiento
@@ -254,11 +273,10 @@
         <div class="consent-card">
           <p class="consent-text">
             Al ingresar a las instalaciones de <strong>Rocland</strong>, acepta que sus datos personales
-            (nombre, identificación, empresa, teléfono y correo electrónico) serán registrados
-            con la finalidad de controlar el acceso a las instalaciones. Esta información es
-            tratada conforme a nuestra
-            <a routerLink="/public/acceso-control-web/aviso-privacidad" target="_blank"><strong>Política de Privacidad</strong></a>
-            y no será compartida con terceros.
+            y los de su empresa (nombre, identificación, empresa, vehículo, factura, teléfono y correo)
+            serán registrados con la finalidad de controlar el acceso a las instalaciones. Esta información
+            es tratada conforme a nuestra
+            <a routerLink="/public/acceso-control-web/aviso-privacidad" target="_blank"><strong>Política de Privacidad</strong></a>.
           </p>
           <div class="form-check">
             <input
@@ -273,15 +291,17 @@
               <span class="req">*</span>
             </label>
           </div>
-          <div class="invalid-feedback"
-               *ngIf="isInvalid('consentimientoFirmado')"
-               style="display:block; margin-top:0.35rem;">
+          <div
+            class="invalid-feedback"
+            *ngIf="isInvalid('consentimientoFirmado')"
+            style="display:block; margin-top:0.35rem;"
+          >
             Debes aceptar el consentimiento para continuar.
           </div>
         </div>
       </div>
 
-      <!-- ── Botón Enviar ─────────────────────────────────────── -->
+      <!-- ── Botón Enviar ───────────────────────────────────── -->
       <button type="submit" class="btn-rocland mt-1" [disabled]="loading">
         <i class="bi bi-send-fill" [class.d-none]="loading"></i>
         <div class="btn-spinner" [class.active]="loading"></div>

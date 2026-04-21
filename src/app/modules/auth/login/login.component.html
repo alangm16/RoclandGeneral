@@ -1,0 +1,236 @@
+<!-- login.component.html -->
+<div class="login-shell">
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL IZQUIERDO — Marca / Animado
+  ══════════════════════════════════════════════════════ -->
+  <div class="login-brand-panel" aria-hidden="true">
+
+    <!-- Capas de fondo -->
+    <div class="brand-orb brand-orb--1"></div>
+    <div class="brand-orb brand-orb--2"></div>
+    <div class="brand-orb brand-orb--3"></div>
+    <div class="brand-ring"></div>
+    <div class="brand-dots"></div>
+
+    <!-- Burbujas flotantes -->
+    <div class="brand-bubbles">
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+    </div>
+
+    <!-- Chispas / partículas -->
+    <div class="brand-sparks">
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+      <div class="spark"></div>
+    </div>
+
+    <!-- Contenido centrado -->
+    <div class="brand-panel-inner">
+
+      <!-- Logo + nombre -->
+      <div class="brand-logo-wrap">
+        <img
+          class="brand-logo-img"
+          src="assets/images/logo_rocland.png"
+          alt="Rocland"
+        />
+        <div class="brand-logo-text">
+          <span class="brand-logo-name">Rocland</span>
+          <span class="brand-logo-tagline">Sistema Empresarial</span>
+        </div>
+      </div>
+
+      <!-- Titular principal -->
+      <h2 class="brand-panel-headline">
+        Gestión integral<br>
+        para equipos que<br>
+        <em>trabajan en serio.</em>
+      </h2>
+
+      <p class="brand-panel-sub">
+        Accede a tus módulos de trabajo, monitorea accesos
+        y administra operaciones desde un solo lugar.
+      </p>
+
+      <!-- Divisor -->
+      <div class="brand-divider"></div>
+
+      <!-- Chips de módulos disponibles -->
+      <div class="brand-modules">
+        <div class="module-chip" *ngFor="let p of proyectos">
+          <i class="bi {{ p.icono }}"></i>
+          <span>{{ p.nombre }}</span>
+        </div>
+        <div class="module-chip module-chip--dim">
+          <i class="bi bi-plus-circle"></i>
+          <span>Más módulos próximamente</span>
+        </div>
+      </div>
+
+      <!-- Barra de estado -->
+      <div class="brand-status-bar">
+        <div class="brand-status-dot"></div>
+        Sistemas operativos
+      </div>
+
+    </div>
+
+    <p class="brand-panel-footer">© {{ year }} Rocland — Todos los derechos reservados</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL DERECHO — Formulario
+  ══════════════════════════════════════════════════════ -->
+  <div class="login-form-panel">
+    <div class="login-form-inner">
+
+      <div class="login-header">
+        <div class="login-tag">
+          <i class="bi bi-lock-fill"></i> Acceso Privado
+        </div>
+        <h1 class="login-title">Iniciar Sesión</h1>
+        <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <div class="login-error" [class.show]="errorMsg" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>{{ errorMsg }}</span>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        [class.show-errors]="submitted"
+        novalidate
+        autocomplete="off"
+      >
+
+        <!-- ── Usuario ──────────────────────────────────── -->
+        <div class="field-group">
+          <label class="field-label" for="usuario">Usuario</label>
+          <div class="field-wrap">
+            <i class="bi bi-person field-icon"></i>
+            <input
+              type="text"
+              id="usuario"
+              formControlName="usuario"
+              class="field-input"
+              [class.is-invalid]="isInvalid('usuario')"
+              placeholder="Tu nombre de usuario"
+              autocomplete="username"
+              inputmode="text"
+            />
+          </div>
+          <span class="field-error" *ngIf="isInvalid('usuario')">
+            Ingresa tu usuario.
+          </span>
+        </div>
+
+        <!-- ── Contraseña ───────────────────────────────── -->
+        <div class="field-group">
+          <label class="field-label" for="password">Contraseña</label>
+          <div class="field-wrap">
+            <i class="bi bi-key field-icon"></i>
+            <input
+              [type]="mostrarPass ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="field-input field-input--pass"
+              [class.is-invalid]="isInvalid('password')"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="pass-toggle"
+              (click)="togglePass()"
+              [attr.aria-label]="mostrarPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="bi"
+                [class.bi-eye]="!mostrarPass"
+                [class.bi-eye-slash]="mostrarPass"
+              ></i>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="isInvalid('password')">
+            Ingresa tu contraseña.
+          </span>
+        </div>
+
+        <!-- ── Módulo / Proyecto ────────────────────────── -->
+        <div class="field-group">
+          <label class="field-label">Módulo / Proyecto</label>
+
+          <div class="no-proyectos" *ngIf="proyectos.length === 0">
+            <i class="bi bi-exclamation-circle"></i>
+            No tienes módulos asignados. Contacta al administrador.
+          </div>
+
+          <div class="proyecto-list" *ngIf="proyectos.length > 0">
+            <button
+              type="button"
+              class="proyecto-option"
+              *ngFor="let p of proyectos"
+              [class.selected]="proyectoSeleccionado?.id === p.id"
+              (click)="seleccionarProyecto(p.id)"
+            >
+              <div class="proyecto-option-icon">
+                <i class="bi {{ p.icono }}"></i>
+              </div>
+              <div class="proyecto-option-body">
+                <span class="proyecto-option-nombre">{{ p.nombre }}</span>
+                <span class="proyecto-option-desc">{{ p.descripcion }}</span>
+              </div>
+              <i
+                class="bi bi-check-circle-fill proyecto-option-check"
+                [class.visible]="proyectoSeleccionado?.id === p.id"
+              ></i>
+            </button>
+          </div>
+
+          <span class="field-error" *ngIf="submitted && !proyectoSeleccionado">
+            Selecciona un módulo para continuar.
+          </span>
+        </div>
+
+        <!-- ── Submit ───────────────────────────────────── -->
+        <button
+          type="submit"
+          class="btn-login"
+          [disabled]="loading || proyectos.length === 0"
+        >
+          <div class="btn-login-spinner" [class.active]="loading"></div>
+          <i class="bi bi-box-arrow-in-right" [class.d-none]="loading"></i>
+          <span>{{ loading ? 'Verificando...' : 'Iniciar Sesión' }}</span>
+        </button>
+
+      </form>
+
+      <p class="login-form-footer">
+        <i class="bi bi-shield-check"></i>
+        Conexión segura — Solo personal autorizado
+      </p>
+
+    </div>
+  </div>
+
+</div>

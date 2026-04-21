@@ -1,43 +1,20 @@
-// import { Routes } from '@angular/router';
-// import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
+// src/app/app.routes.ts — Sprint 4
+// Se agregan las rutas privadas con AuthGuard y PrivateLayout.
 
-// export const routes: Routes = [
-//   {
-//     path: 'public', // 1er nivel: Todo lo que sea público
-//     component: PublicLayoutComponent,
-//     children: [
-//       {
-//         path: 'acceso-control-web', // 2do nivel: El módulo al que pertenece
-//         loadChildren: () => import('./modules/acceso-control/public/acceso-public.routes').then(m => m.ACCESO_PUBLIC_ROUTES)
-//       }
-//       // En el futuro aquí podrías agregar:
-//       // { path: 'otro-modulo', loadChildren: ... }
-//     ]
-//   },
-//   {
-//     path: 'admin', // Panel de administración privado
-//     // component: PrivateLayoutComponent,
-//     children: [] 
-//   },
-//   // Redirección por defecto si el usuario entra a localhost:4200 sin ruta
-//   { path: '', redirectTo: 'public/acceso-control-web/formularios/visitante', pathMatch: 'full' },
-//   // Fallback si la ruta no existe (404)
-//   { path: '**', redirectTo: 'public/acceso-control-web/formularios/visitante' }
-// ];
-
-// app.routes.ts
 import { Routes } from '@angular/router';
-import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
+import { PublicLayoutComponent }  from './layouts/public-layout/public-layout.component';
+import { PrivateLayoutComponent } from './layouts/private-layout/private-layout.component';
+import { authGuard }              from './core/auth/auth.guard';
 
 export const routes: Routes = [
+
+  // ── ZONA PÚBLICA ─────────────────────────────────────────────
   {
-    // Todas las rutas del módulo de acceso usan el PublicLayout
-    path: 'acceso',
+    path: 'public',
     component: PublicLayoutComponent,
     children: [
       {
-        path: '',
-        // Lazy loading del módulo de acceso-control público
+        path: 'acceso-control-web',
         loadChildren: () =>
           import('./modules/acceso-control/public/acceso-public.routes').then(
             (m) => m.ACCESO_PUBLIC_ROUTES
@@ -45,19 +22,88 @@ export const routes: Routes = [
       },
     ],
   },
+
+  // ── LOGIN (sin layout privado — tiene su propio shell) ────────
   {
-    // Redirección raíz al selector de acceso
+    path: 'private/login',
+    loadComponent: () =>
+      import('./modules/auth/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+    title: 'Iniciar Sesión — Rocland',
+  },
+
+  // ── ZONA PRIVADA — AccesoControl Web ─────────────────────────
+  {
+    path: 'private/acceso-control-web',
+    component: PrivateLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        // Sprint 5: se crea el componente real del dashboard
+        loadComponent: () =>
+          import('./modules/acceso-control/private/pages/dashboard/dashboard.component').then(
+            (m) => m.DashboardComponent
+          ),
+        title: 'Dashboard — AccesoControl',
+      },
+      {
+        path: 'historial',
+        loadComponent: () =>
+          import('./modules/acceso-control/private/pages/historial/historial.component').then(
+            (m) => m.HistorialComponent
+          ),
+        title: 'Historial — AccesoControl',
+      },
+      {
+        path: 'personas',
+        loadComponent: () =>
+          import('./modules/acceso-control/private/pages/personas/personas.component').then(
+            (m) => m.PersonasComponent
+          ),
+        title: 'Personas — AccesoControl',
+      },
+      {
+        path: 'catalogos',
+        loadComponent: () =>
+          import('./modules/acceso-control/private/pages/catalogos/catalogos.component').then(
+            (m) => m.CatalogosComponent
+          ),
+        title: 'Catálogos — AccesoControl',
+      },
+      {
+        path: 'guardias',
+        loadComponent: () =>
+          import('./modules/acceso-control/private/pages/guardias/guardias.component').then(
+            (m) => m.GuardiasComponent
+          ),
+        title: 'Guardias — AccesoControl',
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ── ZONA PRIVADA — Super Admin (Sprint futuro) ────────────────
+  // {
+  //   path: 'private/super-admin',
+  //   component: PrivateLayoutComponent,
+  //   canActivate: [authGuard, rolGuard('Admin')],
+  //   children: [...]
+  // },
+
+  // ── Redirecciones ─────────────────────────────────────────────
+  {
     path: '',
-    redirectTo: 'acceso',
+    redirectTo: 'public/acceso-control-web',
     pathMatch: 'full',
   },
   {
-    // Sprint 5: Layout privado para admin (comentado por ahora)
-    // path: 'admin',
-    // component: PrivateLayoutComponent,
-    // canActivate: [AuthGuard],
-    // children: [...]
     path: '**',
-    redirectTo: 'acceso',
+    redirectTo: 'public/acceso-control-web',
   },
 ];

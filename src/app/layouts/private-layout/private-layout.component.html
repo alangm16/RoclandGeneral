@@ -1,0 +1,70 @@
+<!-- private-layout.component.html -->
+<!-- Migrado de _AdminLayout.cshtml — Sprint 4 -->
+
+<div class="admin-shell" [class.sidebar-collapsed]="sidebarColapsado()">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <nav class="sidebar" [class.collapsed]="sidebarColapsado()" id="sidebar">
+
+    <div class="sidebar-brand">
+      <span class="brand-tag">ROCLAND</span>
+      <span class="brand-sub">{{ proyectoNombre() }}</span>
+    </div>
+
+    <ul class="nav-links">
+      <li *ngFor="let item of navItems()">
+        <a
+          [routerLink]="item.ruta"
+          routerLinkActive="active"
+          class="nav-link"
+          (click)="cerrarSidebarEnMovil()"
+        >
+          <i class="bi {{ item.icono }} nav-icon-bi"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user-info">
+        <span class="sidebar-user">{{ nombreUsuario() }}</span>
+        <span class="sidebar-rol">{{ rolActual() }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+
+  </nav>
+
+  <!-- ── Contenido principal ──────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <button
+        class="sidebar-toggle"
+        (click)="toggleSidebar()"
+        aria-label="Toggle menú"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+
+      <h1 class="page-title">
+        <!-- El título lo define cada página hija via un servicio o input — Sprint 5 -->
+        {{ proyectoNombre() }}
+      </h1>
+
+      <div class="topbar-actions">
+        <span class="topbar-time">{{ horaActual() }}</span>
+      </div>
+    </div>
+
+    <!-- Área de contenido -->
+    <div class="page-body">
+      <router-outlet />
+    </div>
+
+  </main>
+
+</div>

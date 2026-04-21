@@ -1,0 +1,60 @@
+/* proveedor-form.component.scss */
+
+/*
+  NOTA: Los estilos globales compartidos (skeleton, shimmer, spin,
+  btn-retry, form-section-card, alert-form-error, btn-rocland, etc.)
+  están definidos en styles.scss y no se duplican aquí.
+*/
+
+/* ── Spinner del campo de búsqueda de ID ────────────────────────── */
+.spinner-icon {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--rocland-border);
+  border-top-color: var(--rocland-green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* ── Campo de placas (mayúsculas + estilo diferenciado) ─────────── */
+.placas-input {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-display);
+
+  &::placeholder {
+    text-transform: none;
+    font-weight: 400;
+    letter-spacing: normal;
+    font-family: var(--font-body);
+  }
+}
+
+/* ── Link del consentimiento ────────────────────────────────────── */
+.consent-text a {
+  color: var(--rocland-green-dark);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Móvil estándar (≤ 575px): columnas col-sm-* pasan a 100% */
+@media (max-width: 575.98px) {
+  .row > .col-sm-5,
+  .row > .col-sm-7,
+  .row > .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Los skeleton-field-half se apilan en móvil también */
+  .skeleton-field-half {
+    width: 100%;
+    display: block;
+
+    &:first-of-type { margin-right: 0; }
+  }
+}
