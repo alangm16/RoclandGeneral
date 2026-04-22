@@ -65,7 +65,7 @@ export const routes: Routes = [
             (m) => m.PersonasComponent
           ),
         title: 'Personas — AccesoControl',
-        data: { subheader: { title: 'Personas', showSearch: true, showAddButton: true, addButtonLabel: 'Nueva Persona' } }
+        data: { subheader: { title: 'Personas', showSearch: true} }
       },
       {
         path: 'catalogos',

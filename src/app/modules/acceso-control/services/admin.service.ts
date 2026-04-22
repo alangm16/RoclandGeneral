@@ -4,7 +4,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environmets/Environment';
-import { DashboardKpis, ActivoZona, FlujoHora, AreaRanking, FlujoDiario } from '../models/admin.models';
+import { 
+  DashboardKpis, ActivoZona, FlujoHora, AreaRanking, FlujoDiario,
+  PersonasPaginadas, PersonaPerfil, HistorialPersonaItem 
+} from '../models/admin.models';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +40,25 @@ export class AdminService {
       .set('mes', mes.toString());
       
     return this.http.get<FlujoDiario[]>(`${this.adminUrl}/flujo/diario`, { params });
+  }
+
+  getPersonas(page: number, pageSize: number, busqueda?: string): Observable<PersonasPaginadas> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (busqueda) {
+      params = params.set('busqueda', busqueda);
+    }
+
+    return this.http.get<PersonasPaginadas>(`${this.adminUrl}/personas`, { params });
+  }
+
+  getPerfilPersona(id: number): Observable<PersonaPerfil> {
+    return this.http.get<PersonaPerfil>(`${this.adminUrl}/personas/${id}`);
+  }
+
+  getHistorialPersona(id: number): Observable<HistorialPersonaItem[]> {
+    return this.http.get<HistorialPersonaItem[]>(`${this.adminUrl}/personas/${id}/historial`);
   }
 }

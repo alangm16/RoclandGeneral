@@ -33,3 +33,34 @@ export interface FlujoDiario {
   visitantes: number;
   proveedores: number;
 }
+
+export interface PersonaResumen {
+  id: number;
+  nombre: string;
+  numeroIdentificacion: string;
+  tipoID: string;
+  empresa?: string;
+  totalVisitas: number;
+  fechaUltimaVisita?: string;
+}
+
+export interface PersonaPerfil extends PersonaResumen {
+  telefono?: string;
+  fechaRegistro: string;
+}
+
+export interface HistorialPersonaItem {
+  tipo: string;
+  area?: string;
+  empresa?: string;
+  motivo: string;
+  fechaEntrada: string;
+  fechaSalida?: string;
+  minutosEstancia?: number;
+  estadoAcceso: string;
+}
+
+export interface PersonasPaginadas {
+  items: PersonaResumen[];
+  total: number;
+}

@@ -1,0 +1,37 @@
+.page-content {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.text-center { text-align: center; }
+.p-4 { padding: 1.5rem; }
+.p-3 { padding: 1rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-2 { margin-top: 0.5rem; }
+.border-0 { border: none !important; }
+
+/* Ajuste específico para que el modal de detalle se vea como un cajón lateral o modal amplio */
+.detalle-modal {
+  width: min(800px, 95vw); /* Más ancho para que quepa bien la tabla de historial */
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 32px;
+}
+
+/* Reducción de la escala de KPI cards dentro del modal */
+.detalle-modal .kpi-card {
+  padding: 16px;
+  margin-bottom: 0;
+  box-shadow: none;
+  background: var(--surface-2);
+}
+
+.detalle-modal .kpi-label { margin-bottom: 4px; }
