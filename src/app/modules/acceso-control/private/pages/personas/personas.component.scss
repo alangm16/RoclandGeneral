@@ -1,37 +1,257 @@
+/* ── 1. ANIMACIONES Y LAYOUT BÁSICO ── */
 .page-content {
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
+  padding: 24px;
+  background-color: #f4f7f6; /* Fondo suave inspirado en tu diseño */
+  min-height: calc(100vh - 64px);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.text-center { text-align: center; }
-.p-4 { padding: 1.5rem; }
-.p-3 { padding: 1rem; }
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-2 { margin-top: 0.5rem; }
-.border-0 { border: none !important; }
+/* ── 2. ESTILOS DE LA TABLA PRINCIPAL ── */
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
 
-/* Ajuste específico para que el modal de detalle se vea como un cajón lateral o modal amplio */
+.table-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead th {
+  background-color: #f9fafb;
+  padding: 12px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+tbody td {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* ── 3. BADGES Y TEXTOS ── */
+.text-muted { color: #6b7280; }
+.text-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.text-center { text-align: center; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge-blue { background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-green { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.badge-red { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.badge-amber { background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.badge-purple { background-color: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.badge-gray { background-color: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
+
+/* ── 4. BOTONES DE PAGINACIÓN ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  gap: 16px;
+  background-color: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.page-btn {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ── 5. EL MODAL (AQUÍ ESTÁ LA MAGIA) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* CRÍTICO: Oculta el modal y evita que atrape clics cuando está cerrado */
+  opacity: 0;
+  visibility: hidden; 
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
 .detalle-modal {
-  width: min(800px, 95vw); /* Más ancho para que quepa bien la tabla de historial */
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px; /* Ancho para acomodar el historial */
   max-height: 90vh;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  position: relative;
   padding: 32px;
+  overflow: hidden;
+  
+  /* Animación de entrada estilo zoom */
+  transform: scale(0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reducción de la escala de KPI cards dentro del modal */
-.detalle-modal .kpi-card {
-  padding: 16px;
-  margin-bottom: 0;
-  box-shadow: none;
-  background: var(--surface-2);
+.modal-overlay.open .detalle-modal {
+  transform: scale(1);
 }
 
-.detalle-modal .kpi-label { margin-bottom: 4px; }
+/* Botón flotante para cerrar ('La X gigante') */
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+/* ── 6. TARJETAS KPI (DENTRO DEL MODAL) ── */
+.kpi-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.kpi-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.kpi-card.blue {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.kpi-card.blue .kpi-label, .kpi-card.blue .kpi-value {
+  color: #1e3a8a;
+}
+
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* ── 7. UTILIDADES DE ESPACIADO Y BOTONES MAT-MENU ── */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  border-radius: 50%;
+}
+
+.me-2 { margin-right: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mt-4 { margin-top: 24px; }
+.mt-2 { margin-top: 8px; }
+.p-0 { padding: 0 !important; }
+.p-3 { padding: 16px; }
+.p-4 { padding: 24px; }
+.border-0 { border: none !important; }

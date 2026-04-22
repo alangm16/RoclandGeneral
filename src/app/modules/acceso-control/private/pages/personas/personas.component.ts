@@ -1,8 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+// 1. Agrega Injector de @angular/core
+import { Component, OnInit, OnDestroy, inject, signal, computed, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+// 2. Agrega 'skip' a los imports de rxjs
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, skip } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 import { LayoutService } from '../../../../../core/services/layout.service';
@@ -12,7 +14,6 @@ import { PersonaResumen, PersonaPerfil, HistorialPersonaItem } from '../../../mo
 @Component({
   selector: 'app-personas',
   standalone: true,
-  // IMPORTANTE: Asegúrate de importar MatMenuModule aquí
   imports: [CommonModule, MatButtonModule, MatMenuModule],
   templateUrl: './personas.component.html',
   styleUrls: ['./personas.component.scss'],
@@ -20,6 +21,8 @@ import { PersonaResumen, PersonaPerfil, HistorialPersonaItem } from '../../../mo
 export class PersonasComponent implements OnInit, OnDestroy {
   public readonly layoutSvc = inject(LayoutService);
   private readonly adminSvc = inject(AdminService);
+  // 3. INYECTA EL INJECTOR AQUÍ
+  private readonly injector = inject(Injector); 
   private readonly destroy$ = new Subject<void>();
 
   // ── Estado de la Tabla ──
@@ -32,37 +35,57 @@ export class PersonasComponent implements OnInit, OnDestroy {
   readonly porPagina = 10;
   totalPaginas = computed(() => Math.max(1, Math.ceil(this.totalPersonas() / this.porPagina)));
 
-  // ── Estado del Modal de Detalles ──
+  // ── Estado del Modal ──
   perfilSeleccionado = signal<PersonaPerfil | null>(null);
   historialPersona = signal<HistorialPersonaItem[]>([]);
   cargandoDetalle = signal(false);
   mostrarModal = signal(false);
 
   ngOnInit(): void {
-    // Configuración del buscador en el topbar/subheader
     this.layoutSvc.setSubheader({
       title: 'Personas',
       showSearch: true,
       searchPlaceholder: 'Buscar por nombre o número de ID...',
       actions: [
         {
-          label: 'Refrescar',
-          icon: 'bi-arrow-clockwise',
-          variant: 'stroked' as const, // Ayuda al tipado de TypeScript
-          handler: () => this.cargarPersonas(),
+          label: 'Buscar',
+          icon: 'bi-search',
+          variant: 'flat' as const, 
+          color: 'primary',
+          handler: () => {
+            this.paginaActual.set(1);
+            this.cargarPersonas();
+          },
+        },
+        {
+          label: 'Limpiar',
+          icon: 'bi-arrow-counterclockwise',
+          variant: 'stroked' as const,
+          handler: () => this.limpiarBusqueda(),
         }
       ],
     });
 
-    // Escuchar cambios en la búsqueda
-    toObservable(this.layoutSvc.searchValue)
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+    // 4. PASA EL INJECTOR A toObservable y USA skip(1)
+    toObservable(this.layoutSvc.searchValue, { injector: this.injector })
+      .pipe(
+        // Quitamos el skip(1). Ahora este observable se dispara 
+        // inmediatamente al abrir la página y cada vez que escribes.
+        debounceTime(400), 
+        distinctUntilChanged(), 
+        takeUntil(this.destroy$)
+      )
       .subscribe(() => {
         this.paginaActual.set(1);
         this.cargarPersonas();
       });
 
+    // Esta llamada ahora sí se ejecutará correctamente
     this.cargarPersonas();
+  }
+
+  limpiarBusqueda(): void {
+    this.layoutSvc.onSearchInput('');
   }
 
   ngOnDestroy(): void {
@@ -71,7 +94,8 @@ export class PersonasComponent implements OnInit, OnDestroy {
     this.layoutSvc.resetSubheader();
   }
 
-  // ── Carga de datos ──
+  // ... (El resto de tus métodos: cargarPersonas, abrirDetalles, cerrarModal, etc. se quedan exactamente igual) ...
+
   cargarPersonas(): void {
     this.cargando.set(true);
     const busqueda = this.layoutSvc.searchValue().trim();
@@ -88,7 +112,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ── Apertura del modal con los 2 endpoints ──
   async abrirDetalles(persona: PersonaResumen): Promise<void> {
     this.mostrarModal.set(true);
     this.cargandoDetalle.set(true);
@@ -122,7 +145,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Formateadores visuales para el HTML ──
   fmtFecha(iso?: string): string {
     return iso ? new Date(iso).toLocaleString('es-MX', { 
       day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' 
@@ -137,7 +159,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
       Pendiente: 'badge-amber' 
     };
     const clase = m[estado] || 'badge-gray';
-    // Retorna el HTML literal porque usaste [innerHTML] en la vista
     return `<span class="badge ${clase}">${estado}</span>`;
   }
 }
