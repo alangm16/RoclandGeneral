@@ -1,18 +1,51 @@
+/* Mantiene el fondo y el borde a lo largo de toda la pantalla */
 .subheader {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+}
+
+/* Alinea el contenido exactamente igual que el .page-body */
+.subheader-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 28px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
   gap: 16px;
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .subheader-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px; /* Espacio entre Título, Buscador y Filtros */
+  flex: 1;   /* Permite que crezca para empujar los botones a la derecha */
+}
+
+/* Estilos para el divisor vertical (|) */
+.subheader-left {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Espacio entre Título, Buscador y Filtros */
+  flex: 1;   /* Permite que crezca para empujar los botones a la derecha */
+}
+
+.divider {
+  width: 1px;          
+  height: 20px;        
+  background-color: var(--border); 
+  border-radius: 1px;
+  margin: 0 4px;       
+}
+
+.filters-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .page-title {
@@ -28,7 +61,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .search-wrapper {
@@ -38,7 +71,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 12px;
-  min-width: 240px;
+  min-width: 280px;
   
   i {
     color: var(--muted);
@@ -68,8 +101,15 @@
   }
 }
 
+/* ── Media Queries (sincronizados con private-layout.component.scss) ── */
+@media (max-width: 1024px) {
+  .subheader-inner {
+    padding: 16px 20px;
+  }
+}
+
 @media (max-width: 768px) {
-  .subheader {
+  .subheader-inner {
     padding: 12px 16px;
     flex-direction: column;
     align-items: stretch;
@@ -79,6 +119,50 @@
     justify-content: flex-start;
   }
   
+  .search-wrapper {
+    min-width: 100%;
+  }
+
+  /* Ocultamos el divisor en tablet/móvil si los componentes bajan de renglón */
+  .divider {
+    display: none; 
+  }
+}
+
+@media (max-width: 599px) {
+  .subheader-inner {
+    padding: 12px 14px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .subheader-inner {
+    padding: 16px 48px;
+  }
+}
+
+@media (max-width: 992px) {
+  .subheader-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .search-wrapper {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .subheader-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .divider {
+    display: none;
+  }
+
   .search-wrapper {
     min-width: 100%;
   }

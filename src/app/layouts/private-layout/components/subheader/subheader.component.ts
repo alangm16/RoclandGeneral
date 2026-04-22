@@ -14,6 +14,7 @@ import { LayoutService } from '../../../../core/services/layout.service';
   templateUrl: './subheader.component.html',
   styleUrls: ['./subheader.component.scss']
 })
+
 export class SubheaderComponent implements OnInit {
   readonly layoutService = inject(LayoutService);
   private readonly router = inject(Router);
@@ -23,12 +24,18 @@ export class SubheaderComponent implements OnInit {
   ngOnInit(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      startWith(null),   // ← esta línea
+      startWith(null),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       let route = this.activatedRoute;
       while (route.firstChild) route = route.firstChild;
+      
       const data = route.snapshot.data;
+      
+      // 1. Limpiamos cualquier configuración previa (ej. botones huérfanos)
+      this.layoutService.resetSubheader(); 
+
+      // 2. Aplicamos la nueva si existe
       if (data['subheader']) {
         this.layoutService.setSubheader(data['subheader']);
       }

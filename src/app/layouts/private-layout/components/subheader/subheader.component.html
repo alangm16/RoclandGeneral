@@ -1,29 +1,40 @@
 @if (config.title) {
   <div class="subheader">
-  <div class="subheader-left">
-    <h2 class="page-title">{{ config.title || 'Rocland' }}</h2>
-  </div>
+    <div class="subheader-inner">
+      
+      <div class="subheader-left">
+        <h2 class="page-title">{{ config.title || 'Rocland' }}</h2>
 
-  <div class="subheader-right">
-    @if (config.showSearch) {
-      <div class="search-wrapper">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Buscar..." class="search-input">
+        @if (config.showSearch) {
+          <div class="divider"></div>
+          
+          <div class="search-wrapper">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar..." class="search-input">
+          </div>
+        }
+
+        <div class="filters-area">
+          <ng-content select="[subheader-filters]"></ng-content>
+        </div>
       </div>
-    }
-    @if (config.showAddButton) {
-      <button mat-flat-button color="primary" class="add-button">
-        <i class="bi bi-plus-lg"></i>
-        {{ config.addButtonLabel || 'Agregar' }}
-      </button>
-    }
-    @if (config.showExport) {
-      <button mat-stroked-button>
-        <i class="bi bi-download"></i>
-        Exportar
-      </button>
-    }
-    <ng-content select="[subheader-actions]"></ng-content>
+
+      <div class="subheader-right">
+        @if (config.showExport) {
+          <button mat-stroked-button (click)="config.showExport">
+            <i class="bi bi-download"></i>
+            Exportar
+          </button>
+        }
+        @if (config.showAddButton) {
+          <button mat-flat-button color="primary" class="add-button">
+            <i class="bi bi-plus-lg"></i>
+            {{ config.addButtonLabel || 'Agregar' }}
+          </button>
+        }
+        <ng-content select="[subheader-actions]"></ng-content>
+      </div>
+
+    </div>
   </div>
-</div>
 }

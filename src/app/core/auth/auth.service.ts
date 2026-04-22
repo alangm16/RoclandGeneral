@@ -41,6 +41,7 @@ export class AuthService {
   readonly rolActual    = computed(() => this._sesion()?.rol ?? null);
   readonly nombreUsuario = computed(() => this._sesion()?.nombre ?? '');
   readonly proyectoActual = computed(() => this._sesion()?.proyectoId ?? '');
+  readonly proyectoNombre = computed(() => this._sesion()?.proyectoNombre ?? '');
 
   // ── Catálogo de proyectos ─────────────────────────────────────
   // Sprint 4: hardcodeado

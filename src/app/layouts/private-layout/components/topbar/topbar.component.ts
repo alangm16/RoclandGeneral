@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-topbar',
@@ -14,7 +15,8 @@ import { AuthService } from '../../../../core/auth/auth.service';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    NgClass
+    NgClass,
+    UpperCasePipe
   ],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
@@ -39,7 +41,7 @@ export class TopbarComponent implements OnDestroy {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: true
       })
     );
   }
@@ -50,6 +52,10 @@ export class TopbarComponent implements OnDestroy {
 
   get userName(): string {
     return this.authService.nombreUsuario() || 'Usuario';
+  }
+
+  get projectName(): string {
+    return this.authService.proyectoNombre();
   }
 
   logout(): void {

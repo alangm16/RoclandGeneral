@@ -7,10 +7,37 @@
 }
 
 .sidebar-brand {
-  padding: 20px 20px 18px;
+  padding: 24px 20px;
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(74,156,31,0.06) 0%, transparent 100%);
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 48px;  /* Ajusta el tamaño según necesites */
+  height: auto;
+  object-fit: contain;
+}
+
+.brand-text {
+  display: flex;
+  gap: 4px;
+  font-family: var(--font-display); /* O la fuente que uses para títulos */
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand-name {
+  color: #22C55E; /* El verde de tu paleta (var(--accent)) */
+}
+
+.brand-panel {
+  color: #000000; /* Negro puro */
 }
 
 .brand-tag {
@@ -39,25 +66,58 @@
   padding: 16px 0;
 }
 
+.nav-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px; /* Separación elegante */
+  width: 100%;
+}
+
+.bi {
+  font-size: 1.25rem; /* Iconos un poco más grandes */
+  color: var(--muted); /* Gris elegante por defecto */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animación fluida */
+}
+
 ::ng-deep .mat-mdc-list-item {
   border-radius: 8px !important;
   margin: 0 8px !important;
   width: auto !important;
-  transition: background 0.15s;
+  transition: all 0.2s ease;
 
+  /* Estado Activo */
   &.active-link {
     background: rgba(74, 156, 31, 0.09) !important;
     border-left: 3px solid var(--accent) !important;
     border-radius: 0 8px 8px 0 !important;
 
-    .mdc-list-item__primary-text {
-      color: var(--accent-dim) !important;
+    /* Cuando está activo, el icono brilla y crece ligeramente */
+    .bi {
+      color: var(--accent) !important; /* Verde corporativo */
+      transform: scale(1.15); /* Efecto de "pop" */
+      filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.4)); /* Resplandor sutil */
+    }
+
+    .nav-label, .mdc-list-item__primary-text {
+      color: var(--text) !important; /* Texto más oscuro/fuerte */
       font-weight: 600;
     }
   }
 
+  /* Estado Hover (pasar el mouse) */
   &:hover:not(.active-link) {
-    background: rgba(74, 156, 31, 0.05) !important;
+    background: rgba(74, 156, 31, 0.04) !important;
+    
+    /* El icono se desliza un poco a la derecha y se pinta sutilmente */
+    .bi {
+      color: var(--accent-dim);
+      transform: translateX(3px); 
+    }
+    
+    /* El texto se oscurece para indicar interactividad */
+    .nav-label {
+      color: var(--text);
+    }
   }
 }
 
@@ -66,8 +126,11 @@
 }
 
 .nav-label {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
 }
 
 .nav-group {

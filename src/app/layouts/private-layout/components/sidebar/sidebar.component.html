@@ -1,6 +1,11 @@
 <div class="sidebar-brand">
-  <span class="brand-tag">ROCLAND</span>
-  <span class="brand-sub">{{ userName }}</span>
+  <div class="brand-container">
+    <img src="assets/images/logo_rocland.png" alt="Logo Rocland" class="brand-logo">
+    <div class="brand-text">
+      <span class="brand-name">ROCLAND</span>
+      <span class="brand-panel">PANEL</span>
+    </div>
+  </div>
 </div>
 
 <mat-nav-list class="nav-links">
@@ -11,13 +16,15 @@
          routerLinkActive="active-link"
          [routerLinkActiveOptions]="{ exact: item.route?.endsWith('dashboard') ?? false }"
          class="nav-link">
-        <i class="bi" [ngClass]="item.icon || 'bi-circle'"></i>
-        <span class="nav-label">{{ item.label }}</span>
+        <div class="nav-item-wrapper">
+          <i class="bi" [ngClass]="item.icon || 'bi-circle'"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </div>
       </a>
     } @else {
       <mat-expansion-panel class="nav-group" hideToggle>
         <mat-expansion-panel-header>
-          <mat-panel-title>
+          <mat-panel-title class="nav-item-wrapper">
             <i class="bi" [ngClass]="item.icon || 'bi-folder'"></i>
             <span class="nav-label">{{ item.label }}</span>
           </mat-panel-title>

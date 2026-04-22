@@ -50,14 +50,7 @@ export class PrivateLayoutComponent {
         { label: 'Personas',   icon: 'bi-people',        route: `${base}/personas` },
         { label: 'Guardias',   icon: 'bi-shield-shaded', route: `${base}/guardias` },
         { label: 'Historial',  icon: 'bi-clock-history', route: `${base}/historial` },
-        {
-          label: 'Catálogos',
-          icon: 'bi-gear',
-          children: [
-            { label: 'Empresas',              route: `${base}/catalogos/empresas` },
-            { label: 'Visitantes frecuentes', route: `${base}/catalogos/visitantes` }
-          ]
-        }
+        {label: 'Catálogos',   icon: 'bi-collection-fill',          route: `${base}/catalogos` },
       ];
     }
     return [{ label: 'Dashboard', icon: 'bi-speedometer2', route: '/dashboard' }];

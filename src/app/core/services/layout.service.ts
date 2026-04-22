@@ -11,6 +11,8 @@ export interface SubheaderConfig {
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
   readonly sidebarCollapsed = signal(false);
+  
+  // Mantenemos el valor inicial con solo el title vacío
   readonly subheaderConfig = signal<SubheaderConfig>({ title: '' });
 
   toggleSidebar() {
@@ -19,5 +21,10 @@ export class LayoutService {
 
   setSubheader(config: Partial<SubheaderConfig>) {
     this.subheaderConfig.update(current => ({ ...current, ...config }));
+  }
+
+  // --- NUEVO MÉTODO: Resetea el subheader ---
+  resetSubheader() {
+    this.subheaderConfig.set({ title: '' }); 
   }
 }

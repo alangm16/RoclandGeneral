@@ -1,123 +1,154 @@
+<!-- dashboard.component.html -->
 <div class="kpi-grid">
-    <div class="kpi-card green">
-        <div class="kpi-label">Dentro ahora</div>
-        <div class="kpi-value">{{ kpis?.dentroAhora ?? '—' }}</div>
-        <div class="kpi-sub">personas en instalaciones</div>
+  <div class="kpi-card green">
+    <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Dentro ahora</div>
+      <div class="kpi-value">{{ kpis?.dentroAhora ?? '—' }}</div>
+      <div class="kpi-sub">personas en instalaciones</div>
     </div>
-    <div class="kpi-card blue">
-        <div class="kpi-label">Total hoy</div>
-        <div class="kpi-value">{{ kpis?.totalHoy ?? '—' }}</div>
-        <div class="kpi-sub">accesos registrados</div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="kpi-icon"><i class="bi bi-card-checklist"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Total hoy</div>
+      <div class="kpi-value">{{ kpis?.totalHoy ?? '—' }}</div>
+      <div class="kpi-sub">accesos registrados</div>
     </div>
-    <div class="kpi-card blue">
-        <div class="kpi-label">Visitantes</div>
-        <div class="kpi-value">{{ kpis?.totalVisitantesHoy ?? '—' }}</div>
-        <div class="kpi-sub">hoy</div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="kpi-icon"><i class="bi bi-person-badge-fill"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Visitantes</div>
+      <div class="kpi-value">{{ kpis?.totalVisitantesHoy ?? '—' }}</div>
+      <div class="kpi-sub">hoy</div>
     </div>
-    <div class="kpi-card purple">
-        <div class="kpi-label">Proveedores</div>
-        <div class="kpi-value">{{ kpis?.totalProveedoresHoy ?? '—' }}</div>
-        <div class="kpi-sub">hoy</div>
+  </div>
+  <div class="kpi-card purple">
+    <div class="kpi-icon"><i class="bi bi-truck"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Proveedores</div>
+      <div class="kpi-value">{{ kpis?.totalProveedoresHoy ?? '—' }}</div>
+      <div class="kpi-sub">hoy</div>
     </div>
-    <div class="kpi-card amber">
-        <div class="kpi-label">Prom. estancia</div>
-        <div class="kpi-value">{{ kpis?.promedioEstanciaMinutos ?? '—' }}</div>
-        <div class="kpi-sub">minutos promedio</div>
+  </div>
+  <div class="kpi-card amber">
+    <div class="kpi-icon"><i class="bi bi-clock-fill"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Prom. estancia</div>
+      <div class="kpi-value">{{ kpis?.promedioEstanciaMinutos ?? '—' }}</div>
+      <div class="kpi-sub">minutos promedio</div>
     </div>
-    <div class="kpi-card red">
-        <div class="kpi-label">Pendientes</div>
-        <div class="kpi-value">{{ kpis?.solicitudesPendientes ?? '—' }}</div>
-        <div class="kpi-sub">solicitudes sin resolver</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-label">Pendientes</div>
+      <div class="kpi-value">{{ kpis?.solicitudesPendientes ?? '—' }}</div>
+      <div class="kpi-sub">solicitudes sin resolver</div>
     </div>
+  </div>
 </div>
 
-<div class="table-card mb-4" style="margin-bottom:24px;">
-    <div class="table-header">
-        <span class="table-title">● Dentro ahora</span>
-        <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;">
-                <span style="width:8px;height:8px;border-radius:50%;display:inline-block;"
-                    [ngStyle]="{
-                        'background': conexionStatus === 'connected' ? '#22C55E' : (conexionStatus === 'reconnecting' ? '#F59E0B' : '#EF4444'),
-                        'box-shadow': conexionStatus === 'connected' ? '0 0 6px #22C55E' : (conexionStatus === 'reconnecting' ? '0 0 6px #F59E0B' : 'none')
-                    }">
-                </span>
-                <span>
-                    {{ conexionStatus === 'connected' ? 'En vivo' : 
-                    (conexionStatus === 'reconnecting' ? 'Reconectando...' : 'Desconectado') }}
-                </span>
-            </span>
-            <button class="btn btn-ghost btn-sm" (click)="cargarActivos()">↻ Actualizar</button>
-        </div>
+<div class="section-card mt-4">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-geo-alt-fill"></i>
+      <h3>Dentro ahora</h3>
     </div>
-
-    <div style="padding:16px 20px 0;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;">Visitantes</span>
-            <span class="badge badge-blue">{{ visitantesDentro.length }}</span>
-        </div>
-        <div class="activos-grid">
-            <div *ngIf="visitantesDentro.length === 0" class="text-muted text-mono" style="font-size:12px;padding:4px 0 12px;">
-                Sin visitantes dentro actualmente.
-            </div>
-            <div class="activo-card" style="border-left:4px solid var(--blue);" *ngFor="let v of visitantesDentro">
-                <div class="activo-name">{{ v.nombrePersona }}</div>
-                <div class="activo-meta">{{ v.empresa || 'Particular' }} · {{ v.area || '—' }}</div>
-                <div class="activo-meta">Entrada: {{ fmtHora(v.fechaEntrada) }}</div>
-                <div class="activo-gafete"># {{ v.numeroGafete || '—' }}</div>
-            </div>
-        </div>
+    <div class="section-actions">
+      <div class="connection-indicator">
+        <span class="status-dot" [ngClass]="{
+          'connected': conexionStatus === 'connected',
+          'reconnecting': conexionStatus === 'reconnecting',
+          'disconnected': conexionStatus !== 'connected' && conexionStatus !== 'reconnecting'
+        }"></span>
+        <span class="status-text">
+          {{ conexionStatus === 'connected' ? 'En vivo' : 
+             (conexionStatus === 'reconnecting' ? 'Reconectando...' : 'Desconectado') }}
+        </span>
+      </div>
+      <button class="btn btn-outline btn-sm" (click)="cargarActivos()">
+        <i class="bi bi-arrow-clockwise"></i> Actualizar
+      </button>
     </div>
+  </div>
 
-    <div style="height:1px;background:var(--border);margin:4px 0;"></div>
-
-    <div style="padding:12px 20px 16px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--purple);text-transform:uppercase;">Proveedores</span>
-            <span class="badge badge-purple">{{ proveedoresDentro.length }}</span>
-        </div>
-        <div class="activos-grid">
-            <div *ngIf="proveedoresDentro.length === 0" class="text-muted text-mono" style="font-size:12px;padding:4px 0 12px;">
-                Sin proveedores dentro actualmente.
-            </div>
-            <div class="activo-card" style="border-left:4px solid var(--purple);" *ngFor="let p of proveedoresDentro">
-                <div class="activo-name">{{ p.nombrePersona }}</div>
-                <div class="activo-meta">{{ p.empresa || 'Independiente' }}</div>
-                <div class="activo-meta">Entrada: {{ fmtHora(p.fechaEntrada) }}</div>
-                <div class="activo-gafete" style="background:#F5F3FF;color:var(--purple);border-color:#DDD6FE;"># {{ p.numeroGafete || '—' }}</div>
-            </div>
-        </div>
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">Visitantes</span>
+      <span class="badge badge-purple">{{ visitantesDentro.length }}</span>
     </div>
+    <div class="cards-grid">
+      <div *ngIf="visitantesDentro.length === 0" class="empty-state">
+        Sin visitantes dentro actualmente.
+      </div>
+      <div class="person-card visitor-card" *ngFor="let v of visitantesDentro">
+        <div class="person-avatar avatar-purple">{{ v.nombrePersona?.charAt(0) || '?' }}</div>
+        <div class="person-info">
+          <div class="person-name">{{ v.nombrePersona }}</div>
+          <div class="person-detail">{{ v.empresa || 'Particular' }} · {{ v.area || '—' }}</div>
+          <div class="person-time">Entrada: {{ fmtHora(v.fechaEntrada) }}</div>
+        </div>
+        <div class="person-badge">#{{ v.numeroGafete || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">Proveedores</span>
+      <span class="badge badge-amber">{{ proveedoresDentro.length }}</span>
+    </div>
+    <div class="cards-grid">
+      <div *ngIf="proveedoresDentro.length === 0" class="empty-state">
+        Sin proveedores dentro actualmente.
+      </div>
+      <div class="person-card provider-card" *ngFor="let p of proveedoresDentro">
+        <div class="person-avatar avatar-amber">{{ p.nombrePersona?.charAt(0) || '?' }}</div>
+        <div class="person-info">
+          <div class="person-name">{{ p.nombrePersona }}</div>
+          <div class="person-detail">{{ p.empresa || 'Independiente' }}</div>
+          <div class="person-time">Entrada: {{ fmtHora(p.fechaEntrada) }}</div>
+        </div>
+        <div class="person-badge provider">#{{ p.numeroGafete || '—' }}</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="charts-grid" style="margin-bottom:24px;">
-    <div class="chart-card">
-        <div class="chart-title">Flujo por hora — hoy</div>
-        <div class="chart-wrapper">
-            <canvas #canvasHoras></canvas>
-        </div>
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Flujo por hora — hoy</h3>
     </div>
-    <div class="chart-card">
-        <div class="chart-title">Áreas más visitadas (30 días)</div>
-        <div class="chart-wrapper">
-            <canvas #canvasAreas></canvas>
-        </div>
+    <div class="chart-container">
+      <canvas #canvasHoras></canvas>
     </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Áreas más visitadas (30 días)</h3>
+    </div>
+    <div class="chart-container">
+      <canvas #canvasAreas></canvas>
+    </div>
+  </div>
 </div>
 
-<div class="chart-card" style="margin-bottom:24px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-        <div class="chart-title" style="margin:0;">Flujo diario del mes</div>
-        <div style="display:flex;gap:8px;flex-shrink:0;">
-            <select class="filter-input" [(ngModel)]="anioActual" (change)="cargarGraficaMes()" style="min-width:80px;">
-                <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
-            </select>
-            <select class="filter-input" [(ngModel)]="mesActual" (change)="cargarGraficaMes()" style="min-width:120px;">
-                <option *ngFor="let m of mesesDisponibles" [value]="m.id">{{ m.nombre }}</option>
-            </select>
-        </div>
+<div class="chart-card full-width">
+  <div class="chart-header">
+    <h3 class="chart-title">Flujo diario del mes</h3>
+    <div class="chart-filters">
+      <select class="select-sm" [(ngModel)]="anioActual" (change)="cargarGraficaMes()">
+        <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+      </select>
+      <select class="select-sm" [(ngModel)]="mesActual" (change)="cargarGraficaMes()">
+        <option *ngFor="let m of mesesDisponibles" [value]="m.id">{{ m.nombre }}</option>
+      </select>
     </div>
-    <div class="chart-wrapper chart-wrapper--wide">
-        <canvas #canvasMes></canvas>
-    </div>
+  </div>
+  <div class="chart-container large">
+    <canvas #canvasMes></canvas>
+  </div>
 </div>
