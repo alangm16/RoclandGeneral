@@ -1,0 +1,417 @@
+// ══════════════════════════════════════════════════════════════════════════
+//  PERSONAS — estilos del componente
+//  Usa variables CSS de styles.scss (Rocland) + admin.css
+// ══════════════════════════════════════════════════════════════════════════
+
+:host { display: block; }
+
+.personas-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Alert ─────────────────────────────────────────────────────────────────
+
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(192, 57, 43, 0.07);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  border-radius: 8px;
+  color: var(--red);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+// ── Tabla card ────────────────────────────────────────────────────────────
+
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted-light);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 11px 16px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+// ── Columnas especiales ───────────────────────────────────────────────────
+
+.col-num    { width: 44px; text-align: right; }
+.col-center { text-align: center; }
+.col-action { width: 52px; text-align: center; }
+
+// ── Filas ─────────────────────────────────────────────────────────────────
+
+.data-row {
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: var(--surface-2); }
+
+  &.row-active {
+    background: rgba(74, 156, 31, 0.05);
+    td { border-bottom-color: rgba(74, 156, 31, 0.15); }
+  }
+}
+
+.skeleton-row td { padding: 13px 16px; }
+
+// ── Nombre con avatar ─────────────────────────────────────────────────────
+
+.nombre-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.persona-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(74, 156, 31, 0.12);
+  color: var(--rocland-green-dark, #357015);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nombre-text { font-weight: 600; }
+
+// ── Botón expandir fila ───────────────────────────────────────────────────
+
+.btn-expand {
+  color: var(--muted) !important;
+  transition: color 0.15s !important;
+
+  &:hover { color: var(--accent) !important; }
+
+  &.btn-expand--open { color: var(--accent) !important; }
+}
+
+// ── Estado vacío ──────────────────────────────────────────────────────────
+
+.empty-cell { padding: 0 !important; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--muted-light);
+
+  i    { font-size: 2.25rem; opacity: 0.4; }
+  span { font-size: 13px; font-weight: 500; }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-blue   { background: rgba(59,130,246,.10); color: #2563EB; border: 1px solid rgba(59,130,246,.20); }
+.badge-purple { background: rgba(139,92,246,.10); color: #7C3AED; border: 1px solid rgba(139,92,246,.20); }
+.badge-green  { background: rgba(74,156,31,.10);  color: var(--rocland-green-dark, #357015); border: 1px solid rgba(74,156,31,.20); }
+.badge-red    { background: rgba(192,57,43,.10);  color: var(--red); border: 1px solid rgba(192,57,43,.20); }
+.badge-amber  { background: rgba(212,135,26,.10); color: var(--rocland-warning, #d4871a); border: 1px solid rgba(212,135,26,.20); }
+.badge-gray   { background: rgba(90,90,90,.08);   color: var(--muted); border: 1px solid var(--border); }
+
+// ── Skeletons ─────────────────────────────────────────────────────────────
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+%skel-base {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e8ede6 25%, #d4e4cc 50%, #e8ede6 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skel          { @extend %skel-base; height: 14px; display: block; }
+.skel-xs       { width: 32px; }
+.skel-sm       { width: 70px; }
+.skel-md       { width: 110px; }
+.skel-lg       { width: 160px; }
+.skel-title    { width: 180px; height: 18px; }
+.skel-avatar   { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; }
+.skel-avatar-lg{ width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; }
+.mx-auto       { margin-inline: auto; }
+.mb-1          { margin-bottom: 4px; }
+
+// ── Paginación ────────────────────────────────────────────────────────────
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+    border-color: var(--muted-light);
+  }
+
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  &.pag-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.pag-ellipsis {
+  color: var(--muted-light);
+  font-size: 13px;
+  line-height: 34px;
+  padding: 0 2px;
+}
+
+// ── Panel de detalle ──────────────────────────────────────────────────────
+
+.detalle-card {
+  background: var(--surface);
+  border: 1.5px solid rgba(74, 156, 31, 0.25);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.detalle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(74, 156, 31, 0.03);
+}
+
+.detalle-header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detalle-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(74, 156, 31, 0.15);
+  color: var(--rocland-green-dark, #357015);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.detalle-nombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 3px;
+}
+
+.detalle-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.btn-cerrar {
+  color: var(--muted) !important;
+  &:hover { color: var(--text) !important; }
+}
+
+// ── Fichas de perfil ──────────────────────────────────────────────────────
+
+.fichas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  border-bottom: 1px solid var(--border);
+}
+
+.ficha {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+
+  &:last-child { border-right: none; }
+
+  &.ficha--accent { background: rgba(74, 156, 31, 0.04); }
+}
+
+.ficha-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ficha-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+
+  &.ficha-value--big {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+}
+
+// ── Separador sección historial ───────────────────────────────────────────
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  i { font-size: 13px; }
+}
+
+// ── Utilidades ────────────────────────────────────────────────────────────
+
+.muted  { color: var(--muted); }
+.mono   { font-family: 'IBM Plex Mono', monospace; }
+.text-sm{ font-size: 12px; }
+
+// ── Responsive ────────────────────────────────────────────────────────────
+
+@media (max-width: 768px) {
+  .fichas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ficha {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    &:last-child { border-bottom: none; }
+  }
+
+  // Ocultar Tipo ID y Empresa en tablet
+  table th:nth-child(4), table td:nth-child(4),
+  table th:nth-child(5), table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .fichas-grid { grid-template-columns: 1fr; }
+
+  // En móvil pequeño: solo Nombre, Visitas y acción
+  .col-num,
+  table th:nth-child(1), table td:nth-child(1),
+  table th:nth-child(3), table td:nth-child(3),
+  table th:nth-child(7), table td:nth-child(7) {
+    display: none;
+  }
+}

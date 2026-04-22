@@ -5,22 +5,22 @@ import { filter, startWith } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LayoutService } from '../../../../core/services/layout.service';
 
 @Component({
   selector: 'app-subheader',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, NgClass],
+  imports: [MatButtonModule, MatIconModule, NgClass, FormsModule],
   templateUrl: './subheader.component.html',
   styleUrls: ['./subheader.component.scss']
 })
-
 export class SubheaderComponent implements OnInit {
   readonly layoutService = inject(LayoutService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  
+
   ngOnInit(): void {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
@@ -29,20 +29,31 @@ export class SubheaderComponent implements OnInit {
     ).subscribe(() => {
       let route = this.activatedRoute;
       while (route.firstChild) route = route.firstChild;
-      
-      const data = route.snapshot.data;
-      
-      // 1. Limpiamos cualquier configuración previa (ej. botones huérfanos)
-      this.layoutService.resetSubheader(); 
 
-      // 2. Aplicamos la nueva si existe
+      const data = route.snapshot.data;
+
+      this.layoutService.resetSubheader();
+
       if (data['subheader']) {
         this.layoutService.setSubheader(data['subheader']);
       }
     });
   }
-  
+
   get config() {
     return this.layoutService.subheaderConfig();
+  }
+
+  get searchValue() {
+    return this.layoutService.searchValue();
+  }
+
+  onSearchInput(value: string) {
+    this.layoutService.onSearchInput(value);
+  }
+
+  /** Dispara el handler de la acción correspondiente */
+  runAction(action: { handler: () => void }) {
+    action.handler();
   }
 }

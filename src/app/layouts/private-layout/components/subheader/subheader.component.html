@@ -1,37 +1,84 @@
 @if (config.title) {
   <div class="subheader">
     <div class="subheader-inner">
-      
+
       <div class="subheader-left">
-        <h2 class="page-title">{{ config.title || 'Rocland' }}</h2>
+        <h2 class="page-title">{{ config.title }}</h2>
 
         @if (config.showSearch) {
           <div class="divider"></div>
-          
+
           <div class="search-wrapper">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="Buscar..." class="search-input">
+            <input
+              type="text"
+              class="search-input"
+              [placeholder]="config.searchPlaceholder || 'Buscar...'"
+              [value]="searchValue"
+              (input)="onSearchInput($any($event.target).value)"
+            />
+            @if (searchValue) {
+              <button class="search-clear" (click)="onSearchInput('')">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            }
           </div>
         }
 
+        <!-- Slot libre para filtros adicionales proyectados desde el layout -->
         <div class="filters-area">
           <ng-content select="[subheader-filters]"></ng-content>
         </div>
       </div>
 
       <div class="subheader-right">
+
         @if (config.showExport) {
-          <button mat-stroked-button (click)="config.showExport">
+          <button mat-stroked-button>
             <i class="bi bi-download"></i>
             Exportar
           </button>
         }
+
+        <!-- Acciones dinámicas registradas por cada página -->
+        @for (action of config.actions; track action.label) {
+          @if (action.variant === 'flat') {
+            <button
+              mat-flat-button
+              [color]="action.color || 'primary'"
+              (click)="runAction(action)"
+            >
+              @if (action.icon) { <i class="bi {{ action.icon }}"></i> }
+              {{ action.label }}
+            </button>
+          } @else if (action.variant === 'stroked') {
+            <button
+              mat-stroked-button
+              [color]="action.color"
+              (click)="runAction(action)"
+            >
+              @if (action.icon) { <i class="bi {{ action.icon }}"></i> }
+              {{ action.label }}
+            </button>
+          } @else if (action.variant === 'icon') {
+            <button
+              mat-icon-button
+              [color]="action.color"
+              (click)="runAction(action)"
+            >
+              @if (action.icon) { <i class="bi {{ action.icon }}"></i> }
+            </button>
+          }
+        }
+
+        <!-- showAddButton se mantiene como atajo rápido sin handler -->
         @if (config.showAddButton) {
           <button mat-flat-button color="primary" class="add-button">
             <i class="bi bi-plus-lg"></i>
             {{ config.addButtonLabel || 'Agregar' }}
           </button>
         }
+
         <ng-content select="[subheader-actions]"></ng-content>
       </div>
 

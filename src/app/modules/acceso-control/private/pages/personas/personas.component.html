@@ -1,0 +1,321 @@
+<!-- ══════════════════════════════════════════════════════════════════════
+     PERSONAS — Vista
+     La búsqueda y los botones Buscar/Limpiar viven en el subheader.
+     Aquí solo va la tabla paginada y el panel de detalle inline.
+══════════════════════════════════════════════════════════════════════ -->
+
+<div class="personas-page fade-in">
+
+  <!-- ── Error ──────────────────────────────────────────────────────── -->
+  @if (errorMsg()) {
+    <div class="alert-error">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {{ errorMsg() }}
+    </div>
+  }
+
+  <!-- ── Tabla de personas ─────────────────────────────────────────── -->
+  <div class="table-card">
+
+    <div class="table-card-header">
+      <span class="table-card-title">
+        @if (layoutSvc.searchValue().trim()) {
+          Resultados para "{{ layoutSvc.searchValue() }}"
+        } @else {
+          Personas registradas
+        }
+      </span>
+      @if (!cargando() && totalPersonas() > 0) {
+        <span class="table-count">{{ rangoActual() }}</span>
+      }
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th>Nombre</th>
+            <th>No. ID</th>
+            <th>Tipo ID</th>
+            <th>Empresa</th>
+            <th class="col-center">Visitas</th>
+            <th>Última visita</th>
+            <th class="col-action"></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Skeleton mientras carga -->
+          @if (cargando()) {
+            @for (_ of [1,2,3,4,5,6,7,8,9,10]; track $index) {
+              <tr class="skeleton-row">
+                <td><div class="skel skel-xs"></div></td>
+                <td>
+                  <div class="nombre-cell">
+                    <div class="skel skel-avatar"></div>
+                    <div class="skel skel-lg"></div>
+                  </div>
+                </td>
+                <td><div class="skel skel-md"></div></td>
+                <td><div class="skel skel-sm"></div></td>
+                <td><div class="skel skel-md"></div></td>
+                <td><div class="skel skel-xs mx-auto"></div></td>
+                <td><div class="skel skel-md"></div></td>
+                <td></td>
+              </tr>
+            }
+          }
+
+          <!-- Sin resultados -->
+          @else if (personas().length === 0) {
+            <tr>
+              <td colspan="8" class="empty-cell">
+                <div class="empty-state">
+                  <i class="bi bi-person-slash"></i>
+                  <span>
+                    @if (layoutSvc.searchValue().trim()) {
+                      Sin resultados para "{{ layoutSvc.searchValue() }}"
+                    } @else {
+                      No hay personas registradas aún
+                    }
+                  </span>
+                </div>
+              </td>
+            </tr>
+          }
+
+          <!-- Datos -->
+          @else {
+            @for (p of personas(); track p.id; let i = $index) {
+              <tr
+                class="data-row"
+                [class.row-active]="perfil()?.id === p.id && panelAbierto()"
+                (click)="verDetalle(p)"
+              >
+                <td class="col-num muted mono">
+                  {{ (paginaActual() - 1) * porPagina + i + 1 }}
+                </td>
+
+                <td>
+                  <div class="nombre-cell">
+                    <div class="persona-avatar">{{ inicial(p.nombre) }}</div>
+                    <span class="nombre-text">{{ p.nombre }}</span>
+                  </div>
+                </td>
+
+                <td class="mono text-sm">{{ p.numeroIdentificacion }}</td>
+                <td class="muted">{{ p.tipoID }}</td>
+                <td class="muted">{{ p.empresa || '—' }}</td>
+
+                <td class="col-center">
+                  <span class="badge badge-blue">{{ p.totalVisitas }}</span>
+                </td>
+
+                <td class="mono text-sm muted">{{ fmtFecha(p.fechaUltimaVisita) }}</td>
+
+                <td class="col-action">
+                  <button
+                    mat-icon-button
+                    class="btn-expand"
+                    [class.btn-expand--open]="perfil()?.id === p.id && panelAbierto()"
+                    [matTooltip]="perfil()?.id === p.id && panelAbierto() ? 'Cerrar' : 'Ver historial'"
+                    (click)="verDetalle(p); $event.stopPropagation()"
+                  >
+                    <i class="bi"
+                       [class.bi-chevron-down]="perfil()?.id === p.id && panelAbierto()"
+                       [class.bi-chevron-right]="!(perfil()?.id === p.id && panelAbierto())">
+                    </i>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    @if (!cargando() && totalPaginas() > 1) {
+      <div class="pagination-bar">
+        <button class="pag-btn" [disabled]="paginaActual() === 1" (click)="paginaAnterior()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        @for (p of paginas(); track $index) {
+          @if (esPaginaNumero(p)) {
+            <button
+              class="pag-btn"
+              [class.pag-active]="p === paginaActual()"
+              (click)="irPagina(p)"
+            >{{ p }}</button>
+          } @else {
+            <span class="pag-ellipsis">…</span>
+          }
+        }
+
+        <button class="pag-btn" [disabled]="paginaActual() === totalPaginas()" (click)="paginaSiguiente()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    }
+
+  </div><!-- /table-card -->
+
+
+  <!-- ── Panel de detalle ──────────────────────────────────────────── -->
+  @if (panelAbierto()) {
+    <div id="panel-detalle" class="detalle-card fade-in">
+
+      <!-- Header del panel -->
+      <div class="detalle-header">
+        <div class="detalle-header-info">
+          @if (cargandoDetalle()) {
+            <div class="skel skel-avatar-lg"></div>
+            <div>
+              <div class="skel skel-title mb-1"></div>
+              <div class="skel skel-md"></div>
+            </div>
+          } @else if (perfil(); as p) {
+            <div class="detalle-avatar">{{ inicial(p.nombre) }}</div>
+            <div>
+              <h3 class="detalle-nombre">{{ p.nombre }}</h3>
+              <span class="detalle-sub mono">
+                {{ p.tipoID }} · {{ p.numeroIdentificacion }}
+              </span>
+            </div>
+          }
+        </div>
+        <button
+          mat-icon-button
+          class="btn-cerrar"
+          (click)="cerrarDetalle()"
+          matTooltip="Cerrar"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Fichas de perfil -->
+      @if (cargandoDetalle()) {
+        <div class="fichas-grid">
+          @for (_ of [1,2,3,4,5,6,7]; track $index) {
+            <div class="ficha">
+              <div class="skel skel-xs mb-1"></div>
+              <div class="skel skel-md"></div>
+            </div>
+          }
+        </div>
+      } @else if (perfil(); as p) {
+        <div class="fichas-grid">
+
+          <div class="ficha">
+            <span class="ficha-label">No. Identificación</span>
+            <span class="ficha-value mono">{{ p.numeroIdentificacion }}</span>
+          </div>
+
+          <div class="ficha">
+            <span class="ficha-label">Tipo ID</span>
+            <span class="ficha-value">{{ p.tipoID }}</span>
+          </div>
+
+          <div class="ficha">
+            <span class="ficha-label">Empresa</span>
+            <span class="ficha-value">{{ p.empresa || '—' }}</span>
+          </div>
+
+          <div class="ficha">
+            <span class="ficha-label">Teléfono</span>
+            <span class="ficha-value mono">{{ p.telefono || '—' }}</span>
+          </div>
+
+          <div class="ficha ficha--accent">
+            <span class="ficha-label">Total visitas</span>
+            <span class="ficha-value ficha-value--big">{{ p.totalVisitas }}</span>
+          </div>
+
+          <div class="ficha">
+            <span class="ficha-label">Última visita</span>
+            <span class="ficha-value mono text-sm">{{ fmtFecha(p.fechaUltimaVisita) }}</span>
+          </div>
+
+          <div class="ficha">
+            <span class="ficha-label">Registrado</span>
+            <span class="ficha-value mono text-sm muted">{{ fmtFecha(p.fechaRegistro) }}</span>
+          </div>
+
+        </div>
+      }
+
+      <!-- Título sección historial -->
+      <div class="section-label">
+        <i class="bi bi-clock-history"></i>
+        Historial de visitas
+      </div>
+
+      <!-- Tabla historial -->
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Área / Empresa</th>
+              <th>Motivo</th>
+              <th>Entrada</th>
+              <th>Salida</th>
+              <th>Duración</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            @if (cargandoDetalle()) {
+              @for (_ of [1,2,3]; track $index) {
+                <tr class="skeleton-row">
+                  <td><div class="skel skel-sm"></div></td>
+                  <td><div class="skel skel-lg"></div></td>
+                  <td><div class="skel skel-md"></div></td>
+                  <td><div class="skel skel-md"></div></td>
+                  <td><div class="skel skel-md"></div></td>
+                  <td><div class="skel skel-xs"></div></td>
+                  <td><div class="skel skel-sm"></div></td>
+                </tr>
+              }
+            } @else if (historial().length === 0) {
+              <tr>
+                <td colspan="7" class="empty-cell">
+                  <div class="empty-state">
+                    <i class="bi bi-calendar-x"></i>
+                    <span>Sin historial de visitas</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (h of historial(); track $index) {
+                <tr class="data-row">
+                  <td>
+                    <span class="badge" [class]="badgeTipo(h.tipo)">{{ h.tipo }}</span>
+                  </td>
+                  <td class="muted">{{ h.area || h.empresa || '—' }}</td>
+                  <td class="muted">{{ h.motivo }}</td>
+                  <td class="mono text-sm">{{ fmtFecha(h.fechaEntrada) }}</td>
+                  <td class="mono text-sm muted">{{ fmtFecha(h.fechaSalida) }}</td>
+                  <td class="mono">{{ fmtDuracion(h.minutosEstancia) }}</td>
+                  <td>
+                    <span class="badge" [class]="badgeEstado(h.estadoAcceso)">
+                      {{ h.estadoAcceso }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            }
+
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /detalle-card -->
+  }
+
+</div><!-- /personas-page -->
