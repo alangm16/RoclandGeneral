@@ -1,43 +1,40 @@
 import { Injectable, signal } from '@angular/core';
 
-export interface SubheaderConfig {
-  title: string;
-  showSearch?: boolean;
-  searchPlaceholder?: string;
-  showAddButton?: boolean;
-  showExport?: boolean;
-  addButtonLabel?: string;
-
-  actions?: SubheaderAction[];
-}
-
+// 1. La interfaz de acciones debe estar exportada
 export interface SubheaderAction {
   label: string;
-  icon?: string;          // clase de bootstrap-icons, ej: 'bi-search'
+  icon?: string;
   variant: 'flat' | 'stroked' | 'icon';
   color?: 'primary' | 'warn';
   handler: () => void;
 }
 
+export interface SubheaderConfig {
+  title: string;
+  showSearch?: boolean;
+  searchPlaceholder?: string; // Asegúrate de que esta línea esté aquí
+  showAddButton?: boolean;
+  showExport?: boolean;
+  addButtonLabel?: string;
+  actions?: SubheaderAction[]; // Y esta también
+}
+
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
   readonly sidebarCollapsed = signal(false);
-  
-  // Mantenemos el valor inicial con solo el title vacío
   readonly subheaderConfig = signal<SubheaderConfig>({ title: '' });
-
-  readonly searchValue = signal('');
-
-  toggleSidebar() {
-    this.sidebarCollapsed.update(v => !v);
-  }
+  readonly searchValue = signal(''); // Esta señal es vital para el buscador
 
   setSubheader(config: Partial<SubheaderConfig>) {
     this.subheaderConfig.update(current => ({ ...current, ...config }));
   }
 
-  // --- NUEVO MÉTODO: Resetea el subheader ---
   resetSubheader() {
-    this.subheaderConfig.set({ title: '' }); 
+    this.subheaderConfig.set({ title: '' });
+    this.searchValue.set('');
+  }
+
+  onSearchInput(value: string) {
+    this.searchValue.set(value);
   }
 }
