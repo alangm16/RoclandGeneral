@@ -47,6 +47,7 @@ export const routes: Routes = [
             (m) => m.DashboardComponent
           ),
         title: 'Dashboard — AccesoControl',
+        data: { subheader: { title: 'Dashboard', showSearch: false } }
       },
       {
         path: 'historial',
@@ -55,6 +56,7 @@ export const routes: Routes = [
             (m) => m.HistorialComponent
           ),
         title: 'Historial — AccesoControl',
+        data: { subheader: { title: 'Historial de Accesos', showSearch: true } }
       },
       {
         path: 'personas',
@@ -63,6 +65,7 @@ export const routes: Routes = [
             (m) => m.PersonasComponent
           ),
         title: 'Personas — AccesoControl',
+        data: { subheader: { title: 'Personas', showSearch: true, showAddButton: true, addButtonLabel: 'Nueva Persona' } }
       },
       {
         path: 'catalogos',
@@ -71,6 +74,7 @@ export const routes: Routes = [
             (m) => m.CatalogosComponent
           ),
         title: 'Catálogos — AccesoControl',
+        data: { subheader: { title: 'Catálogos', showSearch: false } }
       },
       {
         path: 'guardias',
@@ -79,6 +83,7 @@ export const routes: Routes = [
             (m) => m.GuardiasComponent
           ),
         title: 'Guardias — AccesoControl',
+        data: { subheader: { title: 'Guardias', showSearch: true, showAddButton: true, addButtonLabel: 'Nuevo Guardia' } }
       },
       {
         path: '',

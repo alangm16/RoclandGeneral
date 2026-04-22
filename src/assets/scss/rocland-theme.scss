@@ -1,0 +1,52 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+/* Paleta Rocland EXACTA */
+$rocland-palette: (
+  50 : #eaf4e4,
+  100 : #cbe3bc,
+  200 : #a9d190,
+  300 : #86bf63,
+  400 : #6cb241,
+  500 : #4a9c1f,
+  600 : #43941b,
+  700 : #3a8a17,
+  800 : #328012,
+  900 : #226e0a,
+  contrast: (
+    50 : #000,
+    100 : #000,
+    200 : #000,
+    300 : #000,
+    400 : #fff,
+    500 : #fff,
+    600 : #fff,
+    700 : #fff,
+    800 : #fff,
+    900 : #fff
+  )
+);
+
+/* Material 2 theming API */
+$rocland-primary: mat.m2-define-palette($rocland-palette, 500);
+$rocland-accent: mat.m2-define-palette(mat.$m2-grey-palette, 800, 600, 900);
+$rocland-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$rocland-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $rocland-primary,
+    accent: $rocland-accent,
+    warn: $rocland-warn,
+  ),
+  typography: mat.m2-define-typography-config(
+    $font-family: 'Barlow, sans-serif',
+    $headline-1: mat.m2-define-typography-level(32px, 40px, 700, 'Barlow Condensed, sans-serif'),
+    $headline-5: mat.m2-define-typography-level(18px, 24px, 600, 'Barlow Condensed, sans-serif'),
+    $body-1: mat.m2-define-typography-level(14px, 20px, 400),
+    $button: mat.m2-define-typography-level(14px, 14px, 600, 'Barlow, sans-serif', $letter-spacing: 0.06em),
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($rocland-theme);

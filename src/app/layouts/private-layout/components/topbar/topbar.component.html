@@ -1,0 +1,27 @@
+<mat-toolbar class="topbar">
+  <div class="topbar-left">
+    <button mat-icon-button (click)="toggleSidenav.emit()" class="sidebar-toggle">
+      <i class="bi bi-list"></i>
+    </button>
+    <span class="system-name">ROCLAND</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="clock">
+      <i class="bi bi-clock"></i>
+      <span>{{ currentTime() }}</span>
+    </div>
+
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+      <i class="bi bi-person-circle"></i>
+      <span class="user-name">{{ userName }}</span>
+      <i class="bi bi-chevron-down small-chevron"></i>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

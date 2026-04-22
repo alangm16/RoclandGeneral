@@ -1,3 +1,41 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
 /* ================================================================
    ROCLAND — SISTEMA DE CONTROL DE ACCESO
    styles.scss — Responsividad completa
@@ -13,33 +51,53 @@
 
 /* ── Variables ──────────────────────────────────────────────────── */
 :root {
-  --rocland-green:      #4a9c1f;
+  --rocland-green: #4a9c1f;
   --rocland-green-dark: #357015;
-  --rocland-green-dim:  #3d8219;
-  --rocland-black:      #1a1a1a;
-  --rocland-dark:       #2a2a2a;
-  --rocland-gray:       #5a5a5a;
-  --rocland-silver:     #9a9a9a;
-  --rocland-light:      #f4f6f2;
-  --rocland-white:      #ffffff;
-  --rocland-border:     #d8e4d0;
-  --rocland-danger:     #c0392b;
-  --rocland-warning:    #d4871a;
-  --rocland-info:       #1a6fa0;
+  --rocland-green-dim: #3d8219;
+  --rocland-black: #1a1a1a;
+  --rocland-dark: #2a2a2a;
+  --rocland-gray: #5a5a5a;
+  --rocland-silver: #9a9a9a;
+  --rocland-light: #f4f6f2;
+  --rocland-white: #ffffff;
+  --rocland-border: #d8e4d0;
+  --rocland-danger: #c0392b;
+  --rocland-warning: #d4871a;
+  --rocland-info: #1a6fa0;
 
   --font-display: 'Barlow Condensed', sans-serif;
-  --font-body:    'Barlow', sans-serif;
+  --font-body: 'Barlow', sans-serif;
 
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  14px;
-  --shadow-card:  0 2px 16px rgba(0, 0, 0, 0.10);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.1);
   --shadow-focus: 0 0 0 3px rgba(74, 156, 31, 0.25);
-  --transition:   0.18s ease;
+  --transition: 0.18s ease;
+
+  /* ── Variables de componentes privados (mapeo al tema Rocland) ── */
+  --surface:       var(--rocland-white);
+  --surface-2:     var(--rocland-light);
+  --border:        var(--rocland-border);
+  --accent:        var(--rocland-green);
+  --accent-dim:    var(--rocland-green-dark);
+  --text:          var(--rocland-black);
+  --text-sec:      var(--rocland-dark);
+  --muted:         var(--rocland-gray);
+  --muted-light:   var(--rocland-silver);
+  --red:           var(--rocland-danger);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.10);
+  --font-display:  'Barlow Condensed', sans-serif;
+  --sidebar-w:     260px;
 }
 
 /* ── Reset base ─────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 html {
   -webkit-tap-highlight-color: transparent;
@@ -52,7 +110,7 @@ body {
   background-color: var(--rocland-light);
   color: var(--rocland-black);
   min-height: 100vh;
-  min-height: 100dvh;         /* dvh para móviles con barra de navegación */
+  min-height: 100dvh; /* dvh para móviles con barra de navegación */
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -70,32 +128,59 @@ app-root {
 
 /* ── Animaciones globales ───────────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes popIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(0.8); opacity: 0.5; }
-  50%       { transform: scale(1.2); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.fade-in { animation: fadeIn 0.3s ease both; }
+.fade-in {
+  animation: fadeIn 0.3s ease both;
+}
 
 /* Reduce animaciones para usuarios que lo prefieren */
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .waiting-dot,
-  .confirm-icon { animation: none !important; }
-  * { transition-duration: 0.01ms !important; }
+  .confirm-icon {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Sobreescrituras de Bootstrap para el tema Rocland ──────────── */
@@ -109,7 +194,9 @@ app-root {
   padding: 0.55rem 0.85rem;
   background: var(--rocland-white);
   color: var(--rocland-black);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
   /* Evita el zoom en iOS al enfocar un input < 16px */
   font-size: max(16px, 0.95rem);
 
@@ -156,7 +243,9 @@ app-root {
 
 /* Muestra los mensajes de error cuando el form fue enviado */
 .show-errors {
-  .invalid-feedback { display: block; }
+  .invalid-feedback {
+    display: block;
+  }
 
   .form-control.ng-invalid,
   .form-select.ng-invalid {
@@ -169,13 +258,15 @@ app-root {
 }
 
 /* Checkbox */
-.form-check-input[type="checkbox"] {
+.form-check-input[type='checkbox'] {
   width: 1.15em;
   height: 1.15em;
   border: 1.5px solid var(--rocland-border);
   border-radius: 3px;
   cursor: pointer;
-  transition: background var(--transition), border-color var(--transition);
+  transition:
+    background var(--transition),
+    border-color var(--transition);
   flex-shrink: 0;
   appearance: none;
   background: var(--rocland-white);
@@ -198,7 +289,9 @@ app-root {
     outline: none;
   }
 
-  &.is-invalid { border-color: var(--rocland-danger); }
+  &.is-invalid {
+    border-color: var(--rocland-danger);
+  }
 }
 
 .form-check-label {
@@ -212,7 +305,9 @@ app-root {
 /* ── Componentes visuales compartidos ───────────────────────────── */
 
 /* Encabezado de página */
-.form-page-header { margin-bottom: 1.5rem; }
+.form-page-header {
+  margin-bottom: 1.5rem;
+}
 
 .form-page-tag {
   display: inline-flex;
@@ -256,7 +351,9 @@ app-root {
   /* Área táctil */
   min-height: 44px;
 
-  &:hover { color: var(--rocland-green); }
+  &:hover {
+    color: var(--rocland-green);
+  }
 }
 
 /* Tarjeta de sección */
@@ -287,14 +384,18 @@ app-root {
 /* Campo prellenado por autocompletado */
 .prefilled-field {
   transition: background 0.3s ease;
-  &.filled { background: #f0faea !important; }
+  &.filled {
+    background: #f0faea !important;
+  }
 }
 
 /* Spinner de búsqueda de ID */
 .id-search-wrapper {
   position: relative;
 
-  .form-control { padding-right: 2.5rem; }
+  .form-control {
+    padding-right: 2.5rem;
+  }
 }
 
 .id-search-spinner {
@@ -304,7 +405,9 @@ app-root {
   transform: translateY(-50%);
   display: none;
 
-  &.active { display: block; }
+  &.active {
+    display: block;
+  }
 }
 
 /* Badge visitante recurrente */
@@ -321,8 +424,12 @@ app-root {
   color: var(--rocland-green-dark);
   animation: fadeIn 0.3s ease;
 
-  &.show { display: flex; }
-  strong { font-weight: 700; }
+  &.show {
+    display: flex;
+  }
+  strong {
+    font-weight: 700;
+  }
 }
 
 /* Consentimiento */
@@ -352,21 +459,26 @@ app-root {
   border: none;
   border-radius: var(--radius-md);
   padding: 0.85rem 1.5rem;
-  min-height: 48px;           /* área táctil WCAG */
+  min-height: 48px; /* área táctil WCAG */
   width: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background var(--transition), transform 0.1s, box-shadow var(--transition);
+  transition:
+    background var(--transition),
+    transform 0.1s,
+    box-shadow var(--transition);
 
   &:hover:not(:disabled) {
     background: var(--rocland-green-dark);
     box-shadow: 0 4px 14px rgba(74, 156, 31, 0.35);
   }
 
-  &:active:not(:disabled) { transform: scale(0.98); }
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
 
   &:disabled {
     background: var(--rocland-silver);
@@ -384,7 +496,9 @@ app-root {
   animation: spin 0.7s linear infinite;
   display: none;
 
-  &.active { display: inline-block; }
+  &.active {
+    display: inline-block;
+  }
 }
 
 /* Alert de error global */
@@ -398,7 +512,9 @@ app-root {
   margin-bottom: 1rem;
   display: none;
 
-  &.show { display: block; }
+  &.show {
+    display: block;
+  }
 }
 
 /* Botón de reintentar dentro del alert */
@@ -412,13 +528,19 @@ app-root {
   cursor: pointer;
   padding: 0;
 
-  &:hover { opacity: 0.75; }
+  &:hover {
+    opacity: 0.75;
+  }
 }
 
 /* ── Skeletons ──────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
 }
 
 .skeleton {
@@ -428,16 +550,29 @@ app-root {
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
-.skeleton-wrap { .form-section-card { pointer-events: none; } }
-.skeleton-title  { height: 14px; width: 40%; margin-bottom: 1rem; }
-.skeleton-field  { height: 42px; margin-bottom: 0.75rem; }
+.skeleton-wrap {
+  .form-section-card {
+    pointer-events: none;
+  }
+}
+.skeleton-title {
+  height: 14px;
+  width: 40%;
+  margin-bottom: 1rem;
+}
+.skeleton-field {
+  height: 42px;
+  margin-bottom: 0.75rem;
+}
 .skeleton-field-half {
   height: 42px;
   width: calc(50% - 0.375rem);
   display: inline-block;
   margin-bottom: 0.75rem;
 
-  & + & { margin-left: 0.75rem; }
+  & + & {
+    margin-left: 0.75rem;
+  }
 }
 
 /* ── Página de confirmación ─────────────────────────────────────── */
@@ -496,8 +631,12 @@ app-root {
   background: var(--rocland-green);
   animation: pulse 1.2s ease-in-out infinite;
 
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.4s; }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 }
 
 .confirm-detail-box {
@@ -520,7 +659,9 @@ app-root {
   border-bottom: 1px solid var(--rocland-light);
   font-size: 0.88rem;
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .confirm-detail-label {
@@ -536,7 +677,7 @@ app-root {
   font-weight: 600;
   color: var(--rocland-dark);
   text-align: right;
-  word-break: break-word;     /* evita overflow en valores largos */
+  word-break: break-word; /* evita overflow en valores largos */
 }
 
 .confirm-hint {
@@ -579,7 +720,9 @@ app-root {
   border-radius: var(--radius-md);
   padding: 0.55rem 1.1rem;
   min-height: 44px;
-  transition: color var(--transition), border-color var(--transition);
+  transition:
+    color var(--transition),
+    border-color var(--transition);
 
   &:hover {
     color: var(--rocland-green);
@@ -618,7 +761,9 @@ app-root {
   a {
     color: var(--rocland-green-dark);
     text-decoration: none;
-    &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -655,7 +800,7 @@ app-root {
   }
 
   /* Las columnas de Bootstrap col-sm-* deben ser 100% en móvil */
-  .row > [class*="col-sm-"] {
+  .row > [class*='col-sm-'] {
     flex: 0 0 100%;
     max-width: 100%;
   }
@@ -668,9 +813,15 @@ app-root {
 
 /* Móvil pequeño (≤ 380px) */
 @media (max-width: 380px) {
-  .form-section-card { padding: 0.875rem; }
-  .consent-card { padding: 0.875rem; }
-  .confirm-detail-box { padding: 0.875rem; }
+  .form-section-card {
+    padding: 0.875rem;
+  }
+  .consent-card {
+    padding: 0.875rem;
+  }
+  .confirm-detail-box {
+    padding: 0.875rem;
+  }
 }
 
 /* Tablet horizontal y laptop pequeña (768px – 991px) */
@@ -681,4 +832,9 @@ app-root {
 /* Desktop amplio (≥ 1200px) */
 @media (min-width: 1200px) {
   /* el max-width: 700px del layout contiene bien el formulario */
+}
+
+// Asegurar que las variables CSS de Material no pisen las de Rocland
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: transparent;
 }

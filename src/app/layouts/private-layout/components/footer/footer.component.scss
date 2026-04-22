@@ -1,0 +1,31 @@
+.app-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 16px 28px;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--muted);
+  flex-wrap: wrap;
+  
+  @media (max-width: 600px) {
+    gap: 12px;
+    flex-direction: column;
+  }
+}
+
+.footer-link {
+  color: var(--muted);
+  text-decoration: none;
+  
+  &:hover {
+    color: var(--accent);
+  }
+}

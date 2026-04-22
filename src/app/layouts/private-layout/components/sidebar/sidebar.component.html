@@ -1,0 +1,46 @@
+<div class="sidebar-brand">
+  <span class="brand-tag">ROCLAND</span>
+  <span class="brand-sub">{{ userName }}</span>
+</div>
+
+<mat-nav-list class="nav-links">
+  @for (item of navItems; track item.route) {
+    @if (!item.children?.length) {
+      <a mat-list-item 
+         [routerLink]="item.route" 
+         routerLinkActive="active-link"
+         [routerLinkActiveOptions]="{ exact: item.route?.endsWith('dashboard') ?? false }"
+         class="nav-link">
+        <i class="bi" [ngClass]="item.icon || 'bi-circle'"></i>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    } @else {
+      <mat-expansion-panel class="nav-group" hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <i class="bi" [ngClass]="item.icon || 'bi-folder'"></i>
+            <span class="nav-label">{{ item.label }}</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        @for (child of item.children; track child.route) {
+          <a mat-list-item 
+             [routerLink]="child.route" 
+             routerLinkActive="active-link"
+             class="sub-nav-link">
+            <span class="nav-label">{{ child.label }}</span>
+          </a>
+        }
+      </mat-expansion-panel>
+    }
+  }
+</mat-nav-list>
+
+<div class="sidebar-footer">
+  <div class="sidebar-user-info">
+    <span class="sidebar-user">{{ userName }}</span>
+    <span class="sidebar-rol">{{ userRole }}</span>
+  </div>
+  <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+    <i class="bi bi-box-arrow-right"></i>
+  </button>
+</div>
