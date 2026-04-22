@@ -2,7 +2,7 @@
   
   <div class="table-card">
     <div class="table-header">
-      <span class="table-title">Directorio General</span>
+      <span class="table-title">Personas Frecuentes</span>
       <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalPersonas() }}</span>
     </div>
 
@@ -17,7 +17,8 @@
             <th>Empresa</th>
             <th>Visitas</th>
             <th>Última Visita</th>
-            <th style="width: 50px;"></th> </tr>
+            <th style="width: 50px;"></th>
+          </tr>
         </thead>
         <tbody>
           @if (cargando()) {
@@ -34,7 +35,6 @@
                 <td class="text-muted">{{ p.empresa || '—' }}</td>
                 <td><span class="badge badge-blue">{{ p.totalVisitas }}</span></td>
                 <td class="text-mono text-muted">{{ fmtFecha(p.fechaUltimaVisita) }}</td>
-                
                 <td>
                   <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
                     <i class="bi bi-three-dots-vertical"></i>
@@ -54,70 +54,126 @@
 
     @if (totalPaginas() > 1) {
       <div class="pagination">
-        <button class="page-btn" [disabled]="paginaActual() === 1" (click)="cambiarPagina(-1)">Anterior</button>
+        <button class="page-btn" [disabled]="paginaActual() === 1" (click)="cambiarPagina(-1)">
+          <i class="bi bi-chevron-left" style="font-size:11px;"></i> Anterior
+        </button>
         <span class="page-info">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
-        <button class="page-btn" [disabled]="paginaActual() === totalPaginas()" (click)="cambiarPagina(1)">Siguiente</button>
+        <button class="page-btn" [disabled]="paginaActual() === totalPaginas()" (click)="cambiarPagina(1)">
+          Siguiente <i class="bi bi-chevron-right" style="font-size:11px;"></i>
+        </button>
       </div>
     }
   </div>
 </div>
 
-<div class="modal-overlay" [class.open]="mostrarModal()">
-  <div class="modal detalle-modal">
-    <button class="modal-close" (click)="cerrarModal()"><i class="bi bi-x-lg"></i></button>
-    
-    @if (cargandoDetalle()) {
-      <div class="text-center p-4">Cargando detalles...</div>
-    } @else if (perfilSeleccionado(); as perfil) {
-      <h2 class="modal-title mb-1">{{ perfil.nombre }}</h2>
-      <p class="text-muted text-mono mb-4">{{ perfil.tipoID }} - {{ perfil.numeroIdentificacion }}</p>
+<!-- ══════════════════════════════════════════════════════
+     MODAL DE DETALLE — Perfil de persona frecuente
+══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="mostrarModal()" (click)="cerrarModal()">
+  <div class="detalle-modal" (click)="$event.stopPropagation()">
 
-      <div class="kpi-grid mb-4" style="grid-template-columns: repeat(3, 1fr);">
-        <div class="kpi-card blue p-3">
-          <div class="kpi-label">Visitas Totales</div>
-          <div class="kpi-value" style="font-size: 24px;">{{ perfil.totalVisitas }}</div>
+    <!-- Header oscuro con acento verde Rocland -->
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-avatar">
+          <i class="bi bi-person-fill"></i>
         </div>
-        <div class="kpi-card p-3">
-          <div class="kpi-label">Empresa</div>
-          <div class="kpi-value text-muted" style="font-size: 16px;">{{ perfil.empresa || '—' }}</div>
-        </div>
-        <div class="kpi-card p-3">
-          <div class="kpi-label">Teléfono</div>
-          <div class="kpi-value text-mono text-muted" style="font-size: 16px;">{{ perfil.telefono || '—' }}</div>
+        <div style="min-width:0;">
+          @if (perfilSeleccionado(); as perfil) {
+            <h2 class="modal-title">{{ perfil.nombre }}</h2>
+            <p class="modal-subtitle">{{ perfil.tipoID }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
+          } @else {
+            <h2 class="modal-title">Cargando...</h2>
+          }
         </div>
       </div>
 
-      <div class="table-header mt-4 p-0 border-0">
-        <span class="table-title">Historial Reciente</span>
-      </div>
-      
-      <div class="table-responsive mt-2" style="max-height: 300px; overflow-y: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Motivo</th>
-              <th>Entrada</th>
-              <th>Salida</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (h of historialPersona(); track $index) {
+      <button class="modal-close" (click)="cerrarModal()" aria-label="Cerrar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Cuerpo scrolleable -->
+    <div class="modal-body">
+
+      @if (cargandoDetalle()) {
+        <!-- Estado de carga -->
+        <div class="modal-loading">
+          <div class="modal-loading-spinner"></div>
+          <span>Cargando detalles...</span>
+        </div>
+
+      } @else if (perfilSeleccionado(); as perfil) {
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card accent">
+            <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
+            <div class="kpi-value">{{ perfil.totalVisitas }}</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
+            <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
+            <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
+          </div>
+        </div>
+
+        <!-- Historial de visitas -->
+        <p class="section-label">
+          <i class="bi bi-clock-history"></i>
+          Historial Reciente
+        </p>
+
+        <div class="history-table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td><span class="badge" [class]="h.tipo === 'Visitante' ? 'badge-blue' : 'badge-purple'">{{ h.tipo }}</span></td>
-                <td>{{ h.motivo }}</td>
-                <td class="text-mono">{{ fmtFecha(h.fechaEntrada) }}</td>
-                <td class="text-mono">{{ fmtFecha(h.fechaSalida) }}</td>
-                <td><span [innerHTML]="estadoBadge(h.estadoAcceso)"></span></td>
+                <th>Tipo</th>
+                <th>Motivo</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
               </tr>
-            }
-            @if (historialPersona().length === 0) {
-              <tr><td colspan="5" class="text-center text-muted">Sin registros.</td></tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </div>
-</div>
+            </thead>
+            <tbody>
+              @for (h of historialPersona(); track $index) {
+                <tr>
+                  <td>
+                    <span class="badge" [class]="h.tipo === 'Visitante' ? 'badge-blue' : 'badge-purple'">
+                      {{ h.tipo }}
+                    </span>
+                  </td>
+                  <td>{{ h.motivo }}</td>
+                  <td class="text-mono text-muted">{{ fmtFecha(h.fechaEntrada) }}</td>
+                  <td class="text-mono text-muted">{{ fmtFecha(h.fechaSalida) }}</td>
+                  <td>
+                    @switch (h.estadoAcceso) {
+                        @case ('Completado') { <span class="badge badge-green">Completado</span> }
+                        @case ('Denegado')   { <span class="badge badge-red">Denegado</span>    }
+                        @case ('Sin salida') { <span class="badge badge-amber">Sin salida</span> }
+                        @default             { <span class="badge badge-gray">{{ h.estadoAcceso }}</span> }
+                    }
+                    </td>
+                </tr>
+              }
+              @if (historialPersona().length === 0) {
+                <tr>
+                  <td colspan="5" class="text-center text-muted" style="padding: 24px;">
+                    <i class="bi bi-inbox" style="font-size:18px; display:block; margin-bottom:6px;"></i>
+                    Sin registros de visitas.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+      }
+    </div><!-- /modal-body -->
+  </div><!-- /detalle-modal -->
+</div><!-- /modal-overlay -->

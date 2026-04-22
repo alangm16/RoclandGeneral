@@ -14,9 +14,9 @@ import { LayoutService } from '../../../../core/services/layout.service';
   templateUrl: './subheader.component.html',
   styleUrls: ['./subheader.component.scss']
 })
-
 export class SubheaderComponent implements OnInit {
-  readonly layoutService = inject(LayoutService);
+  // layoutService ahora debe ser publico para acceder a searchValue desde el html
+  public readonly layoutService = inject(LayoutService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -32,10 +32,8 @@ export class SubheaderComponent implements OnInit {
       
       const data = route.snapshot.data;
       
-      // 1. Limpiamos cualquier configuración previa (ej. botones huérfanos)
       this.layoutService.resetSubheader(); 
 
-      // 2. Aplicamos la nueva si existe
       if (data['subheader']) {
         this.layoutService.setSubheader(data['subheader']);
       }
@@ -44,5 +42,16 @@ export class SubheaderComponent implements OnInit {
   
   get config() {
     return this.layoutService.subheaderConfig();
+  }
+
+  // --- NUEVOS MÉTODOS PARA LA BARRA DE BÚSQUEDA ---
+  onSearchChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    // Actualizamos la señal del servicio, lo cual notificará a PersonasComponent
+    this.layoutService.searchValue.set(target.value); 
+  }
+
+  clearSearch(): void {
+    this.layoutService.searchValue.set('');
   }
 }

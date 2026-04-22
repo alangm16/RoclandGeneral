@@ -167,3 +167,34 @@
     min-width: 100%;
   }
 }
+
+.btn-flat-small {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-stroked-small {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-flat-small:hover { background-color: var(--accent-dim); }
+.btn-stroked-small:hover { background-color: var(--surface-2); }

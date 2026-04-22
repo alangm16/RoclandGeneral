@@ -10,9 +10,26 @@
           
           <div class="search-wrapper">
             <i class="bi bi-search"></i>
-            <input type="text" placeholder="Buscar..." class="search-input">
+            <input 
+              type="text" 
+              [placeholder]="config.searchPlaceholder || 'Buscar...'" 
+              class="search-input"
+              [value]="layoutService.searchValue()"
+              (input)="onSearchChange($event)">
           </div>
         }
+
+        <div class="filter-actions-inline" style="display: flex; gap: 8px; align-items: center; margin-left: 12px;">
+          @for (action of config.actions; track action.label) {
+            <button 
+              [class]="action.variant === 'flat' ? 'btn-flat-small' : 'btn-stroked-small'"
+              [style.color]="action.color === 'warn' ? 'var(--red)' : 'inherit'"
+              (click)="action.handler()">
+              @if(action.icon) { <i class="bi {{action.icon}}"></i> }
+              {{ action.label }}
+            </button>
+          }
+        </div>
 
         <div class="filters-area">
           <ng-content select="[subheader-filters]"></ng-content>
