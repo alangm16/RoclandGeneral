@@ -1,45 +1,61 @@
 // src/app/modules/acceso-control/public/acceso-public.routes.ts
+// ─────────────────────────────────────────────────────────────────────────────
+// Rutas PÚBLICAS del módulo AccesoControl.
+// La landing general ya no vive aquí — pertenece a modules/home.
+// La raíz de este módulo es el selector de tipo de acceso.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { Routes } from '@angular/router';
-import { AccesoSelectorComponent } from './pages/acceso-selector/acceso-selector.component';
-import { VisitanteFormComponent }  from './pages/visitante-form/visitante-form.component';
-import { ProveedorFormComponent }    from './pages/proveedor-form/proveedor-form.component';
-import { ConfirmacionComponent }    from './pages/confirmacion/confirmacion.component';
-import { AvisoPrivacidadComponent } from './pages/aviso-privacidad/aviso-privacidad.component';
 
 export const ACCESO_PUBLIC_ROUTES: Routes = [
   {
     path: '',
-    component: AccesoSelectorComponent,
+    loadComponent: () =>
+      import('./pages/acceso-selector/acceso-selector.component').then(
+        (m) => m.AccesoSelectorComponent
+      ),
     title: 'Selección de Acceso — Rocland',
   },
   {
     path: 'aviso-privacidad',
-    component: AvisoPrivacidadComponent,
+    loadComponent: () =>
+      import('./pages/aviso-privacidad/aviso-privacidad.component').then(
+        (m) => m.AvisoPrivacidadComponent
+      ),
     title: 'Aviso de Privacidad — Rocland',
   },
   {
     path: 'confirmacion',
-    component: ConfirmacionComponent,
+    loadComponent: () =>
+      import('./pages/confirmacion/confirmacion.component').then(
+        (m) => m.ConfirmacionComponent
+      ),
     title: 'Solicitud Enviada — Rocland',
   },
   {
-    path: 'formularios', // 3er Nivel: Agrupador de formularios
+    path: 'formularios',
     children: [
       {
-        path: 'visitante', // 4to Nivel: Acción específica
-        component: VisitanteFormComponent,
+        path: 'visitante',
+        loadComponent: () =>
+          import('./pages/visitante-form/visitante-form.component').then(
+            (m) => m.VisitanteFormComponent
+          ),
         title: 'Registro de Visitante — Rocland',
       },
       {
         path: 'proveedor',
-        component: ProveedorFormComponent,
+        loadComponent: () =>
+          import('./pages/proveedor-form/proveedor-form.component').then(
+            (m) => m.ProveedorFormComponent
+          ),
         title: 'Registro de Proveedor — Rocland',
       },
       {
         path: '',
         redirectTo: 'visitante',
-        pathMatch: 'full'
-      }
+        pathMatch: 'full',
+      },
     ],
   },
 ];

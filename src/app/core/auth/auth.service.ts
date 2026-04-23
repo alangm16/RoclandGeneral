@@ -81,7 +81,7 @@ export class AuthService {
   // ── Logout ────────────────────────────────────────────────────
   logout(): void {
     this.limpiarSesion();
-    this.router.navigate(['/private/login']);
+    this.router.navigate(['/auth/login']);
   }
 
   // ── Token para el interceptor ─────────────────────────────────

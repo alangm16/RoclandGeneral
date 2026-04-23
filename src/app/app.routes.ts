@@ -1,114 +1,62 @@
-// src/app/app.routes.ts — Sprint 4
-// Se agregan las rutas privadas con AuthGuard y PrivateLayout.
+// src/app/app.routes.ts
+// ─────────────────────────────────────────────────────────────────────────────
+// ARCHIVO ORQUESTADOR — Rutas globales de la aplicación Rocland.
+//
+// Aquí SOLO van:
+//   1. Rutas que pertenecen a la app en su conjunto (landing, auth).
+//   2. Lazy-loads de cada módulo/proyecto.
+//
+// NUNCA definir rutas internas de un módulo aquí.
+// Para agregar un proyecto: un único bloque loadChildren. Nada más.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { Routes } from '@angular/router';
-import { PublicLayoutComponent }  from './layouts/public-layout/public-layout.component';
-import { PrivateLayoutComponent } from './layouts/private-layout/private-layout.component';
-import { authGuard }              from './core/auth/auth.guard';
 
 export const routes: Routes = [
 
-  // ── ZONA PÚBLICA ─────────────────────────────────────────────
-  {
-    path: 'public',
-    component: PublicLayoutComponent,
-    children: [
-      {
-        path: 'acceso-control-web',
-        loadChildren: () =>
-          import('./modules/acceso-control/public/acceso-public.routes').then(
-            (m) => m.ACCESO_PUBLIC_ROUTES
-          ),
-      },
-    ],
-  },
-
-  // ── LOGIN (sin layout privado — tiene su propio shell) ────────
-  {
-    path: 'private/login',
-    loadComponent: () =>
-      import('./modules/auth/login/login.component').then(
-        (m) => m.LoginComponent
-      ),
-    title: 'Iniciar Sesión — Rocland',
-  },
-
-  // ── ZONA PRIVADA — AccesoControl Web ─────────────────────────
-  {
-    path: 'private/acceso-control-web',
-    component: PrivateLayoutComponent,
-    canActivate: [authGuard],
-    children: [
-      {
-        path: 'dashboard',
-        // Sprint 5: se crea el componente real del dashboard
-        loadComponent: () =>
-          import('./modules/acceso-control/private/pages/dashboard/dashboard.component').then(
-            (m) => m.DashboardComponent
-          ),
-        title: 'Dashboard — AccesoControl',
-        data: { subheader: { title: 'Dashboard', showSearch: false } }
-      },
-      {
-        path: 'historial',
-        loadComponent: () =>
-          import('./modules/acceso-control/private/pages/historial/historial.component').then(
-            (m) => m.HistorialComponent
-          ),
-        title: 'Historial — AccesoControl',
-        data: { subheader: { title: 'Historial de Accesos', showSearch: true } }
-      },
-      {
-        path: 'personas',
-        loadComponent: () =>
-          import('./modules/acceso-control/private/pages/personas/personas.component').then(
-            (m) => m.PersonasComponent
-          ),
-        title: 'Personas — AccesoControl',
-        data: { subheader: { title: 'Personas', showSearch: true} }
-      },
-      {
-        path: 'catalogos',
-        loadComponent: () =>
-          import('./modules/acceso-control/private/pages/catalogos/catalogos.component').then(
-            (m) => m.CatalogosComponent
-          ),
-        title: 'Catálogos — AccesoControl',
-        data: { subheader: { title: 'Catálogos', showSearch: false } }
-      },
-      {
-        path: 'guardias',
-        loadComponent: () =>
-          import('./modules/acceso-control/private/pages/guardias/guardias.component').then(
-            (m) => m.GuardiasComponent
-          ),
-        title: 'Guardias — AccesoControl',
-        data: { subheader: { title: 'Guardias', showSearch: true, showAddButton: true, addButtonLabel: 'Nuevo Guardia' } }
-      },
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
-      },
-    ],
-  },
-
-  // ── ZONA PRIVADA — Super Admin (Sprint futuro) ────────────────
-  // {
-  //   path: 'private/super-admin',
-  //   component: PrivateLayoutComponent,
-  //   canActivate: [authGuard, rolGuard('Admin')],
-  //   children: [...]
-  // },
-
-  // ── Redirecciones ─────────────────────────────────────────────
+  // ── LANDING GENERAL (pertenece a Rocland, no a ningún módulo) ────────────
   {
     path: '',
-    redirectTo: 'public/acceso-control-web',
+    loadComponent: () =>
+      import('./modules/home/pages/landing/landing.component').then(
+        (m) => m.LandingComponent
+      ),
+    title: 'Bienvenido — Rocland',
     pathMatch: 'full',
   },
+
+  // ── AUTH CENTRAL ──────────────────────────────────────────────────────────
+  // Login con selector de proyectos. Punto de entrada administrativo.
+  {
+    path: 'auth',
+    loadChildren: () =>
+      import('./modules/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+
+  // ── MÓDULOS / PROYECTOS ───────────────────────────────────────────────────
+  // Cada proyecto es autónomo: define sus propias rutas públicas y privadas
+  // dentro de su feature.routes.ts. Este archivo solo los registra.
+
+  {
+    path: '',
+    loadChildren: () =>
+      import('./modules/acceso-control/acceso-control.routes').then(
+        (m) => m.ACCESO_CONTROL_ROUTES
+      ),
+  },
+
+  // ── FUTUROS PROYECTOS (descomentar cuando existan) ────────────────────────
+  // {
+  //   path: '',
+  //   loadChildren: () =>
+  //     import('./modules/super-admin/super-admin.routes').then(
+  //       (m) => m.SUPER_ADMIN_ROUTES
+  //     ),
+  // },
+
+  // ── FALLBACK ──────────────────────────────────────────────────────────────
   {
     path: '**',
-    redirectTo: 'public/acceso-control-web',
+    redirectTo: '',
   },
 ];
