@@ -38,6 +38,7 @@ export const ACCESO_CONTROL_ROUTES: Routes = [
     path: 'private/acceso-control-web',
     component: PrivateLayoutComponent,
     canActivate: [authGuard],
+    data: { renderMode: 'client' },
     children: [
       {
         path: '',

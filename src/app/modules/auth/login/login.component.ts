@@ -4,7 +4,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);
   private readonly auth    = inject(AuthService);
   private readonly router  = inject(Router);
+  private readonly route   = inject(ActivatedRoute);
 
   // ── Estado ────────────────────────────────────────────────────
   form!:      FormGroup;
@@ -41,18 +42,19 @@ export class LoginComponent implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────
   ngOnInit(): void {
-    // 1. SIEMPRE inicializar el formulario primero para evitar errores en el HTML
+    // 1. SIEMPRE inicializar el formulario primero
     this.buildForm();
 
-    // 2. Si ya hay sesión activa, redirigir directo al dashboard
+    // 2. Si ya hay sesión activa (browser hidratado con localStorage),
+    //    navegar de inmediato sin mostrar el formulario.
+    //    Respeta el returnUrl para volver exactamente a donde estaba el usuario.
     if (this.auth.estaLogueado()) {
-      this.router.navigate([`/private/${this.auth.proyectoActual()}/dashboard`]);
+      this.navegarPostLogin();
       return;
     }
 
     this.proyectos = this.auth.getProyectosActivos();
 
-    // Si solo hay un proyecto, preseleccionarlo
     if (this.proyectos.length === 1) {
       this.seleccionarProyecto(this.proyectos[0].id);
     }
@@ -61,10 +63,24 @@ export class LoginComponent implements OnInit {
   // ── Formulario ────────────────────────────────────────────────
   private buildForm(): void {
     this.form = this.fb.group({
-      usuario:   ['', [Validators.required, Validators.minLength(3)]],
-      password:  ['', [Validators.required, Validators.minLength(4)]],
+      usuario:    ['', [Validators.required, Validators.minLength(3)]],
+      password:   ['', [Validators.required, Validators.minLength(4)]],
       proyectoId: ['', [Validators.required]],
     });
+  }
+
+  // ── Navegación post-login ─────────────────────────────────────
+  // Centraliza la lógica de a dónde ir después de autenticarse.
+  // Prioridad: returnUrl (ruta donde estaba el usuario) → dashboard del proyecto.
+  // Protección contra open redirect: solo se aceptan rutas internas (inician con /).
+  private navegarPostLogin(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    const esRutaInterna = typeof returnUrl === 'string' && returnUrl.startsWith('/');
+    const destino = esRutaInterna
+      ? returnUrl
+      : `/private/${this.auth.proyectoActual()}/dashboard`;
+
+    this.router.navigateByUrl(destino);
   }
 
   // ── Selección de proyecto ─────────────────────────────────────
@@ -94,7 +110,6 @@ export class LoginComponent implements OnInit {
       this.proyectoSeleccionado
     ).subscribe({
       next: (response) => {
-        // Verificar que el rol del usuario tiene acceso a este proyecto
         const rolesPermitidos = this.proyectoSeleccionado!.rolesPermitidos;
         if (!rolesPermitidos.includes(response.rol)) {
           this.loading  = false;
@@ -103,10 +118,8 @@ export class LoginComponent implements OnInit {
           return;
         }
 
-        // Navegar al dashboard del proyecto
-        this.router.navigate([
-          `${this.proyectoSeleccionado!.rutaBase}/dashboard`
-        ]);
+        // Navegar respetando el returnUrl si existe, o al dashboard del proyecto
+        this.navegarPostLogin();
       },
       error: (err) => {
         this.loading = false;

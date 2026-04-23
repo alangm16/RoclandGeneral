@@ -17,13 +17,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
 ) => {
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
-      // Log centralizado en desarrollo
-      if (err.status !== 404) {
-        // 404 es normal en el autocompletado — no lo logueamos
+      const ignorar = err.status === 404 || err.status === 0;
+      if (!ignorar) {
         console.error(`[HTTP ${err.status}] ${req.method} ${req.url}`, err);
       }
-
-      // Re-lanzar para que cada servicio maneje según su contexto
       return throwError(() => err);
     })
   );

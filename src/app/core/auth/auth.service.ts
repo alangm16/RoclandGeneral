@@ -78,6 +78,22 @@ export class AuthService {
     );
   }
 
+  /**
+   * Navega tras un login exitoso.
+   * Si hay un returnUrl en los query params, va ahí.
+   * Si no, va al dashboard del proyecto.
+   *
+   * Llamar desde el LoginComponent después de que login() emita exitosamente.
+   */
+  navegarPostLogin(queryParams: { returnUrl?: string }, proyectoId: string): void {
+    const destino = queryParams['returnUrl'] ?? `/private/${proyectoId}/dashboard`;
+    
+    // Seguridad: solo permitir returnUrls internas (evitar open redirect)
+    const esRutaInterna = destino.startsWith('/');
+    
+    this.router.navigateByUrl(esRutaInterna ? destino : `/private/${proyectoId}/dashboard`);
+  }
+
   // ── Logout ────────────────────────────────────────────────────
   logout(): void {
     this.limpiarSesion();

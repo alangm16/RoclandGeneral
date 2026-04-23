@@ -1,62 +1,76 @@
 // auth.guard.ts
-// Rocland — Guard de rutas privadas
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
 import { RolUsuario } from './auth.models';
 
-// ── Guard general: solo requiere sesión activa ────────────────────
-export const authGuard: CanActivateFn = () => {
-  const auth   = inject(AuthService);
-  const router = inject(Router);
+// ── Helper: construye la redirección a login guardando la ruta destino ──
+function redirigirALogin(router: Router, url: string): UrlTree {
+  return router.createUrlTree(['/auth/login'], {
+    queryParams: { returnUrl: url },
+  });
+}
+
+// ── Guard general ─────────────────────────────────────────────────
+export const authGuard: CanActivateFn = (
+  _route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+): boolean | UrlTree => {
+  const auth       = inject(AuthService);
+  const router     = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  // Evitar redirecciones prematuras en el servidor (SSR)
-  if (!isPlatformBrowser(platformId)) return true;
+  // SSR: sin localStorage, redirigir a login con returnUrl
+  if (!isPlatformBrowser(platformId)) {
+    return redirigirALogin(router, state.url);
+  }
 
   if (auth.estaLogueado()) return true;
 
-  // CORREGIDO: Redirigir a /auth/login
-  router.navigate(['/auth/login']);
-  return false;
+  return redirigirALogin(router, state.url);
 };
 
-// ── Guard de rol: requiere uno de los roles especificados ─────────
+// ── Guard de rol ──────────────────────────────────────────────────
 export function rolGuard(...rolesRequeridos: RolUsuario[]): CanActivateFn {
-  return () => {
-    const auth   = inject(AuthService);
-    const router = inject(Router);
+  return (
+    _route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean | UrlTree => {
+    const auth       = inject(AuthService);
+    const router     = inject(Router);
     const platformId = inject(PLATFORM_ID);
 
-    if (!isPlatformBrowser(platformId)) return true;
+    if (!isPlatformBrowser(platformId)) {
+      return redirigirALogin(router, state.url);
+    }
 
     if (!auth.estaLogueado()) {
-      // CORREGIDO: Redirigir a /auth/login
-      router.navigate(['/auth/login']);
-      return false;
+      return redirigirALogin(router, state.url);
     }
 
     if (auth.tieneRol(...rolesRequeridos)) return true;
 
-    const proyectoId = auth.proyectoActual();
-    router.navigate([`/private/${proyectoId}/dashboard`]);
-    return false;
+    // Tiene sesión pero no el rol — mandarlo a su dashboard, no al login
+    return router.createUrlTree([`/private/${auth.proyectoActual()}/dashboard`]);
   };
 }
 
-// ── Guard de proyecto: verifica que el usuario pertenece al proyecto de la ruta ──
-export const proyectoGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
-  const auth   = inject(AuthService);
-  const router = inject(Router);
+// ── Guard de proyecto ─────────────────────────────────────────────
+export const proyectoGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+): boolean | UrlTree => {
+  const auth       = inject(AuthService);
+  const router     = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  if (!isPlatformBrowser(platformId)) return true;
+  if (!isPlatformBrowser(platformId)) {
+    return redirigirALogin(router, state.url);
+  }
 
   if (!auth.estaLogueado()) {
-    // CORREGIDO: Redirigir a /auth/login
-    router.navigate(['/auth/login']);
-    return false;
+    return redirigirALogin(router, state.url);
   }
 
   const proyectoEnRuta = route.pathFromRoot
@@ -69,6 +83,5 @@ export const proyectoGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
 
   if (!proyectoEnRuta || proyectoEnRuta === proyectoActual) return true;
 
-  router.navigate([`/private/${proyectoActual}/dashboard`]);
-  return false;
+  return router.createUrlTree([`/private/${proyectoActual}/dashboard`]);
 };

@@ -1,3 +1,4 @@
+// server.ts limpio — sin el bloque de rutas privadas
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -6,28 +7,15 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
-import { APP_BASE_HREF } from '@angular/common';
+
+if (process.env['NODE_ENV'] === 'development') {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+}
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
-
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
-
-/**
- * Serve static files from /browser
- */
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
@@ -36,16 +24,9 @@ app.use(
   }),
 );
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
+// Un solo handler para todo — Angular SSR decide internamente
+// si renderiza en servidor o delega al cliente según provideServerRoutesConfig
 app.use((req, res, next) => {
-  // Solo para desarrollo: Si el host es localhost, forzamos que Angular lo acepte
-  // Esto sobrescribe la validación de SSRF interna
-  if (process.env['NODE_ENV'] === 'development') {
-    Object.defineProperty(req, 'hostname', { value: '0.0.0.0' });
-  }
-
   angularApp
     .handle(req)
     .then((response) =>
@@ -54,22 +35,12 @@ app.use((req, res, next) => {
     .catch(next);
 });
 
-/**
- * Start the server if this module is the main entry point, or it is ran via PM2.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
- */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
   const port = process.env['PORT'] || 4000;
   app.listen(port, (error) => {
-    if (error) {
-      throw error;
-    }
-
+    if (error) throw error;
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
 
-/**
- * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
- */
 export const reqHandler = createNodeRequestHandler(app);
