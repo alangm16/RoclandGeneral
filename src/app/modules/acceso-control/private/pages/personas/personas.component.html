@@ -38,7 +38,9 @@
           }
 
           @case ('visitas') {
-            <span class="bd badge--blue">{{ item.totalVisitas }}</span>
+            <app-badge
+              [label]="item.totalVisitas.toString()"
+              variant="blue" />
           }
 
           @case ('ultimaVisita') {
@@ -133,9 +135,7 @@
             @for (h of historialPersona(); track $index) {
               <tr>
                 <td>
-                  <span class="bd" [class]="h.tipo === 'Visitante' ? 'badge--blue' : 'badge--purple'">
-                    {{ h.tipo }}
-                  </span>
+                  <app-badge [label]="h.tipo" />
                 </td>
                 <td>{{ h.motivo }}</td>
                 <td class="text-mono text-muted">
@@ -145,9 +145,7 @@
                   {{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Aún adentro' }}
                 </td>
                 <td>
-                  <span [class]="estadoAccesoBadge(h.estadoAcceso).cls">
-                    {{ estadoAccesoBadge(h.estadoAcceso).label }}
-                  </span>
+                  <app-badge [label]="h.estadoAcceso" />
                 </td>
               </tr>
             }
