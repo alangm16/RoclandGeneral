@@ -1,6 +1,6 @@
 // dashboard.component.ts (versión limpia, sin cambios en la lógica)
-import { Component, OnInit, inject, ViewChild, ElementRef, OnDestroy, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ViewChild, ElementRef, OnDestroy, effect, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
 import { AdminService } from '../../../services/admin.service';
@@ -21,6 +21,10 @@ import { delay } from 'rxjs/operators';
 export class DashboardComponent implements OnInit, OnDestroy {
   private readonly adminService = inject(AdminService);
   private readonly signalrService = inject(SignalrService);
+  private readonly layoutService = inject(LayoutService);
+  
+  // 2. Inyecta el identificador de la plataforma
+  private readonly platformId = inject(PLATFORM_ID);
 
   conexionStatus: SignalRStatus = 'disconnected';
   private subs: Subscription = new Subscription();
@@ -51,7 +55,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private clockInterval: any;
 
   private resizeObservers: ResizeObserver[] = [];
-  private readonly layoutService = inject(LayoutService);
 
   // 1. Agrega el constructor e introduce el effect() aquí
   constructor() {
@@ -67,11 +70,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 2. Tu ngOnInit ahora queda limpio, solo llamando métodos
   ngOnInit(): void {
-    this.cargarDatos();
-    this.configurarSignalR();
-    this.iniciarReloj();
+    if (isPlatformBrowser(this.platformId)) {
+      this.cargarDatos(); 
+      this.configurarSignalR();
+      this.iniciarReloj();
+    }
   }
 
   ngOnDestroy(): void {

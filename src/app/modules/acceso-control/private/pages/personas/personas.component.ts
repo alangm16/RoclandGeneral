@@ -117,7 +117,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
     this.cargandoDetalle.set(true);
     this.perfilSeleccionado.set(null);
     this.historialPersona.set([]);
-
     try {
       const [perfil, historial] = await Promise.all([
         this.adminSvc.getPerfilPersona(persona.id).toPromise(),
