@@ -12,7 +12,6 @@
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 
-  /* Forzar que mat-sidenav-content ocupe todo el espacio */
   ::ng-deep .mat-drawer-content {
     display: flex;
     flex-direction: column;
@@ -51,17 +50,76 @@
   margin: 0 auto;
 }
 
-/* ── Sidebar colapsado (desktop) ── */
+/* ── Sidebar colapsado (desktop) — iconos centrados ── */
 @media (min-width: 1025px) {
   .admin-shell.sidebar-collapsed {
     .sidebar {
       width: 68px;
     }
+
     ::ng-deep {
-      .brand-sub, .nav-label, .sidebar-user-info { display: none; }
-      .sidebar-brand { padding: 20px 10px; text-align: center; }
-      .nav-link { justify-content: center; padding: 10px 0; }
-      .logout-btn { margin: 0 auto; }
+      /* Ocultar textos y elementos de marca */
+      .brand-sub,
+      .nav-label,
+      .sidebar-user-info { display: none; }
+
+      /* Centrar logo */
+      .sidebar-brand {
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .brand-container {
+        justify-content: center;
+      }
+
+      /* Centrar cada ítem de navegación */
+      .nav-item-wrapper {
+        justify-content: center;
+        gap: 0;
+      }
+
+      /* Quitar padding lateral del list-item para centrado perfecto */
+      .mat-mdc-list-item {
+        padding: 0 !important;
+      }
+
+      /* Centrar el icono dentro del list-item */
+      .nav-link {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 0;
+      }
+
+      /* El icono ocupa el ancho completo centrado */
+      .bi {
+        margin: 0 auto;
+        font-size: 1.35rem;
+      }
+
+      /* Footer: centrar el botón logout */
+      .sidebar-footer {
+        justify-content: center;
+        padding: 14px 0;
+      }
+
+      .logout-btn {
+        margin: 0 auto;
+      }
+
+      /* Panel de expansión colapsado — centrar header */
+      .mat-expansion-panel-header {
+        justify-content: center;
+        padding: 0 !important;
+      }
+
+      .mat-panel-title {
+        justify-content: center;
+        margin: 0;
+      }
     }
   }
 }

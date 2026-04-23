@@ -1,15 +1,15 @@
 <mat-sidenav-container class="admin-shell" [class.sidebar-collapsed]="layoutService.sidebarCollapsed()">
   <mat-sidenav #sidenav
-             [mode]="isHandset() ? 'over' : 'side'"
-             [opened]="!isHandset()"
-             [class.collapsed]="layoutService.sidebarCollapsed()"
-             fixedInViewport
-             class="sidebar">
+               [mode]="isHandset() ? 'over' : 'side'"
+               [opened]="!isHandset()"
+               [class.collapsed]="layoutService.sidebarCollapsed()"
+               fixedInViewport
+               class="sidebar">
     <app-sidebar [navItems]="navItems"></app-sidebar>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <app-topbar (toggleSidenav)="sidenav.toggle()"></app-topbar>
+    <app-topbar (toggleSidenav)="toggleSidenav()"></app-topbar>
     <app-subheader></app-subheader>
     <main class="page-body">
       <router-outlet></router-outlet>

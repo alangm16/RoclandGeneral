@@ -1,7 +1,7 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, effect, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SidebarComponent, NavItem } from './components/sidebar/sidebar.component';
@@ -28,8 +28,11 @@ import { AuthService } from '../../core/auth/auth.service';
 export class PrivateLayoutComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);
   readonly layoutService = inject(LayoutService);
-  readonly authService = inject(AuthService);
-  
+  readonly authService   = inject(AuthService);
+
+  /** Referencia al mat-sidenav del template para abrirlo/cerrarlo desde código. */
+  readonly sidenav = viewChild.required<MatSidenav>('sidenav');
+
   readonly isHandset = toSignal(
     this.breakpointObserver.observe([
       Breakpoints.Handset,
@@ -38,21 +41,43 @@ export class PrivateLayoutComponent {
     ]).pipe(map(result => result.matches)),
     { initialValue: false }
   );
-  
+
+  toggleSidenav(): void {
+    const sidenav = this.sidenav();
+    sidenav.toggle();
+  }
+
   navItems: NavItem[] = this.buildNavItems();
-  
+
+  private sidenavWasOpen = false;
+
+  constructor() {
+    effect(() => {
+      const modalOpen = this.layoutService.modalOpen();
+      const sidenav   = this.sidenav();
+
+      if (modalOpen) {
+        this.sidenavWasOpen = sidenav.opened;
+        sidenav.close();
+      } else if (this.sidenavWasOpen && !this.isHandset()) {
+        sidenav.open();
+      }
+    });
+  }
+
   private buildNavItems(): NavItem[] {
     const proyecto = this.authService.proyectoActual() || '';
     if (proyecto.includes('acceso-control')) {
-    const base = '/private/acceso-control-web';
+      const base = '/private/acceso-control-web';
       return [
-        { label: 'Dashboard',  icon: 'bi-speedometer2', route: `${base}/dashboard` },
-        { label: 'Personas',   icon: 'bi-people',        route: `${base}/personas` },
-        { label: 'Guardias',   icon: 'bi-shield-shaded', route: `${base}/guardias` },
-        { label: 'Historial',  icon: 'bi-clock-history', route: `${base}/historial` },
-        {label: 'Catálogos',   icon: 'bi-collection-fill',          route: `${base}/catalogos` },
+        { label: 'Dashboard', icon: 'bi-speedometer2',    route: `${base}/dashboard` },
+        { label: 'Personas',  icon: 'bi-people',          route: `${base}/personas`  },
+        { label: 'Guardias',  icon: 'bi-shield-shaded',   route: `${base}/guardias`  },
+        { label: 'Historial', icon: 'bi-clock-history',   route: `${base}/historial` },
+        { label: 'Catálogos', icon: 'bi-collection-fill', route: `${base}/catalogos` },
       ];
     }
     return [{ label: 'Dashboard', icon: 'bi-speedometer2', route: '/dashboard' }];
   }
 }
+

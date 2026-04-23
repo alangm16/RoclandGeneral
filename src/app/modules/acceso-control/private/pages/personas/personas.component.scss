@@ -529,3 +529,38 @@ tbody tr:hover {
     padding: 14px 12px;
   }
 }
+/* ════════════════════════════════════════════════════════════
+   COLUMNAS RESPONSIVAS — app-data-table en Personas
+════════════════════════════════════════════════════════════ */
+::ng-deep {
+  .col-index   { width: 48px;  min-width: 48px; }
+  .col-nombre  { min-width: 160px; font-weight: 600; }
+  .col-id      { min-width: 120px; }
+  .col-tipo    { min-width: 100px; }
+  .col-empresa { min-width: 130px; }
+  .col-visitas { width: 80px; min-width: 80px; text-align: center; }
+  .col-fecha   { min-width: 160px; }
+  .col-actions { width: 50px; min-width: 50px; text-align: center; }
+}
+
+/* Tablet ≤ 900px: ocultar Empresa y Última Visita */
+@media (max-width: 900px) {
+  ::ng-deep .col-empresa,
+  ::ng-deep .col-fecha { display: none !important; }
+}
+
+/* Tablet pequeño ≤ 680px: ocultar Tipo ID */
+@media (max-width: 680px) {
+  ::ng-deep .col-tipo { display: none !important; }
+}
+
+/* Móvil ≤ 520px: ocultar No. ID */
+@media (max-width: 520px) {
+  ::ng-deep .col-id { display: none !important; }
+
+  thead th,
+  tbody td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

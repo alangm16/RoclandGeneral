@@ -1,75 +1,73 @@
 <div class="page-content fade-in">
-  
+
   <div class="table-card">
     <div class="table-header">
       <span class="table-title">Personas Frecuentes</span>
       <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalPersonas() }}</span>
     </div>
 
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>No. ID</th>
-            <th>Tipo ID</th>
-            <th>Empresa</th>
-            <th>Visitas</th>
-            <th>Última Visita</th>
-            <th style="width: 50px;"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (cargando()) {
-            <tr><td colspan="8" class="text-center p-4 text-muted">Cargando...</td></tr>
-          } @else if (personas().length === 0) {
-            <tr><td colspan="8" class="text-center p-4 text-muted">No se encontraron resultados.</td></tr>
-          } @else {
-            @for (p of personas(); track p.id; let i = $index) {
-              <tr>
-                <td class="text-mono text-muted">{{ (paginaActual() - 1) * porPagina + i + 1 }}</td>
-                <td style="font-weight: 600;">{{ p.nombre }}</td>
-                <td class="text-mono">{{ p.numeroIdentificacion }}</td>
-                <td>{{ p.tipoID }}</td>
-                <td class="text-muted">{{ p.empresa || '—' }}</td>
-                <td><span class="bd badge--blue">{{ p.totalVisitas }}</span></td>
-                <td class="text-mono text-muted">
-                  {{ (p.fechaUltimaVisita | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro previo' }}
-                </td>
-                <td>
-                  <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </button>
-                  <mat-menu #menu="matMenu" class="custom-mat-menu">
-                    <button mat-menu-item (click)="abrirDetalles(p)">
-                      <i class="bi bi-clock-history me-2"></i> Ver Historial
-                    </button>
-                  </mat-menu>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="tableData()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
 
-    @if (totalPaginas() > 1) {
-      <div class="pagination">
-        <button class="page-btn" [disabled]="paginaActual() === 1" (click)="cambiarPagina(-1)">
-          <i class="bi bi-chevron-left" style="font-size:11px;"></i> Anterior
-        </button>
-        <span class="page-info">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
-        <button class="page-btn" [disabled]="paginaActual() === totalPaginas()" (click)="cambiarPagina(1)">
-          Siguiente <i class="bi bi-chevron-right" style="font-size:11px;"></i>
-        </button>
-      </div>
-    }
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+
+          @case ('indice') {
+            {{ item.indice }}
+          }
+
+          @case ('nombre') {
+            <span style="font-weight: 600;">{{ item.nombre }}</span>
+          }
+
+          @case ('numeroIdentificacion') {
+            {{ item.numeroIdentificacion }}
+          }
+
+          @case ('tipoID') {
+            {{ item.tipoID }}
+          }
+
+          @case ('empresa') {
+            {{ item.empresa || '—' }}
+          }
+
+          @case ('visitas') {
+            <span class="bd badge--blue">{{ item.totalVisitas }}</span>
+          }
+
+          @case ('ultimaVisita') {
+            {{ (item.fechaUltimaVisita | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro previo' }}
+          }
+
+          @case ('acciones') {
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <mat-menu #menu="matMenu" class="custom-mat-menu">
+              <button mat-menu-item (click)="abrirDetalles(item._raw)">
+                <i class="bi bi-clock-history me-2"></i> Ver Historial
+              </button>
+            </mat-menu>
+          }
+
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+
+    </app-data-table>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
-     MODAL DE DETALLE — usando app-modal general
+     MODAL DE DETALLE
 ══════════════════════════════════════════════════════════ -->
 <app-modal
   [isOpen]="mostrarModal()"
@@ -77,7 +75,6 @@
   size="lg"
   (closed)="cerrarModal()">
 
-  <!-- ── Slot: header ── -->
   <ng-container header>
     <div class="modal-avatar">
       <i class="bi bi-person-fill"></i>
@@ -92,9 +89,7 @@
     </div>
   </ng-container>
 
-  <!-- ── Slot: body ── -->
   <ng-container body>
-
     @if (cargandoDetalle()) {
       <div class="modal-loading">
         <div class="modal-loading-spinner"></div>
@@ -103,25 +98,21 @@
 
     } @else if (perfilSeleccionado(); as perfil) {
 
-      <!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card accent">
           <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
           <div class="kpi-value">{{ perfil.totalVisitas }}</div>
         </div>
-
         <div class="kpi-card">
           <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
           <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
         </div>
-
         <div class="kpi-card">
           <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
           <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
         </div>
       </div>
 
-      <!-- Historial de visitas -->
       <p class="section-label">
         <i class="bi bi-clock-history"></i>
         Historial Reciente
@@ -171,7 +162,6 @@
           </tbody>
         </table>
       </div>
-
     }
   </ng-container>
 

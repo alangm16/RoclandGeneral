@@ -20,32 +20,55 @@ import { BadgeComponent } from '../../../../../shared/components/badge/badge-com
     MatMenuModule,
     ModalComponent,
     DataTableComponent,
-    BadgeComponent
+    BadgeComponent,
   ],
   templateUrl: './personas.component.html',
   styleUrls: ['./personas.component.scss'],
 })
 export class PersonasComponent implements OnInit, OnDestroy {
   public readonly layoutSvc = inject(LayoutService);
-  private readonly adminSvc = inject(AdminService);
-  private readonly injector = inject(Injector);
-  private readonly destroy$ = new Subject<void>();
+  private readonly adminSvc  = inject(AdminService);
+  private readonly injector  = inject(Injector);
+  private readonly destroy$  = new Subject<void>();
 
-  // ── Estado de la Tabla ──
-  personas = signal<PersonaResumen[]>([]);
+  // ── Tabla ──
+  personas      = signal<PersonaResumen[]>([]);
   totalPersonas = signal(0);
-  cargando = signal(false);
+  cargando      = signal(false);
 
   // ── Paginación ──
   paginaActual = signal(1);
   readonly porPagina = 10;
   totalPaginas = computed(() => Math.max(1, Math.ceil(this.totalPersonas() / this.porPagina)));
 
-  // ── Estado del Modal ──
+  // ── Modal ──
   perfilSeleccionado = signal<PersonaPerfil | null>(null);
-  historialPersona = signal<HistorialPersonaItem[]>([]);
-  cargandoDetalle = signal(false);
-  mostrarModal = signal(false);
+  historialPersona   = signal<HistorialPersonaItem[]>([]);
+  cargandoDetalle    = signal(false);
+  mostrarModal       = signal(false);
+
+  // ── Columnas ──
+  readonly tableColumns: DataTableColumn[] = [
+    { key: 'indice',               label: '#',             headerClass: 'col-index',   cellClass: 'text-mono text-muted col-index' },
+    { key: 'nombre',               label: 'Nombre',        headerClass: 'col-nombre',  cellClass: 'col-nombre' },
+    { key: 'numeroIdentificacion', label: 'No. ID',        headerClass: 'col-id',      cellClass: 'text-mono col-id' },
+    { key: 'tipoID',               label: 'Tipo ID',       headerClass: 'col-tipo',    cellClass: 'col-tipo' },
+    { key: 'empresa',              label: 'Empresa',       headerClass: 'col-empresa', cellClass: 'text-muted col-empresa' },
+    { key: 'visitas',              label: 'Visitas',       headerClass: 'col-visitas', cellClass: 'col-visitas' },
+    { key: 'ultimaVisita',         label: 'Última Visita', headerClass: 'col-fecha',   cellClass: 'text-mono text-muted col-fecha' },
+    { key: 'acciones',             label: '',              headerClass: 'col-actions', cellClass: 'col-actions' },
+  ];
+
+  // ── Datos mapeados para la tabla ──
+  readonly tableData = computed(() =>
+    this.personas().map((p, i) => ({
+      ...p,
+      indice:      (this.paginaActual() - 1) * this.porPagina + i + 1,
+      visitas:     p.totalVisitas,
+      ultimaVisita: p.fechaUltimaVisita,
+      _raw: p,
+    }))
+  );
 
   ngOnInit(): void {
     this.layoutSvc.setSubheader({
@@ -73,11 +96,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
     });
 
     toObservable(this.layoutSvc.searchValue, { injector: this.injector })
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
         this.paginaActual.set(1);
         this.cargarPersonas();
@@ -86,14 +105,16 @@ export class PersonasComponent implements OnInit, OnDestroy {
     this.cargarPersonas();
   }
 
-  limpiarBusqueda(): void {
-    this.layoutSvc.onSearchInput('');
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.layoutSvc.resetSubheader();
+    // Asegurar que el sidenav quede restaurado si el componente se destruye con modal abierto
+    this.layoutSvc.closeModal();
+  }
+
+  limpiarBusqueda(): void {
+    this.layoutSvc.onSearchInput('');
   }
 
   cargarPersonas(): void {
@@ -112,17 +133,23 @@ export class PersonasComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * 1. Cierra el sidenav completamente y espera la animación.
+   * 2. Muestra el modal y carga los datos en paralelo.
+   */
   async abrirDetalles(persona: PersonaResumen): Promise<void> {
+    await this.layoutSvc.openModal();
+
     this.mostrarModal.set(true);
     this.cargandoDetalle.set(true);
     this.perfilSeleccionado.set(null);
     this.historialPersona.set([]);
+
     try {
       const [perfil, historial] = await Promise.all([
         this.adminSvc.getPerfilPersona(persona.id).toPromise(),
         this.adminSvc.getHistorialPersona(persona.id).toPromise(),
       ]);
-
       this.perfilSeleccionado.set(perfil ?? null);
       this.historialPersona.set(historial ?? []);
     } catch (e) {
@@ -132,8 +159,12 @@ export class PersonasComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Cierra el modal y restaura el sidenav.
+   */
   cerrarModal(): void {
     this.mostrarModal.set(false);
+    this.layoutSvc.closeModal();
   }
 
   cambiarPagina(delta: number): void {
@@ -144,34 +175,13 @@ export class PersonasComponent implements OnInit, OnDestroy {
     }
   }
 
-  fmtFecha(iso?: string): string {
-    return iso
-      ? new Date(iso).toLocaleString('es-MX', {
-          day: '2-digit', month: '2-digit', year: '2-digit',
-          hour: '2-digit', minute: '2-digit',
-        })
-      : '—';
-  }
-
   estadoAccesoBadge(estado?: string) {
     const map: Record<string, { cls: string; label: string }> = {
-      'Aprobado':   { cls: 'bd badge--green', label: 'Aprobado' },
+      'Aprobado':   { cls: 'bd badge--green', label: 'Aprobado'  },
       'Rechazado':  { cls: 'bd badge--red',   label: 'Rechazado' },
       'Pendiente':  { cls: 'bd badge--amber', label: 'Pendiente' },
-      'Sin salida': { cls: 'bd badge--amber', label: 'Sin salida' },
+      'Sin salida': { cls: 'bd badge--amber', label: 'Sin salida'},
     };
-
     return map[estado ?? ''] ?? { cls: 'bd badge--gray', label: estado ?? '—' };
   }
-
-  readonly tableColumns: DataTableColumn[] = [
-  { key: 'indice',         label: '#',              headerClass: 'text-mono', cellClass: 'text-mono text-muted' },
-  { key: 'nombre',         label: 'Nombre',         headerClass: '' },
-  { key: 'numeroIdentificacion', label: 'No. ID',   headerClass: '', cellClass: 'text-mono' },
-  { key: 'tipoID',         label: 'Tipo ID',        headerClass: '' },
-  { key: 'empresa',        label: 'Empresa',        headerClass: '', cellClass: 'text-muted' },
-  { key: 'visitas',        label: 'Visitas',        headerClass: '' },
-  { key: 'ultimaVisita',   label: 'Última Visita',  headerClass: '', cellClass: 'text-mono text-muted' },
-  { key: 'acciones',       label: '',               headerClass: 'w-50' }  // estilo width
-];
 }
