@@ -1,0 +1,70 @@
+<div class="table-responsive">
+  <table>
+    <!-- Encabezado -->
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns"
+            [class]="col.headerClass">
+          {{ col.label }}
+        </th>
+      </tr>
+    </thead>
+
+    <!-- Cuerpo -->
+    <tbody>
+      <!-- Estado de carga -->
+      <tr *ngIf="loading">
+        <td [attr.colspan]="columns.length" class="text-center p-4 text-muted">
+          <ng-container *ngTemplateOutlet="loadingTemplate || defaultLoading"></ng-container>
+        </td>
+      </tr>
+
+      <!-- Estado vacío -->
+      <tr *ngIf="!loading && data.length === 0">
+        <td [attr.colspan]="columns.length" class="text-center p-4 text-muted">
+          <ng-container *ngTemplateOutlet="emptyTemplate || defaultEmpty"></ng-container>
+        </td>
+      </tr>
+
+      <!-- Filas de datos -->
+      <tr *ngFor="let item of data; let i = index">
+        <td *ngFor="let col of columns"
+            [class]="col.cellClass">
+          <!-- Por defecto: muestra la propiedad item[col.key] -->
+          <ng-container
+            *ngTemplateOutlet="cellTemplate || defaultCell; context: {
+              $implicit: item,
+              item: item,
+              column: col,
+              index: i
+            }">
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Paginación -->
+<div class="pagination" *ngIf="totalPages > 1">
+  <button class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(-1)">
+    <i class="bi bi-chevron-left" style="font-size:11px;"></i> Anterior
+  </button>
+  <span class="page-info">
+    Página {{ currentPage }} de {{ totalPages }}
+  </span>
+  <button class="page-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(1)">
+    Siguiente <i class="bi bi-chevron-right" style="font-size:11px;"></i>
+  </button>
+</div>
+
+<!-- Plantillas por defecto (cuando el padre no las define) -->
+<ng-template #defaultLoading>Cargando...</ng-template>
+<ng-template #defaultEmpty>{{ emptyMessage }}</ng-template>
+<ng-template #defaultCell let-item let-col="column">
+  {{ item[col.key] ?? '—' }}
+</ng-template>

@@ -34,7 +34,9 @@
                 <td>{{ p.tipoID }}</td>
                 <td class="text-muted">{{ p.empresa || '—' }}</td>
                 <td><span class="bd badge--blue">{{ p.totalVisitas }}</span></td>
-                <td class="text-mono text-muted">{{ fmtFecha(p.fechaUltimaVisita) }}</td>
+                <td class="text-mono text-muted">
+                  {{ (p.fechaUltimaVisita | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro previo' }}
+                </td>
                 <td>
                   <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
                     <i class="bi bi-three-dots-vertical"></i>
@@ -66,112 +68,111 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     MODAL DE DETALLE — Perfil de persona frecuente
-══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" [class.open]="mostrarModal()" (click)="cerrarModal()">
-  <div class="detalle-modal" (click)="$event.stopPropagation()">
+<!-- ══════════════════════════════════════════════════════════
+     MODAL DE DETALLE — usando app-modal general
+══════════════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="mostrarModal()"
+  [maxWidth]="'860px'"
+  size="lg"
+  (closed)="cerrarModal()">
 
-    <!-- Header oscuro con acento verde Rocland -->
-    <div class="modal-header">
-      <div class="modal-header-info">
-        <div class="modal-avatar">
-          <i class="bi bi-person-fill"></i>
+  <!-- ── Slot: header ── -->
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-person-fill"></i>
+    </div>
+    <div style="min-width: 0;">
+      @if (perfilSeleccionado(); as perfil) {
+        <h2 class="modal-title">{{ perfil.nombre }}</h2>
+        <p class="modal-subtitle">{{ perfil.tipoID }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
+      } @else {
+        <h2 class="modal-title">Cargando...</h2>
+      }
+    </div>
+  </ng-container>
+
+  <!-- ── Slot: body ── -->
+  <ng-container body>
+
+    @if (cargandoDetalle()) {
+      <div class="modal-loading">
+        <div class="modal-loading-spinner"></div>
+        <span>Cargando detalles...</span>
+      </div>
+
+    } @else if (perfilSeleccionado(); as perfil) {
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card accent">
+          <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
+          <div class="kpi-value">{{ perfil.totalVisitas }}</div>
         </div>
-        <div style="min-width:0;">
-          @if (perfilSeleccionado(); as perfil) {
-            <h2 class="modal-title">{{ perfil.nombre }}</h2>
-            <p class="modal-subtitle">{{ perfil.tipoID }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
-          } @else {
-            <h2 class="modal-title">Cargando...</h2>
-          }
+
+        <div class="kpi-card">
+          <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
+          <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
+          <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
         </div>
       </div>
 
-      <button class="modal-close" (click)="cerrarModal()" aria-label="Cerrar">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
+      <!-- Historial de visitas -->
+      <p class="section-label">
+        <i class="bi bi-clock-history"></i>
+        Historial Reciente
+      </p>
 
-    <!-- Cuerpo scrolleable -->
-    <div class="modal-body">
-
-      @if (cargandoDetalle()) {
-        <!-- Estado de carga -->
-        <div class="modal-loading">
-          <div class="modal-loading-spinner"></div>
-          <span>Cargando detalles...</span>
-        </div>
-
-      } @else if (perfilSeleccionado(); as perfil) {
-
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-          <div class="kpi-card accent">
-            <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
-            <div class="kpi-value">{{ perfil.totalVisitas }}</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
-            <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
-            <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
-          </div>
-        </div>
-
-        <!-- Historial de visitas -->
-        <p class="section-label">
-          <i class="bi bi-clock-history"></i>
-          Historial Reciente
-        </p>
-
-        <div class="history-table-wrap">
-          <table>
-            <thead>
+      <div class="history-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Motivo</th>
+              <th>Entrada</th>
+              <th>Salida</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of historialPersona(); track $index) {
               <tr>
-                <th>Tipo</th>
-                <th>Motivo</th>
-                <th>Entrada</th>
-                <th>Salida</th>
-                <th>Estado</th>
+                <td>
+                  <span class="bd" [class]="h.tipo === 'Visitante' ? 'badge--blue' : 'badge--purple'">
+                    {{ h.tipo }}
+                  </span>
+                </td>
+                <td>{{ h.motivo }}</td>
+                <td class="text-mono text-muted">
+                  {{ (h.fechaEntrada | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro' }}
+                </td>
+                <td class="text-mono text-muted">
+                  {{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Aún adentro' }}
+                </td>
+                <td>
+                  <span [class]="estadoAccesoBadge(h.estadoAcceso).cls">
+                    {{ estadoAccesoBadge(h.estadoAcceso).label }}
+                  </span>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              @for (h of historialPersona(); track $index) {
-                <tr>
-                  <td>
-                    <span class="bd" [class]="h.tipo === 'Visitante' ? 'badge--blue' : 'badge--purple'">
-                      {{ h.tipo }}
-                    </span>
-                  </td>
-                  <td>{{ h.motivo }}</td>
-                  <td class="text-mono text-muted">{{ fmtFecha(h.fechaEntrada) }}</td>
-                  <td class="text-mono text-muted">{{ fmtFecha(h.fechaSalida) }}</td>
-                  <td>
-                    <span
-                      [class]="estadoAccesoBadge(h.estadoAcceso).cls">
-                      {{ estadoAccesoBadge(h.estadoAcceso).label }}
-                    </span>
-                  </td>
-                </tr>
-              }
-              @if (historialPersona().length === 0) {
-                <tr>
-                  <td colspan="5" class="text-center text-muted" style="padding: 24px;">
-                    <i class="bi bi-inbox" style="font-size:18px; display:block; margin-bottom:6px;"></i>
-                    Sin registros de visitas.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+            }
+            @if (historialPersona().length === 0) {
+              <tr>
+                <td colspan="5" class="text-center text-muted" style="padding: 24px;">
+                  <i class="bi bi-inbox" style="font-size:18px; display:block; margin-bottom:6px;"></i>
+                  Sin registros de visitas.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-      }
-    </div><!-- /modal-body -->
-  </div><!-- /detalle-modal -->
-</div><!-- /modal-overlay -->
+    }
+  </ng-container>
+
+</app-modal>

@@ -1,28 +1,34 @@
-// 1. Agrega Injector de @angular/core
 import { Component, OnInit, OnDestroy, inject, signal, computed, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-// 2. Agrega 'skip' a los imports de rxjs
-import { Subject, debounceTime, distinctUntilChanged, takeUntil, skip } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { AdminService } from '../../../services/admin.service';
 import { PersonaResumen, PersonaPerfil, HistorialPersonaItem } from '../../../models/admin.models';
+import { DataTableColumn, DataTableComponent } from '../../../../../shared/components/data-table/data-table.component';
+import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
+import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
 
 @Component({
   selector: 'app-personas',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatMenuModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatMenuModule,
+    ModalComponent,
+    DataTableComponent,
+    BadgeComponent
+  ],
   templateUrl: './personas.component.html',
   styleUrls: ['./personas.component.scss'],
 })
 export class PersonasComponent implements OnInit, OnDestroy {
   public readonly layoutSvc = inject(LayoutService);
   private readonly adminSvc = inject(AdminService);
-  // 3. INYECTA EL INJECTOR AQUÍ
-  private readonly injector = inject(Injector); 
+  private readonly injector = inject(Injector);
   private readonly destroy$ = new Subject<void>();
 
   // ── Estado de la Tabla ──
@@ -50,7 +56,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
         {
           label: 'Buscar',
           icon: 'bi-search',
-          variant: 'flat' as const, 
+          variant: 'flat' as const,
           color: 'primary',
           handler: () => {
             this.paginaActual.set(1);
@@ -62,25 +68,21 @@ export class PersonasComponent implements OnInit, OnDestroy {
           icon: 'bi-arrow-counterclockwise',
           variant: 'stroked' as const,
           handler: () => this.limpiarBusqueda(),
-        }
+        },
       ],
     });
 
-    // 4. PASA EL INJECTOR A toObservable y USA skip(1)
     toObservable(this.layoutSvc.searchValue, { injector: this.injector })
       .pipe(
-        // Quitamos el skip(1). Ahora este observable se dispara 
-        // inmediatamente al abrir la página y cada vez que escribes.
-        debounceTime(400), 
-        distinctUntilChanged(), 
-        takeUntil(this.destroy$)
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
       )
       .subscribe(() => {
         this.paginaActual.set(1);
         this.cargarPersonas();
       });
 
-    // Esta llamada ahora sí se ejecutará correctamente
     this.cargarPersonas();
   }
 
@@ -94,8 +96,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
     this.layoutSvc.resetSubheader();
   }
 
-  // ... (El resto de tus métodos: cargarPersonas, abrirDetalles, cerrarModal, etc. se quedan exactamente igual) ...
-
   cargarPersonas(): void {
     this.cargando.set(true);
     const busqueda = this.layoutSvc.searchValue().trim();
@@ -108,7 +108,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
           this.totalPersonas.set(res.total);
           this.cargando.set(false);
         },
-        error: () => this.cargando.set(false)
+        error: () => this.cargando.set(false),
       });
   }
 
@@ -121,13 +121,13 @@ export class PersonasComponent implements OnInit, OnDestroy {
     try {
       const [perfil, historial] = await Promise.all([
         this.adminSvc.getPerfilPersona(persona.id).toPromise(),
-        this.adminSvc.getHistorialPersona(persona.id).toPromise()
+        this.adminSvc.getHistorialPersona(persona.id).toPromise(),
       ]);
-      
+
       this.perfilSeleccionado.set(perfil ?? null);
       this.historialPersona.set(historial ?? []);
     } catch (e) {
-      console.error("Error cargando detalles", e);
+      console.error('Error cargando detalles', e);
     } finally {
       this.cargandoDetalle.set(false);
     }
@@ -146,22 +146,33 @@ export class PersonasComponent implements OnInit, OnDestroy {
   }
 
   fmtFecha(iso?: string): string {
-    return iso ? new Date(iso).toLocaleString('es-MX', { 
-      day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' 
-    }) : '—';
+    return iso
+      ? new Date(iso).toLocaleString('es-MX', {
+          day: '2-digit', month: '2-digit', year: '2-digit',
+          hour: '2-digit', minute: '2-digit',
+        })
+      : '—';
   }
 
   estadoAccesoBadge(estado?: string) {
     const map: Record<string, { cls: string; label: string }> = {
-      'Aprobado':  { cls: 'bd badge--green',  label: 'Aprobado' },
-      'Rechazado': { cls: 'bd badge--red',    label: 'Rechazado' },
-      'Pendiente': { cls: 'bd badge--amber',  label: 'Pendiente' },
-      'Sin salida':{ cls: 'bd badge--amber',  label: 'Sin salida' },
+      'Aprobado':   { cls: 'bd badge--green', label: 'Aprobado' },
+      'Rechazado':  { cls: 'bd badge--red',   label: 'Rechazado' },
+      'Pendiente':  { cls: 'bd badge--amber', label: 'Pendiente' },
+      'Sin salida': { cls: 'bd badge--amber', label: 'Sin salida' },
     };
 
-    return map[estado ?? ''] ?? {
-      cls: 'bd badge--gray',
-      label: estado ?? '—'
-    };
+    return map[estado ?? ''] ?? { cls: 'bd badge--gray', label: estado ?? '—' };
   }
+
+  readonly tableColumns: DataTableColumn[] = [
+  { key: 'indice',         label: '#',              headerClass: 'text-mono', cellClass: 'text-mono text-muted' },
+  { key: 'nombre',         label: 'Nombre',         headerClass: '' },
+  { key: 'numeroIdentificacion', label: 'No. ID',   headerClass: '', cellClass: 'text-mono' },
+  { key: 'tipoID',         label: 'Tipo ID',        headerClass: '' },
+  { key: 'empresa',        label: 'Empresa',        headerClass: '', cellClass: 'text-muted' },
+  { key: 'visitas',        label: 'Visitas',        headerClass: '' },
+  { key: 'ultimaVisita',   label: 'Última Visita',  headerClass: '', cellClass: 'text-mono text-muted' },
+  { key: 'acciones',       label: '',               headerClass: 'w-50' }  // estilo width
+];
 }

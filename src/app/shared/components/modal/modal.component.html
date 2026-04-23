@@ -1,0 +1,49 @@
+<!-- ══════════════════════════════════════════════════════════
+     APP-MODAL — Componente general reutilizable
+     Sistema de diseño Rocland
+══════════════════════════════════════════════════════════ -->
+<div
+  class="modal-overlay"
+  [class.open]="isOpen"
+  [class.modal--sm]="size === 'sm'"
+  [class.modal--md]="size === 'md'"
+  [class.modal--lg]="size === 'lg'"
+  [class.modal--xl]="size === 'xl'"
+  (click)="onOverlayClick()"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-hidden]="!isOpen">
+
+  <!-- Panel principal -->
+  <div
+    class="modal-panel"
+    [style.max-width]="maxWidth"
+    (click)="stopPropagation($event)">
+
+    <!-- ── Header oscuro con acento verde Rocland ── -->
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <!-- El padre proyecta aquí: avatar + título + subtítulo -->
+        <ng-content select="[header]" />
+      </div>
+
+      <!-- Botón cerrar siempre presente -->
+      <button
+        class="modal-close"
+        (click)="close()"
+        aria-label="Cerrar modal"
+        type="button">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- ── Cuerpo scrolleable ── -->
+    <div class="modal-body">
+      <ng-content select="[body]" />
+    </div>
+
+    <!-- ── Footer opcional ── -->
+    <ng-content select="[footer]" />
+
+  </div><!-- /modal-panel -->
+</div><!-- /modal-overlay -->

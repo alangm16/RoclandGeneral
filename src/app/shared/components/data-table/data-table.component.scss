@@ -1,0 +1,102 @@
+// Copia las reglas necesarias de tu .table-responsive, table, thead, tbody, pagination
+// que originalmente estaban en personas.component.scss. Las extraemos aquí
+// para que el componente sea autónomo.
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead th {
+  background-color: var(--rocland-light);
+  padding: 11px 28px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rocland-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--rocland-border);
+}
+
+tbody td {
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--rocland-border);
+  font-size: 14px;
+  color: var(--rocland-dark);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: rgba(74, 156, 31, 0.04);
+}
+
+.text-center { text-align: center; }
+.text-muted  { color: var(--rocland-gray); }
+.text-mono   { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+// Paginación
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  gap: 16px;
+  background-color: var(--rocland-white);
+  border-top: 1px solid var(--rocland-border);
+}
+
+.page-btn {
+  background-color: var(--rocland-white);
+  border: 1px solid var(--rocland-border);
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rocland-dark);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+
+  &:hover:not(:disabled) {
+    background-color: var(--rocland-light);
+    border-color: var(--rocland-green);
+    color: var(--rocland-green-dark);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.page-info {
+  font-size: 13px;
+  color: var(--rocland-gray);
+  font-weight: 500;
+}
+
+// Clases opcionales para uso del padre
+.bd {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  &--blue { background: rgba(0,123,255,0.12); color: #0d6efd; }
+  &--purple { background: rgba(111,66,193,0.12); color: #6f42c1; }
+  &--green { background: rgba(40,167,69,0.12); color: #198754; }
+  &--red { background: rgba(220,53,69,0.12); color: #dc3545; }
+  &--amber { background: rgba(255,193,7,0.12); color: #cc9a06; }
+  &--gray { background: rgba(108,117,125,0.12); color: #6c757d; }
+}
