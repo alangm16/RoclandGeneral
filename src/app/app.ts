@@ -6,8 +6,8 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet],
   templateUrl: './app.html'
-  // styleUrl: './app.scss' <-- Si tenías esta línea, déjala; si no, la puedes omitir
+
 })
-export class App {  // <--- ¡Aquí está el cambio clave!
+export class App {  
   title = 'roclandgeneral';
 }
