@@ -42,3 +42,62 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# ##############################################################################
+# Angular / Node.js
+# ##############################################################################
+# Carpeta de dependencias (no se sube, se instala en el contenedor o local)
+node_modules/
+
+# Caché de compilación de Angular (muy importante borrar esto si cambias de SO/Entorno)
+.angular/
+
+# Salida de compilación (Client-side y Server-side)
+/dist/
+
+# Archivos de logs de npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ##############################################################################
+# Docker
+# ##############################################################################
+# Si usas persistencia de datos local para bases de datos (común en Docker Compose)
+docker/data/
+.docker-cache/
+
+# ##############################################################################
+# Entorno / Secretos (Crucial si vas a MV o Producción)
+# ##############################################################################
+.env
+.env.*
+!.env.example
+
+# ##############################################################################
+# Editores y Sistema Operativo (Windows/Mac)
+# ##############################################################################
+# Windows
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# ##############################################################################
+# Pruebas y Cobertura
+# ##############################################################################
+/coverage/
+/e2e/out/
+
+# ##############################################################################
+# Archivos temporales de TypeScript y otros
+# ##############################################################################
+*.tsbuildinfo
+.sass-cache/

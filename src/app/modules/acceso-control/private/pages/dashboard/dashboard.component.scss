@@ -363,6 +363,9 @@
   box-shadow: var(--shadow-sm);
   padding: 1.5rem;
   transition: var(--transition);
+
+  min-width: 0;
+  overflow: hidden;
   
   &:hover { box-shadow: var(--shadow-md); }
   &.full-width { grid-column: 1 / -1; margin-bottom: 0; }
@@ -420,6 +423,18 @@
   height: 260px;
   &.large { height: 220px; }
 }
+
+// Agregar solo esto al .chart-container del card de pastel
+// .charts-row .chart-card:last-child .chart-container {
+//   position: relative;
+//   width: 100%;
+//   height: 260px;
+
+//   canvas {
+//     max-width: 100% !important;
+//     max-height: 100% !important;
+//   }
+// }
 
 /* Responsive */
 @media (max-width: 1200px) {

@@ -33,7 +33,7 @@
                 <td class="text-mono">{{ p.numeroIdentificacion }}</td>
                 <td>{{ p.tipoID }}</td>
                 <td class="text-muted">{{ p.empresa || '—' }}</td>
-                <td><span class="badge badge-blue">{{ p.totalVisitas }}</span></td>
+                <td><span class="bd badge--blue">{{ p.totalVisitas }}</span></td>
                 <td class="text-mono text-muted">{{ fmtFecha(p.fechaUltimaVisita) }}</td>
                 <td>
                   <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
@@ -144,7 +144,7 @@
               @for (h of historialPersona(); track $index) {
                 <tr>
                   <td>
-                    <span class="badge" [class]="h.tipo === 'Visitante' ? 'badge-blue' : 'badge-purple'">
+                    <span class="bd" [class]="h.tipo === 'Visitante' ? 'badge--blue' : 'badge--purple'">
                       {{ h.tipo }}
                     </span>
                   </td>
@@ -152,13 +152,11 @@
                   <td class="text-mono text-muted">{{ fmtFecha(h.fechaEntrada) }}</td>
                   <td class="text-mono text-muted">{{ fmtFecha(h.fechaSalida) }}</td>
                   <td>
-                    @switch (h.estadoAcceso) {
-                        @case ('Completado') { <span class="badge badge-green">Completado</span> }
-                        @case ('Denegado')   { <span class="badge badge-red">Denegado</span>    }
-                        @case ('Sin salida') { <span class="badge badge-amber">Sin salida</span> }
-                        @default             { <span class="badge badge-gray">{{ h.estadoAcceso }}</span> }
-                    }
-                    </td>
+                    <span
+                      [class]="estadoAccesoBadge(h.estadoAcceso).cls">
+                      {{ estadoAccesoBadge(h.estadoAcceso).label }}
+                    </span>
+                  </td>
                 </tr>
               }
               @if (historialPersona().length === 0) {

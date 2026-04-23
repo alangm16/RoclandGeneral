@@ -1,5 +1,5 @@
 // dashboard.component.ts (versión limpia, sin cambios en la lógica)
-import { Component, OnInit, inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
@@ -8,6 +8,8 @@ import { DashboardKpis, ActivoZona } from '../../../models/admin.models';
 import { SignalrService, SignalRStatus } from '../../../services/signalr.service';
 import { Subscription, interval } from 'rxjs';
 import { environment } from '../../../../../../environmets/Environment';
+import { LayoutService } from '../../../../../core/services/layout.service';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,10 +50,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentTime: string = '';
   private clockInterval: any;
 
+  private resizeObservers: ResizeObserver[] = [];
+  private readonly layoutService = inject(LayoutService);
+
   ngOnInit(): void {
     this.cargarDatos();
     this.configurarSignalR();
     this.iniciarReloj();
+    
+    effect(() => {
+      // Cada vez que cambia la señal sidebarCollapsed…
+      const collapsed = this.layoutService.sidebarCollapsed();
+      // …espera 250ms (fin de la transición CSS) y redimensiona todos los gráficos
+      setTimeout(() => {
+        if (this.chartHoras) this.chartHoras.resize();
+        if (this.chartAreas) this.chartAreas.resize();
+        if (this.chartMes)  this.chartMes.resize();
+      }, 250);
+    });
   }
 
   ngOnDestroy(): void {
@@ -61,6 +77,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
     this.signalrService.detenerConexion();
     this.detenerReloj();
+
+    this.resizeObservers.forEach(observer => observer.disconnect());
+    this.resizeObservers = [];
   }
 
   private configurarSignalR(): void {
@@ -128,23 +147,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
   exportarExcel(): void { window.open(`${environment.apiUrl}/api/web/accesocontrol/admin/exportar/excel`, '_blank'); }
   exportarPDF(): void { window.open(`${environment.apiUrl}/api/web/accesocontrol/admin/exportar/pdf`, '_blank'); }
 
-  cargarGraficaHoras(): void {
+  private observeChartResize(chart: Chart, container: HTMLElement): void {
+    const observer = new ResizeObserver(() => {
+      chart.resize();
+    });
+    observer.observe(container);
+    this.resizeObservers.push(observer);
+  }
+
+    cargarGraficaHoras(): void {
     this.adminService.getFlujoHoras().subscribe(data => {
-      const labels = data.map(d => d.hora + ':00');
-      const valores = data.map(d => d.total);
+      // 1. Filtra las horas deseadas (7 a 19 inclusive)
+      const datosFiltrados = data
+        .filter(d => d.hora >= 7 && d.hora <= 19)
+        .sort((a, b) => a.hora - b.hora);  // ordena por hora
+
+      const labels = datosFiltrados.map(d => d.hora + ':00');
+      const valores = datosFiltrados.map(d => d.total);
+
       if (this.chartHoras) {
         this.chartHoras.data.labels = labels;
         this.chartHoras.data.datasets[0].data = valores;
         this.chartHoras.update();
         return;
       }
+
       setTimeout(() => {
         if (!this.canvasHoras) return;
-        this.chartHoras = new Chart(this.canvasHoras.nativeElement, {
+        const canvas = this.canvasHoras.nativeElement;
+        this.chartHoras = new Chart(canvas, {
           type: 'bar',
-          data: { labels, datasets: [{ label: 'Accesos', data: valores, backgroundColor: '#3B82F6BB', borderColor: '#3B82F6', borderWidth: 1, borderRadius: 4 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+          data: {
+            labels,
+            datasets: [{
+              label: 'Accesos',
+              data: valores,
+              backgroundColor: '#3B82F6BB',
+              borderColor: '#3B82F6',
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1,               // incrementos de 1
+                  callback: (value) => Number.isInteger(value) ? value : null
+                },
+                suggestedMax: 10             // máximo sugerido, se ajusta si hay valores mayores
+              }
+            }
+          }
         });
+        this.observeChartResize(this.chartHoras, canvas.parentElement!);
       }, 0);
     });
   }
@@ -162,11 +222,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
       setTimeout(() => {
         if (!this.canvasAreas) return;
-        this.chartAreas = new Chart(this.canvasAreas.nativeElement, {
+        const canvas = this.canvasAreas.nativeElement;
+        this.chartAreas = new Chart(canvas, {
           type: 'doughnut',
           data: { labels, datasets: [{ data: valores, backgroundColor: bgColors, borderWidth: 2, borderColor: '#ffffff' }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
+        // NUEVO: observar resize
+        this.observeChartResize(this.chartAreas, canvas.parentElement!);
       }, 0);
     });
   }
@@ -185,7 +248,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
       setTimeout(() => {
         if (!this.canvasMes) return;
-        this.chartMes = new Chart(this.canvasMes.nativeElement, {
+        const canvas = this.canvasMes.nativeElement;
+        this.chartMes = new Chart(canvas, {
           type: 'line',
           data: {
             labels,
@@ -196,6 +260,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           },
           options: { responsive: true, maintainAspectRatio: false }
         });
+        // NUEVO: observar resize
+        this.observeChartResize(this.chartMes, canvas.parentElement!);
       }, 0);
     });
   }

@@ -151,14 +151,17 @@ export class PersonasComponent implements OnInit, OnDestroy {
     }) : '—';
   }
 
-  estadoBadge(estado: string): string {
-  const map: Record<string, { cls: string; label: string }> = {
-    'Completado':   { cls: 'badge badge-green', label: 'Completado' },
-    'Denegado':     { cls: 'badge badge-red',   label: 'Denegado'   },
-    'Sin salida':   { cls: 'badge badge-amber', label: 'Sin salida' },
-    'Desconocido':  { cls: 'badge badge-gray',  label: 'Desconocido'},
-  };
-  const e = map[estado] ?? { cls: 'badge badge-gray', label: estado };
-  return `<span class="${e.cls}">${e.label}</span>`;
-}
+  estadoAccesoBadge(estado?: string) {
+    const map: Record<string, { cls: string; label: string }> = {
+      'Aprobado':  { cls: 'bd badge--green',  label: 'Aprobado' },
+      'Rechazado': { cls: 'bd badge--red',    label: 'Rechazado' },
+      'Pendiente': { cls: 'bd badge--amber',  label: 'Pendiente' },
+      'Sin salida':{ cls: 'bd badge--amber',  label: 'Sin salida' },
+    };
+
+    return map[estado ?? ''] ?? {
+      cls: 'bd badge--gray',
+      label: estado ?? '—'
+    };
+  }
 }
