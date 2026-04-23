@@ -53,11 +53,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private resizeObservers: ResizeObserver[] = [];
   private readonly layoutService = inject(LayoutService);
 
-  ngOnInit(): void {
-    this.cargarDatos();
-    this.configurarSignalR();
-    this.iniciarReloj();
-    
+  // 1. Agrega el constructor e introduce el effect() aquí
+  constructor() {
     effect(() => {
       // Cada vez que cambia la señal sidebarCollapsed…
       const collapsed = this.layoutService.sidebarCollapsed();
@@ -68,6 +65,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (this.chartMes)  this.chartMes.resize();
       }, 250);
     });
+  }
+
+  // 2. Tu ngOnInit ahora queda limpio, solo llamando métodos
+  ngOnInit(): void {
+    this.cargarDatos();
+    this.configurarSignalR();
+    this.iniciarReloj();
   }
 
   ngOnDestroy(): void {

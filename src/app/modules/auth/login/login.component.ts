@@ -41,15 +41,16 @@ export class LoginComponent implements OnInit {
 
   // ── Lifecycle ─────────────────────────────────────────────────
   ngOnInit(): void {
-    // Si ya hay sesión activa, redirigir directo al dashboard del proyecto
+    // 1. SIEMPRE inicializar el formulario primero para evitar errores en el HTML
+    this.buildForm();
+
+    // 2. Si ya hay sesión activa, redirigir directo al dashboard
     if (this.auth.estaLogueado()) {
       this.router.navigate([`/private/${this.auth.proyectoActual()}/dashboard`]);
       return;
     }
 
     this.proyectos = this.auth.getProyectosActivos();
-
-    this.buildForm();
 
     // Si solo hay un proyecto, preseleccionarlo
     if (this.proyectos.length === 1) {
@@ -122,7 +123,7 @@ export class LoginComponent implements OnInit {
 
   // ── Helpers ───────────────────────────────────────────────────
   isInvalid(campo: string): boolean {
-    const ctrl = this.form.get(campo);
+    const ctrl = this.form?.get(campo);
     return !!(this.submitted && ctrl?.invalid);
   }
 
