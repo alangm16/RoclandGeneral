@@ -316,4 +316,11 @@
     height: 36px;
     font-size: 14px;
   }
+
+  ::ng-deep .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+  ::ng-deep .kpi-grid > *:nth-child(3) {
+    grid-column: auto;
+  }
 }

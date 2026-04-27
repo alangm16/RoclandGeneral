@@ -64,3 +64,27 @@ export interface PersonasPaginadas {
   items: PersonaResumen[];
   total: number;
 }
+
+export interface GuardiaResumen {
+  id: number;
+  nombre: string;
+  usuario: string;
+  activo: boolean;
+  fechaCreacion: string;
+}
+
+export interface GuardiaCreateDto {
+  nombre: string;
+  usuario: string;
+  password: string;
+}
+
+export interface GuardiaUpdateDto {
+  nombre: string;
+  activo: boolean;
+}
+
+export interface GuardiasPaginados {
+  items: GuardiaResumen[];
+  total: number;
+}

@@ -20,7 +20,7 @@
   background: var(--rocland-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  overflow: hidden;
+  overflow: clip;
   border: 1px solid var(--rocland-border);
   margin: 0;
 }
@@ -372,6 +372,7 @@ tbody tr:hover {
   border: 1px solid var(--rocland-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  overflow-x: auto;
   overflow-y: auto;
   max-height: 280px;
 
@@ -486,6 +487,14 @@ tbody tr:hover {
   .modal-overlay {
     align-items: flex-end;
     padding: 0;
+  }
+
+  .modal-title {
+    white-space: normal;       
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;           
   }
 
   /* En móvil el modal se convierte en un bottom sheet */

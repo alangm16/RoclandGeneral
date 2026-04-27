@@ -1,0 +1,355 @@
+<div class="page-content fade-in">
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Guardias</span>
+      <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalGuardias() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="tableData()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+
+          @case ('indice') {
+            {{ item.indice }}
+          }
+
+          @case ('nombre') {
+            <span style="font-weight: 600;">{{ item.nombre }}</span>
+          }
+
+          @case ('usuario') {
+            <span class="text-mono">{{ item.usuario }}</span>
+          }
+
+          @case ('estado') {
+            <app-badge
+              [label]="item.activo ? 'Activo' : 'Inactivo'"
+              [variant]="item.activo ? 'green' : 'red'" />
+          }
+
+          @case ('fechaCreacion') {
+            <span class="text-mono text-muted" style="font-size: 12px;">
+              {{ (item.fechaCreacion | date:'dd/MM/yyyy':'-0600') || '—' }}
+            </span>
+          }
+
+          @case ('acciones') {
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <mat-menu #menu="matMenu" class="custom-mat-menu">
+              <button mat-menu-item (click)="abrirEditar(item._raw)">
+                <i class="bi bi-pencil me-2"></i> Editar nombre
+              </button>
+              <button mat-menu-item (click)="abrirReset(item._raw)">
+                <i class="bi bi-key me-2"></i> Resetear contraseña
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="toggleEstado(item._raw)">
+                @if (item.activo) {
+                  <i class="bi bi-slash-circle me-2 text-danger"></i>
+                  <span class="text-danger">Desactivar</span>
+                } @else {
+                  <i class="bi bi-check-circle me-2 text-success"></i>
+                  <span class="text-success">Activar</span>
+                }
+              </button>
+            </mat-menu>
+          }
+
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+
+    </app-data-table>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — NUEVO GUARDIA
+══════════════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="mostrarModalNuevo()"
+  [maxWidth]="'480px'"
+  size="sm"
+  (closed)="cerrarModalNuevo()">
+
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-shield-plus"></i>
+    </div>
+    <div style="min-width: 0;">
+      <h2 class="modal-title">Nuevo Guardia</h2>
+      <p class="modal-subtitle">Crear cuenta de acceso</p>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <div class="form-group">
+      <label class="form-label">Nombre completo <span class="req">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Ej: Juan García"
+        [class.is-invalid]="erroresNuevo.nombre"
+        [(ngModel)]="formNuevo.nombre" />
+      @if (erroresNuevo.nombre) {
+        <div class="invalid-feedback" style="display: block;">{{ erroresNuevo.nombre }}</div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Usuario <span class="req">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Ej: jgarcia"
+        [class.is-invalid]="erroresNuevo.usuario"
+        [(ngModel)]="formNuevo.usuario"
+        autocomplete="off" />
+      @if (erroresNuevo.usuario) {
+        <div class="invalid-feedback" style="display: block;">{{ erroresNuevo.usuario }}</div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Contraseña <span class="req">*</span></label>
+      <div class="input-password-wrap">
+        <input
+          [type]="mostrarPwdNuevo ? 'text' : 'password'"
+          class="form-control"
+          placeholder="Mínimo 6 caracteres"
+          [class.is-invalid]="erroresNuevo.password"
+          [(ngModel)]="formNuevo.password"
+          autocomplete="new-password" />
+        <button class="btn-pwd-toggle" type="button" (click)="mostrarPwdNuevo = !mostrarPwdNuevo">
+          <i class="bi" [class.bi-eye]="!mostrarPwdNuevo" [class.bi-eye-slash]="mostrarPwdNuevo"></i>
+        </button>
+      </div>
+      @if (erroresNuevo.password) {
+        <div class="invalid-feedback" style="display: block;">{{ erroresNuevo.password }}</div>
+      }
+    </div>
+
+    @if (errorGlobalNuevo()) {
+      <div class="alert-form-error show">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ errorGlobalNuevo() }}
+      </div>
+    }
+
+    <button
+      class="btn-rocland"
+      [disabled]="guardandoNuevo()"
+      (click)="crearGuardia()">
+      @if (guardandoNuevo()) {
+        <span class="btn-spinner active"></span> Creando...
+      } @else {
+        <i class="bi bi-shield-plus"></i> Crear guardia
+      }
+    </button>
+  </ng-container>
+
+</app-modal>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — EDITAR NOMBRE
+══════════════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="mostrarModalEditar()"
+  [maxWidth]="'420px'"
+  size="sm"
+  (closed)="cerrarModalEditar()">
+
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-pencil-square"></i>
+    </div>
+    <div style="min-width: 0;">
+      <h2 class="modal-title">Editar Guardia</h2>
+      @if (guardiaSeleccionado(); as g) {
+        <p class="modal-subtitle">{{ g.usuario }}</p>
+      }
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <div class="form-group">
+      <label class="form-label">Nombre completo <span class="req">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Nombre completo"
+        [class.is-invalid]="erroresEditar.nombre"
+        [(ngModel)]="formEditar.nombre" />
+      @if (erroresEditar.nombre) {
+        <div class="invalid-feedback" style="display: block;">{{ erroresEditar.nombre }}</div>
+      }
+    </div>
+
+    @if (errorGlobalEditar()) {
+      <div class="alert-form-error show">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ errorGlobalEditar() }}
+      </div>
+    }
+
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalEditar()" style="flex:1;">
+        Cancelar
+      </button>
+      <button
+        class="btn-rocland"
+        [disabled]="guardandoEditar()"
+        (click)="guardarEditar()"
+        style="flex:2;">
+        @if (guardandoEditar()) {
+          <span class="btn-spinner active"></span> Guardando...
+        } @else {
+          Guardar cambios
+        }
+      </button>
+    </div>
+  </ng-container>
+
+</app-modal>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — RESET CONTRASEÑA
+══════════════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="mostrarModalReset()"
+  [maxWidth]="'420px'"
+  size="sm"
+  (closed)="cerrarModalReset()">
+
+  <ng-container header>
+    <div class="modal-avatar" style="background: rgba(212,135,26,0.15); border-color: var(--rocland-warning); color: var(--rocland-warning);">
+      <i class="bi bi-key"></i>
+    </div>
+    <div style="min-width: 0;">
+      <h2 class="modal-title">Resetear Contraseña</h2>
+      @if (guardiaSeleccionado(); as g) {
+        <p class="modal-subtitle">{{ g.nombre }}</p>
+      }
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <div class="form-group">
+      <label class="form-label">Nueva contraseña <span class="req">*</span></label>
+      <div class="input-password-wrap">
+        <input
+          [type]="mostrarPwdReset ? 'text' : 'password'"
+          class="form-control"
+          placeholder="Mínimo 6 caracteres"
+          [class.is-invalid]="erroresReset.password"
+          [(ngModel)]="formReset.password"
+          autocomplete="new-password" />
+        <button class="btn-pwd-toggle" type="button" (click)="mostrarPwdReset = !mostrarPwdReset">
+          <i class="bi" [class.bi-eye]="!mostrarPwdReset" [class.bi-eye-slash]="mostrarPwdReset"></i>
+        </button>
+      </div>
+      @if (erroresReset.password) {
+        <div class="invalid-feedback" style="display: block;">{{ erroresReset.password }}</div>
+      }
+    </div>
+
+    @if (errorGlobalReset()) {
+      <div class="alert-form-error show">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ errorGlobalReset() }}
+      </div>
+    }
+
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalReset()" style="flex:1;">
+        Cancelar
+      </button>
+      <button
+        class="btn-rocland"
+        [disabled]="guardandoReset()"
+        (click)="confirmarReset()"
+        style="flex:2;">
+        @if (guardandoReset()) {
+          <span class="btn-spinner active"></span> Guardando...
+        } @else {
+          <i class="bi bi-key"></i> Actualizar contraseña
+        }
+      </button>
+    </div>
+  </ng-container>
+
+</app-modal>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — CONFIRMAR TOGGLE ESTADO
+══════════════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="mostrarModalToggle()"
+  [maxWidth]="'380px'"
+  size="sm"
+  (closed)="cerrarModalToggle()">
+
+  <ng-container header>
+    @if (guardiaSeleccionado(); as g) {
+      <div
+        class="modal-avatar"
+        [style.background]="g.activo ? 'rgba(192,57,43,0.15)' : 'rgba(74,156,31,0.15)'"
+        [style.border-color]="g.activo ? 'var(--rocland-danger)' : 'var(--rocland-green)'"
+        [style.color]="g.activo ? 'var(--rocland-danger)' : 'var(--rocland-green)'">
+        <i class="bi" [class.bi-slash-circle]="g.activo" [class.bi-check-circle]="!g.activo"></i>
+      </div>
+      <div style="min-width: 0;">
+        <h2 class="modal-title">{{ g.activo ? 'Desactivar' : 'Activar' }} Guardia</h2>
+        <p class="modal-subtitle">{{ g.nombre }}</p>
+      </div>
+    }
+  </ng-container>
+
+  <ng-container body>
+    @if (guardiaSeleccionado(); as g) {
+      <p class="confirm-text">
+        @if (g.activo) {
+          El guardia <strong>{{ g.nombre }}</strong> perderá acceso al sistema inmediatamente.
+          ¿Deseas continuar?
+        } @else {
+          El guardia <strong>{{ g.nombre }}</strong> recuperará el acceso al sistema.
+          ¿Deseas continuar?
+        }
+      </p>
+    }
+
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalToggle()" style="flex:1;">
+        Cancelar
+      </button>
+      <button
+        class="btn-rocland"
+        [class.btn-danger]="guardiaSeleccionado()?.activo"
+        [disabled]="guardandoToggle()"
+        (click)="confirmarToggle()"
+        style="flex:2;">
+        @if (guardandoToggle()) {
+          <span class="btn-spinner active"></span> Procesando...
+        } @else if (guardiaSeleccionado()?.activo) {
+          <i class="bi bi-slash-circle"></i> Sí, desactivar
+        } @else {
+          <i class="bi bi-check-circle"></i> Sí, activar
+        }
+      </button>
+    </div>
+  </ng-container>
+
+</app-modal>
