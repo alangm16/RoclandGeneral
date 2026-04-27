@@ -1,0 +1,75 @@
+<!-- ══════════════════════════════════════════════════════════
+     APP-KPI-CARD — Sistema de diseño Rocland
+══════════════════════════════════════════════════════════ -->
+<div class="kpi-card" [ngClass]="hostClasses">
+
+  <!-- ══ VARIANT: DASHBOARD ══════════════════════════════════
+       Icono grande a la izquierda, valor XL, barra inferior.
+  ══════════════════════════════════════════════════════════ -->
+  @if (variant === 'dashboard') {
+
+    @if (icon) {
+      <div class="kpi-icon">
+        <i class="bi {{ icon }}"></i>
+      </div>
+    }
+
+    <div class="kpi-content">
+      <div class="kpi-label">{{ label }}</div>
+      <div class="kpi-value" [class]="'size-' + valueSize" [class.mono]="mono">
+        {{ displayValue }}
+      </div>
+      @if (sub) {
+        <div class="kpi-sub">{{ sub }}</div>
+      }
+    </div>
+
+    <!-- Slot para contenido extra (ej. sparkline, trend badge) -->
+    <ng-content select="[kpiExtra]" />
+
+  }
+
+  <!-- ══ VARIANT: COMPACT ════════════════════════════════════
+       Sin icono aparte, label con icono inline, valor mediano.
+       Ideal para paneles de detalle y modales.
+  ══════════════════════════════════════════════════════════ -->
+  @else if (variant === 'compact') {
+
+    <div class="kpi-label">
+      @if (icon) {
+        <i class="bi {{ icon }}"></i>
+      }
+      {{ label }}
+    </div>
+
+    <div class="kpi-value" [class]="'size-' + valueSize" [class.mono]="mono">
+      {{ displayValue }}
+    </div>
+
+    <!-- Slot para contenido adicional dentro de la tarjeta -->
+    <ng-content />
+
+  }
+
+  <!-- ══ VARIANT: STAT ════════════════════════════════════════
+       Fila horizontal compacta: icono pequeño | label + valor.
+       Para sidebars, listas de métricas rápidas o footers.
+  ══════════════════════════════════════════════════════════ -->
+  @else if (variant === 'stat') {
+
+    @if (icon) {
+      <div class="kpi-icon-sm">
+        <i class="bi {{ icon }}"></i>
+      </div>
+    }
+
+    <div class="kpi-stat-body">
+      <span class="kpi-label">{{ label }}</span>
+      <span class="kpi-value" [class]="'size-' + valueSize" [class.mono]="mono">
+        {{ displayValue }}
+      </span>
+    </div>
+
+  }
+
+</div>

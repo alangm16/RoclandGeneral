@@ -1,0 +1,246 @@
+/* ════════════════════════════════════════════════════════════
+   APP-EMPTY-STATE — Estilos responsivos
+   Sistema de diseño Rocland
+════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+}
+
+/* ── BASE ── */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rocland-gray);
+  gap: 16px;
+}
+
+.empty-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.empty-message {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rocland-gray);
+  margin: 0;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: var(--rocland-silver);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.empty-icon i {
+  color: var(--rocland-border);
+  display: block;
+  line-height: 1;
+}
+
+/* ── BOTÓN DE ACCIÓN ── */
+.empty-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 7px 16px;
+  min-height: 36px; /* touch target */
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--rocland-green);
+  color: #fff;
+  border: none;
+
+  &:hover {
+    background: var(--rocland-green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 156, 31, 0.3);
+  }
+
+  i { font-size: 13px; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT: TABLE
+════════════════════════════════════════════════════════════ */
+:host(.layout-table) .empty-state {
+  flex-direction: column;
+  text-align: center;
+  padding: 40px 24px;
+  background: transparent;
+}
+
+:host(.layout-table) .empty-icon i {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+:host(.layout-table) .empty-body {
+  align-items: center;
+}
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT: INLINE
+════════════════════════════════════════════════════════════ */
+:host(.layout-inline) .empty-state {
+  flex-direction: row;
+  text-align: left;
+  padding: 20px 24px;
+  background: var(--rocland-light);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--rocland-border);
+  grid-column: 1 / -1; /* ocupa todo el grid de cards */
+}
+
+:host(.layout-inline) .empty-icon i {
+  font-size: 20px;
+  color: var(--rocland-silver);
+  flex-shrink: 0;
+}
+
+:host(.layout-inline) .empty-message {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT: PAGE
+════════════════════════════════════════════════════════════ */
+:host(.layout-page) .empty-state {
+  flex-direction: column;
+  text-align: center;
+  padding: 80px 40px;
+  min-height: 400px;
+}
+
+:host(.layout-page) .empty-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--rocland-light);
+  border: 2px dashed var(--rocland-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+:host(.layout-page) .empty-icon i {
+  font-size: 36px;
+  color: var(--rocland-silver);
+}
+
+:host(.layout-page) .empty-body {
+  align-items: center;
+  gap: 6px;
+}
+
+:host(.layout-page) .empty-message {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rocland-dark);
+}
+
+:host(.layout-page) .empty-hint {
+  font-size: 13px;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVIDAD
+════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 768px) ── */
+@media (max-width: 768px) {
+  :host(.layout-page) .empty-state {
+    padding: 60px 32px;
+    min-height: 320px;
+  }
+
+  :host(.layout-page) .empty-icon {
+    width: 76px;
+    height: 76px;
+  }
+
+  :host(.layout-page) .empty-icon i {
+    font-size: 30px;
+  }
+
+  :host(.layout-page) .empty-message {
+    font-size: 15px;
+  }
+
+  :host(.layout-table) .empty-state {
+    padding: 32px 20px;
+  }
+}
+
+/* ── Móvil (≤ 480px) ── */
+@media (max-width: 480px) {
+  /* Page: más compacto */
+  :host(.layout-page) .empty-state {
+    padding: 48px 24px;
+    min-height: 260px;
+  }
+
+  :host(.layout-page) .empty-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  :host(.layout-page) .empty-icon i {
+    font-size: 26px;
+  }
+
+  :host(.layout-page) .empty-message {
+    font-size: 14px;
+  }
+
+  :host(.layout-page) .empty-hint {
+    font-size: 12px;
+    max-width: 100%;
+  }
+
+  /* Inline: más compacto */
+  :host(.layout-inline) .empty-state {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  /* Table: menos padding */
+  :host(.layout-table) .empty-state {
+    padding: 28px 16px;
+  }
+
+  /* Botón de acción a full-width en móvil */
+  .empty-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Móvil muy pequeño (≤ 360px) ── */
+@media (max-width: 360px) {
+  /* Inline colapsa a columna cuando no cabe horizontal */
+  :host(.layout-inline) .empty-state {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  :host(.layout-inline) .empty-message {
+    font-size: 12px;
+  }
+}

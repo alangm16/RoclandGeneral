@@ -6,7 +6,7 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { environment } from '../../../environmets/Environment';
+import { environment } from '../../../environments/Environment';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,

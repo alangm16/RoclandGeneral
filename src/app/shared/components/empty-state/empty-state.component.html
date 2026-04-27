@@ -1,0 +1,33 @@
+<!-- ══════════════════════════════════════════════════════════
+     APP-EMPTY-STATE — Sistema de diseño Rocland
+══════════════════════════════════════════════════════════ -->
+<div class="empty-state" [ngClass]="hostClasses">
+
+  <!-- Icono -->
+  <div class="empty-icon">
+    <i class="bi {{ icon }}"></i>
+  </div>
+
+  <!-- Textos -->
+  <div class="empty-body">
+    <p class="empty-message">{{ message }}</p>
+
+    @if (hint) {
+      <p class="empty-hint">{{ hint }}</p>
+    }
+
+    <!-- Botón de acción declarativo -->
+    @if (actionLabel) {
+      <button class="empty-action" type="button" (click)="onActionClick()">
+        @if (actionIcon) {
+          <i class="bi {{ actionIcon }}"></i>
+        }
+        {{ actionLabel }}
+      </button>
+    }
+
+    <!-- Slot para contenido completamente personalizado (botones múltiples, links, etc.) -->
+    <ng-content />
+  </div>
+
+</div>

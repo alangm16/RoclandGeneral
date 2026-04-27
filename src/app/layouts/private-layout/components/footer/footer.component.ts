@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { environment } from '../../../../../environmets/Environment'
+import { environment } from '../../../../../environments/Environment'
 
 @Component({
   selector: 'app-footer',

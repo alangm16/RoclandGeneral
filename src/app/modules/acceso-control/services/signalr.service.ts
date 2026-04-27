@@ -3,7 +3,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { environment } from '../../../../environmets/Environment';
+import { environment } from '../../../../environments/Environment';
 import { AuthService } from '../../../core/auth/auth.service'; // <-- 1. Importar el AuthService
 
 export type SignalRStatus = 'connected' | 'reconnecting' | 'disconnected';

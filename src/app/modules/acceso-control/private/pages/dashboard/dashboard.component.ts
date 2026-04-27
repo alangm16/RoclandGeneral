@@ -7,7 +7,7 @@ import { AdminService } from '../../../services/admin.service';
 import { DashboardKpis, ActivoZona } from '../../../models/admin.models';
 import { SignalrService, SignalRStatus } from '../../../services/signalr.service';
 import { Subscription, interval } from 'rxjs';
-import { environment } from '../../../../../../environmets/Environment';
+import { environment } from '../../../../../../environments/Environment';
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { delay } from 'rxjs/operators';
 

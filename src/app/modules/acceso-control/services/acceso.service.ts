@@ -8,7 +8,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from '../../../../environmets/Environment';
+import { environment } from '../../../../environments/Environment';
 
 import {
   TipoIdentificacion,

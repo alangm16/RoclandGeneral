@@ -18,7 +18,7 @@
 // ══════════════════════════════════════════════════════════════════
 
 import { ProyectoDisponible } from './auth.models';
-import { environment } from '../../../environmets/Environment';
+import { environment } from '../../../environments/Environment';
 
 export const PROYECTOS_HARDCODED: ProyectoDisponible[] = [
   {
