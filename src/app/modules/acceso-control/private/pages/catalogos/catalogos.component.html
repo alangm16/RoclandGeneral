@@ -1,0 +1,251 @@
+<div class="page-content fade-in">
+  <div class="catalogos-grid">
+
+    <!-- ══════════════════════ ÁREAS ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Áreas</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirForm('areas')">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+
+      @if (mostrarForm['areas']) {
+        <div class="catalogo-form">
+          <div class="catalogo-form-row">
+            <input
+              type="text"
+              id="input-areas"
+              class="filter-input"
+              placeholder="Nombre del área"
+              [(ngModel)]="nuevoNombre['areas']"
+              (keyup.enter)="crearItem('areas')"
+              style="flex:1;" />
+            <button
+              class="btn btn-primary btn-sm"
+              [disabled]="guardando['areas']"
+              (click)="crearItem('areas')">
+              Guardar
+            </button>
+            <button
+              class="btn btn-ghost btn-sm icon-btn"
+              (click)="cerrarForm('areas')"
+              title="Cancelar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of areas(); track item.id) {
+              <tr>
+                <td class="cell-nombre">{{ item.nombre }}</td>
+                <td>
+                  <app-badge
+                    [label]="item.activo ? 'Activo' : 'Inactivo'"
+                    [variant]="item.activo ? 'green' : 'red'" />
+                </td>
+                <td class="cell-actions">
+                  <button
+                    class="btn btn-ghost btn-sm icon-btn"
+                    [matMenuTriggerFor]="menuArea"
+                    title="Opciones">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuArea="matMenu" class="custom-mat-menu">
+                    <button mat-menu-item (click)="toggleItem('areas', item.id)">
+                      <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                      {{ item.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-muted text-center empty-state">
+                  <i class="bi bi-inbox"></i>
+                  Sin áreas registradas
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ MOTIVOS ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Motivos de Visita</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirForm('motivos')">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+
+      @if (mostrarForm['motivos']) {
+        <div class="catalogo-form">
+          <div class="catalogo-form-row">
+            <input
+              type="text"
+              id="input-motivos"
+              class="filter-input"
+              placeholder="Nombre del motivo"
+              [(ngModel)]="nuevoNombre['motivos']"
+              (keyup.enter)="crearItem('motivos')"
+              style="flex:1;" />
+            <button
+              class="btn btn-primary btn-sm"
+              [disabled]="guardando['motivos']"
+              (click)="crearItem('motivos')">
+              Guardar
+            </button>
+            <button
+              class="btn btn-ghost btn-sm icon-btn"
+              (click)="cerrarForm('motivos')"
+              title="Cancelar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of motivos(); track item.id) {
+              <tr>
+                <td class="cell-nombre">{{ item.nombre }}</td>
+                <td>
+                  <app-badge
+                    [label]="item.activo ? 'Activo' : 'Inactivo'"
+                    [variant]="item.activo ? 'green' : 'red'" />
+                </td>
+                <td class="cell-actions">
+                  <button
+                    class="btn btn-ghost btn-sm icon-btn"
+                    [matMenuTriggerFor]="menuMotivo"
+                    title="Opciones">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuMotivo="matMenu" class="custom-mat-menu">
+                    <button mat-menu-item (click)="toggleItem('motivos', item.id)">
+                      <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                      {{ item.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-muted text-center empty-state">
+                  <i class="bi bi-inbox"></i>
+                  Sin motivos registrados
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TIPOS ID ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Tipos de Identificación</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirForm('tiposid')">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+
+      @if (mostrarForm['tiposid']) {
+        <div class="catalogo-form">
+          <div class="catalogo-form-row">
+            <input
+              type="text"
+              id="input-tiposid"
+              class="filter-input"
+              placeholder="Ej: Pasaporte"
+              [(ngModel)]="nuevoNombre['tiposid']"
+              (keyup.enter)="crearItem('tiposid')"
+              style="flex:1;" />
+            <button
+              class="btn btn-primary btn-sm"
+              [disabled]="guardando['tiposid']"
+              (click)="crearItem('tiposid')">
+              Guardar
+            </button>
+            <button
+              class="btn btn-ghost btn-sm icon-btn"
+              (click)="cerrarForm('tiposid')"
+              title="Cancelar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of tiposId(); track item.id) {
+              <tr>
+                <td class="cell-nombre">{{ item.nombre }}</td>
+                <td>
+                  <app-badge
+                    [label]="item.activo ? 'Activo' : 'Inactivo'"
+                    [variant]="item.activo ? 'green' : 'red'" />
+                </td>
+                <td class="cell-actions">
+                  <button
+                    class="btn btn-ghost btn-sm icon-btn"
+                    [matMenuTriggerFor]="menuTipoId"
+                    title="Opciones">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuTipoId="matMenu" class="custom-mat-menu">
+                    <button mat-menu-item (click)="toggleItem('tiposid', item.id)">
+                      <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                      {{ item.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-muted text-center empty-state">
+                  <i class="bi bi-inbox"></i>
+                  Sin tipos registrados
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

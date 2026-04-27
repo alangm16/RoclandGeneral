@@ -88,3 +88,34 @@ export interface GuardiasPaginados {
   items: GuardiaResumen[];
   total: number;
 }
+
+export interface HistorialAccesoDto {
+  items: HistorialResumen[];
+  total: number;
+}
+
+export interface HistorialResumen {
+  id: number;
+  tipo: string;                    
+  nombre: string;
+  empresa?: string;
+  numeroIdentificacion: string;
+  area?: string;
+  motivo: string;
+  fechaEntrada: string;           
+  fechaSalida?: string | null;    
+  minutosEstancia?: number | null;
+  estadoAcceso: string;          
+  codigoGafete?: string;
+  guardia?: string;
+}
+
+export interface CatalogoItem {
+  id: number;
+  nombre: string;
+  activo: boolean;
+}
+
+export interface CatalogoCreateDto {
+  nombre: string
+}

@@ -1,22 +1,76 @@
 @if (config.title) {
   <div class="subheader">
     <div class="subheader-inner">
-      
-      <div class="subheader-left">
-        <h2 class="page-title">{{ config.title || 'Rocland' }}</h2>
 
+      <!-- ══ IZQUIERDA: título + búsqueda + filtros + acciones inline ══ -->
+      <div class="subheader-left">
+
+        <!-- Título -->
+        <h2 class="page-title">{{ config.title }}</h2>
+
+        <!-- Búsqueda principal -->
         @if (config.showSearch) {
           <div class="divider"></div>
-          
           <div class="search-wrapper">
             <i class="bi bi-search"></i>
-            <input 
-              type="text" 
-              [placeholder]="config.searchPlaceholder || 'Buscar...'" 
+            <input
+              type="text"
+              [placeholder]="config.searchPlaceholder || 'Buscar...'"
               class="search-input"
               [value]="layoutService.searchValue()"
               (input)="onSearchChange($event)">
           </div>
+        }
+
+        <!-- Filtros dinámicos -->
+        @if (layoutService.subheaderFilters().length) {
+          <div class="divider"></div>
+        }
+
+        <div class="filters-area">
+          @for (filter of layoutService.subheaderFilters(); track filter.key) {
+
+            @if (filter.type === 'select') {
+              <div class="filter-select-wrapper">
+                <select
+                  class="filter-input"
+                  [value]="layoutService.filterValues()[filter.key] || ''"
+                  (change)="onFilterChange(filter.key, $event)">
+                  <option value="">{{ filter.placeholder || 'Seleccionar...' }}</option>
+                  @for (opt of filter.options; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+                <i class="bi bi-chevron-down filter-select-icon"></i>
+              </div>
+            }
+
+            @else if (filter.type === 'date') {
+              <div class="filter-date-wrapper">
+                <input
+                  type="date"
+                  class="filter-input"
+                  [value]="layoutService.filterValues()[filter.key] || ''"
+                  (change)="onFilterDateChange(filter.key, $event)">
+                <i class="bi bi-calendar3 filter-date-icon"></i>
+              </div>
+            }
+
+            @else if (filter.type === 'text') {
+              <input
+                type="text"
+                class="filter-input"
+                [value]="layoutService.filterValues()[filter.key] || ''"
+                (input)="onFilterTextChange(filter.key, $event)"
+                [placeholder]="filter.placeholder || 'Buscar...'">
+            }
+
+          }
+        </div>
+
+        <!-- Botones inline (Buscar, Limpiar, etc.) -->
+        @if (config.actions?.length) {
+          <div class="divider"></div>
         }
 
         <div class="filter-actions-inline">
@@ -25,43 +79,64 @@
               <button mat-flat-button
                 [color]="action.color === 'warn' ? 'warn' : 'primary'"
                 (click)="action.handler()">
-                @if(action.icon) { <i class="bi {{action.icon}}"></i> }
+                @if (action.icon) { <i class="bi {{ action.icon }}"></i> }
                 {{ action.label }}
               </button>
             }
             @if (action.variant === 'stroked') {
-              <button mat-stroked-button
-                [style.color]="action.color === 'warn' ? 'var(--red)' : null"
-                (click)="action.handler()">
-                @if(action.icon) { <i class="bi {{action.icon}}"></i> }
+              <button mat-stroked-button (click)="action.handler()">
+                @if (action.icon) { <i class="bi {{ action.icon }}"></i> }
                 {{ action.label }}
               </button>
             }
           }
         </div>
 
-        <div class="filters-area">
-          <ng-content select="[subheader-filters]"></ng-content>
-        </div>
-      </div>
+      </div><!-- /subheader-left -->
 
+      <!-- ══ DERECHA: exportar + agregar + contenido proyectado ══ -->
       <div class="subheader-right">
-        @if (config.showExport) {
-          <button mat-stroked-button (click)="config.showExport">
+
+        <!-- Dropdown Exportar -->
+        @if (config.showExport && config.exportHandlers) {
+          <button mat-stroked-button
+            class="export-btn"
+            [matMenuTriggerFor]="exportMenu">
             <i class="bi bi-download"></i>
             Exportar
+            <i class="bi bi-chevron-down chevron-sm"></i>
           </button>
+
+          <mat-menu #exportMenu="matMenu" class="custom-mat-menu">
+            @if (config.exportHandlers.excel) {
+              <button mat-menu-item (click)="config.exportHandlers!.excel!()">
+                <i class="bi bi-file-earmark-excel me-2 icon-excel"></i>
+                Exportar Excel
+              </button>
+            }
+            @if (config.exportHandlers.pdf) {
+              <button mat-menu-item (click)="config.exportHandlers!.pdf!()">
+                <i class="bi bi-file-earmark-pdf me-2 icon-pdf"></i>
+                Exportar PDF
+              </button>
+            }
+          </mat-menu>
         }
+
+        <!-- Botón Agregar -->
         @if (config.showAddButton) {
           <button mat-flat-button color="primary" class="add-button"
-            (click)="config.addHandler ? config.addHandler() : null">
+            (click)="config.addHandler?.()">
             <i class="bi bi-plus-lg"></i>
             {{ config.addButtonLabel || 'Agregar' }}
           </button>
         }
-        <ng-content select="[subheader-actions]"></ng-content>
-      </div>
 
-    </div>
-  </div>
+        <!-- Acciones personalizadas proyectadas desde el componente padre -->
+        <ng-content select="[subheader-actions]"></ng-content>
+
+      </div><!-- /subheader-right -->
+
+    </div><!-- /subheader-inner -->
+  </div><!-- /subheader -->
 }

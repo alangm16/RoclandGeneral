@@ -1,0 +1,201 @@
+/* ════════════════════════════════════════════════════════════
+   CATÁLOGOS — Estilos del componente
+   Sistema de diseño Rocland
+════════════════════════════════════════════════════════════ */
+
+/* ── Grid principal ── */
+.catalogos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+}
+
+/* ── Tabla interna de catálogos (fuera de app-data-table) ── */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead th {
+  background-color: var(--rocland-light);
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--rocland-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--rocland-border);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--rocland-border);
+  font-size: 14px;
+  color: var(--rocland-dark);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: rgba(74, 156, 31, 0.03);
+}
+
+/* ── Celdas específicas ── */
+.cell-nombre {
+  font-weight: 600;
+  color: var(--rocland-black);
+}
+
+.cell-actions {
+  width: 44px;
+  min-width: 44px;
+  text-align: right;
+  padding-right: 12px !important;
+}
+
+/* ── Formulario inline ── */
+.catalogo-form {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rocland-border);
+  background: var(--rocland-light);
+}
+
+.catalogo-form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .filter-input {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 12px;
+    font-size: 13px;
+    border: 1px solid var(--rocland-border);
+    border-radius: var(--radius-sm);
+    background: var(--rocland-white);
+    color: var(--rocland-black);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+
+    &:focus {
+      border-color: var(--rocland-green);
+      box-shadow: var(--shadow-focus);
+    }
+
+    &::placeholder { color: var(--rocland-silver); }
+  }
+}
+
+/* ── Botones ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--rocland-green);
+  color: var(--rocland-white);
+  border-color: var(--rocland-green);
+
+  &:hover:not(:disabled) {
+    background: var(--rocland-green-dark);
+    border-color: var(--rocland-green-dark);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--rocland-silver);
+
+  &:hover {
+    color: var(--rocland-dark);
+    background: var(--rocland-border);
+  }
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 13px;
+  min-height: 32px;
+}
+
+/* Botón icono cuadrado compacto */
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Estado vacío ── */
+.empty-state {
+  padding: 28px 20px;
+  font-size: 13px;
+  color: var(--rocland-silver);
+
+  i {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 6px;
+    opacity: 0.5;
+  }
+}
+
+/* ── Dropdown mat-menu ── */
+::ng-deep .custom-mat-menu {
+  .mat-mdc-menu-panel {
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-md) !important;
+    border: 1px solid var(--rocland-border) !important;
+    min-width: 160px !important;
+    overflow: hidden;
+  }
+
+  .mat-mdc-menu-item {
+    font-family: var(--font-body) !important;
+    font-size: 13px !important;
+    color: var(--rocland-dark) !important;
+    min-height: 38px !important;
+    padding: 0 14px !important;
+
+    i { color: var(--rocland-gray); }
+
+    &:hover {
+      background: var(--rocland-light) !important;
+      color: var(--rocland-green) !important;
+      i { color: var(--rocland-green); }
+    }
+  }
+}

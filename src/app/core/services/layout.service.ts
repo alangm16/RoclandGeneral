@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
+// ── Acción de botón en el subheader ───────────────────────────────────────────
 export interface SubheaderAction {
   label: string;
   icon?: string;
@@ -8,48 +9,93 @@ export interface SubheaderAction {
   handler: () => void;
 }
 
+// ── Filtro dinámico (select, date, text) ──────────────────────────────────────
+export interface FilterConfig {
+  type: 'text' | 'select' | 'date';
+  key: string;
+  placeholder?: string;
+  options?: { label: string; value: string }[];
+}
+
+// ── Configuración completa del subheader ──────────────────────────────────────
 export interface SubheaderConfig {
+  // Título de la página
   title?: string;
+
+  // Barra de búsqueda principal
   showSearch?: boolean;
   searchPlaceholder?: string;
-  showExport?: boolean;
+
+  // Botón "Agregar" a la derecha
   showAddButton?: boolean;
   addButtonLabel?: string;
   addHandler?: () => void;
+
+  // Dropdown "Exportar" a la derecha
+  showExport?: boolean;
+  exportHandlers?: {
+    excel?: () => void;
+    pdf?:   () => void;
+  };
+
+  // Filtros dinámicos (select / date / text) junto a la búsqueda
+  filters?: FilterConfig[];
+
+  // Botones de acción inline (Buscar, Limpiar, etc.)
   actions?: SubheaderAction[];
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
-  readonly sidebarCollapsed = signal(false);
-  readonly subheaderConfig   = signal<SubheaderConfig>({ title: '' });
-  readonly searchValue       = signal('');
 
-  /**
-   * Cuando pasa a `true`, PrivateLayoutComponent cierra el sidenav de
-   * Angular Material por completo (no solo lo estrecha a 68px).
-   * Al volver a `false` lo reabre en el modo que corresponda.
-   */
+  // ── Estado de la barra lateral ────────────────────────────────────────────
+  readonly sidebarCollapsed = signal(false);
+
+  // ── Subheader ─────────────────────────────────────────────────────────────
+  readonly subheaderConfig  = signal<SubheaderConfig>({ title: '' });
+
+  // ── Búsqueda global ───────────────────────────────────────────────────────
+  readonly searchValue      = signal('');
+
+  // ── Filtros dinámicos y sus valores ──────────────────────────────────────
+  readonly subheaderFilters = signal<FilterConfig[]>([]);
+  readonly filterValues     = signal<Record<string, string>>({});
+
+  // ── Control de modal (cierra el sidenav mientras hay un modal abierto) ───
   readonly modalOpen = signal(false);
 
-  /** Debe coincidir con la duración de animación del mat-sidenav. */
+  /** Duración de la animación del mat-sidenav (debe coincidir con el CSS). */
   private readonly SIDENAV_TRANSITION_MS = 200;
 
-  setSubheader(config: Partial<SubheaderConfig>) {
+  // ── API pública ───────────────────────────────────────────────────────────
+
+  /**
+   * Actualiza el subheader con la configuración dada.
+   * Se puede llamar tanto desde las rutas (data.subheader) como
+   * directamente desde los componentes (para registrar handlers).
+   */
+  setSubheader(config: Partial<SubheaderConfig>): void {
     this.subheaderConfig.update(c => ({ ...c, ...config }));
+    // Sincroniza los filtros dinámicos como señal separada
+    this.subheaderFilters.set(config.filters ?? []);
   }
 
-  resetSubheader() {
+  /** Restaura el subheader a su estado vacío y limpia la búsqueda. */
+  resetSubheader(): void {
     this.subheaderConfig.set({ title: '' });
+    this.subheaderFilters.set([]);
+    this.filterValues.set({});
     this.searchValue.set('');
   }
 
-  onSearchInput(value: string) {
+  /** Alias para actualizar el valor de búsqueda desde cualquier componente. */
+  onSearchInput(value: string): void {
     this.searchValue.set(value);
   }
 
   /**
-   * Indica al layout que cierre el sidenav completamente.
+   * Cierra el sidenav completamente (para dar espacio a un modal full-width).
    * Devuelve una Promise que resuelve tras la animación de cierre.
    */
   openModal(): Promise<void> {
@@ -59,9 +105,7 @@ export class LayoutService {
     );
   }
 
-  /**
-   * Indica al layout que reabra el sidenav al cerrar el modal.
-   */
+  /** Reabre el sidenav tras cerrar el modal. */
   closeModal(): void {
     this.modalOpen.set(false);
   }

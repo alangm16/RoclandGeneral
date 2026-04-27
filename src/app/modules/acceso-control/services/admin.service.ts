@@ -10,7 +10,10 @@ import {
   GuardiaResumen,
   GuardiasPaginados,
   GuardiaCreateDto,
-  GuardiaUpdateDto
+  GuardiaUpdateDto,
+  HistorialAccesoDto,
+  CatalogoCreateDto,
+  CatalogoItem
 } from '../models/admin.models';
 
 @Injectable({
@@ -96,5 +99,53 @@ export class AdminService {
       `${this.adminUrl}/guardias/${id}/reset-password`,
       { password }
     );
+  }
+
+  getHistorial(
+    pagina: number,
+    porPagina: number,
+    filtros?: {
+      busqueda?: string;
+      tipo?: string;
+      desde?: string;
+      hasta?: string;
+    }
+  ): Observable<HistorialAccesoDto> {
+    let params = new HttpParams()
+      .set('pagina', pagina.toString())
+      .set('porPagina', porPagina.toString());
+
+    if (filtros?.busqueda) {
+      params = params.set('busqueda', filtros.busqueda);
+    }
+
+    if (filtros?.tipo) {
+      params = params.set('tipo', filtros.tipo);
+    }
+
+    if (filtros?.desde) {
+      params = params.set('desde', filtros.desde);
+    }
+
+    if (filtros?.hasta) {
+      params = params.set('hasta', filtros.hasta);
+    }
+
+    return this.http.get<HistorialAccesoDto>(
+      `${this.adminUrl}/historial`,
+      { params }
+    );
+  }
+
+  getCatalogo(tipo: 'areas' | 'motivos' | 'tiposid'): Observable<CatalogoItem[]> {
+    return this.http.get<CatalogoItem[]>(`${this.adminUrl}/${tipo}`);
+  }
+
+  crearCatalogo(tipo: 'areas' | 'motivos' | 'tiposid', dto: CatalogoCreateDto): Observable<CatalogoItem> {
+    return this.http.post<CatalogoItem>(`${this.adminUrl}/${tipo}`, dto);
+  }
+
+  toggleCatalogo(tipo: 'areas' | 'motivos' | 'tiposid', id: number): Observable<void> {
+    return this.http.put<void>(`${this.adminUrl}/${tipo}/${id}/toggle`, {});
   }
 }

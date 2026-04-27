@@ -1,0 +1,83 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Historial de Accesos</span>
+      <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="tableData()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+
+          @case ('tipo') {
+            <app-badge
+              [label]="item.tipo"
+              [variant]="item.tipo === 'Visitante' ? 'blue' : 'purple'" />
+          }
+
+          @case ('nombre') {
+            <span style="font-weight: 600;">{{ item.nombre }}</span>
+          }
+
+          @case ('empresa') {
+            <span class="text-muted">{{ item.empresa || '—' }}</span>
+          }
+
+          @case ('numeroIdentificacion') {
+            <span class="text-mono" style="font-size: 12px;">{{ item.numeroIdentificacion }}</span>
+          }
+
+          @case ('area') {
+            {{ item.area || '—' }}
+          }
+
+          @case ('motivo') {
+            {{ item.motivo }}
+          }
+
+          @case ('fechaEntrada') {
+            <span class="text-mono" style="font-size: 12px;">
+              {{ formatDateTime(item.fechaEntrada) }}
+            </span>
+          }
+
+          @case ('fechaSalida') {
+            <span class="text-mono" style="font-size: 12px;">
+              {{ item.fechaSalida ? formatDateTime(item.fechaSalida) : '—' }}
+            </span>
+          }
+
+          @case ('minutosEstancia') {
+            <span class="text-mono">{{ formatDuracion(item.minutosEstancia) }}</span>
+          }
+
+          @case ('estadoAcceso') {
+            <app-badge
+              [label]="item.estadoAcceso"
+              [variant]="getEstadoVariant(item.estadoAcceso)" />
+          }
+
+          @case ('codigoGafete') {
+            <span class="text-mono">{{ item.codigoGafete || '—' }}</span>
+          }
+
+          @case ('guardia') {
+            <span class="text-muted">{{ item.guardia || '—' }}</span>
+          }
+
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+
+    </app-data-table>
+  </div>
+</div>
