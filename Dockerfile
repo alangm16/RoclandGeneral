@@ -1,23 +1,25 @@
-# Usamos la versión de Node recomendada para Angular 21
-FROM node:22-alpine
-
+# Etapa 1: Compilación de Angular
+FROM node:22-alpine AS build
 WORKDIR /app
 
-# Instalamos Angular CLI de forma global (opcional, pero ayuda a ejecutar comandos)
-RUN npm install -g @angular/cli
-
-# Copiamos solo archivos de dependencias para aprovechar el caché de capas
+# Instalar dependencias
 COPY package*.json ./
-
-# Instalamos dependencias
 RUN npm install
 
-# Copiamos el resto del código
+# Copiar el código fuente y compilar
 COPY . .
+RUN npm run build --configuration=production
 
-# Exponemos el puerto por defecto de Angular
-EXPOSE 4200
+# Etapa 2: Servidor Web Ligero (Nginx)
+FROM nginx:alpine
 
-# Comando para desarrollo con SSR activo
-# El flag --host 0.0.0.0 es obligatorio para que el tráfico salga del contenedor
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+# Copiamos los archivos estáticos al servidor
+# NOTA: Verifica que "rocland-general" sea el nombre correcto de tu proyecto 
+# en la propiedad "outputPath" de tu angular.json. Si no tiene "/browser", quítalo.
+COPY --from=build /app/dist/rocland-general/browser /usr/share/nginx/html
+
+# Exponer el puerto de Nginx
+EXPOSE 80
+
+# Iniciar Nginx
+CMD ["nginx", "-g", "daemon off;"]
