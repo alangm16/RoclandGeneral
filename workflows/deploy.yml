@@ -1,0 +1,26 @@
+name: Rocland Frontend CI/CD Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: 1. Descargar el código más reciente
+        uses: actions/checkout@v4
+
+      - name: 2. Detener contenedor de la versión anterior
+        run: docker-compose down
+        continue-on-error: true 
+
+      - name: 3. Construir la app de Angular y levantar Nginx
+        run: docker-compose up -d --build
+
+      - name: 4. Limpiar imágenes de Docker huérfanas
+        run: docker image prune -f
+        continue-on-error: true
