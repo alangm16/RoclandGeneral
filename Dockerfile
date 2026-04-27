@@ -1,25 +1,31 @@
-# Etapa 1: Compilación de Angular
-FROM node:22-alpine AS build
+# Etapa 1: Compilación usando Node nativo para Windows NanoServer
+FROM node:20-nanoserver-ltsc2022 AS build
 WORKDIR /app
 
-# Instalar dependencias
+# Copiamos archivos de dependencias
 COPY package*.json ./
+
+# Instalamos dependencias
 RUN npm install
 
-# Copiar el código fuente y compilar
+# Copiamos el resto del código y compilamos para producción
 COPY . .
 RUN npm run build --configuration=production
 
-# Etapa 2: Servidor Web Ligero (Nginx)
-FROM nginx:alpine
+# Etapa 2: Servidor Web Ligero en NanoServer
+FROM node:20-nanoserver-ltsc2022
+WORKDIR /app
 
-# Copiamos los archivos estáticos al servidor
-# NOTA: Verifica que "rocland-general" sea el nombre correcto de tu proyecto 
-# en la propiedad "outputPath" de tu angular.json. Si no tiene "/browser", quítalo.
-COPY --from=build /app/dist/rocland-general/browser /usr/share/nginx/html
+# Instalamos 'serve', el servidor HTTP recomendado para SPAs en Node
+RUN npm install -g serve
 
-# Exponer el puerto de Nginx
+# Copiamos los archivos estáticos desde la etapa de compilación
+# (Verifica que la carpeta coincida con tu angular.json)
+COPY --from=build /app/dist/rocland-general/browser ./
+
+# Exponemos el puerto 80 (interno del contenedor)
 EXPOSE 80
 
-# Iniciar Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Ejecutamos el servidor. El flag "-s" asegura que el enrutamiento de Angular funcione 
+# (redirige los 404 al index.html) y "-l 80" lo ata al puerto 80.
+CMD ["serve", "-s", ".", "-l", "80"]
