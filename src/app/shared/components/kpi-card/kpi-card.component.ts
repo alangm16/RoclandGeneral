@@ -41,7 +41,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './kpi-card.component.html',
-  styleUrls: ['./kpi-card.component.scss'],
+  styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KpiCardComponent {

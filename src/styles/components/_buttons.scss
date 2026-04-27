@@ -1,0 +1,60 @@
+/* Botón principal */
+.btn-rocland {
+  background: var(--rocland-green);
+  color: var(--rocland-white);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.5rem;
+  min-height: 48px; /* área táctil WCAG */
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background var(--transition),
+    transform 0.1s,
+    box-shadow var(--transition);
+
+  &:hover:not(:disabled) {
+    background: var(--rocland-green-dark);
+    box-shadow: 0 4px 14px rgba(74, 156, 31, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: var(--rocland-silver);
+    cursor: not-allowed;
+  }
+}
+
+/* Botón secundario */
+.btn-rocland.btn-secondary {
+  background: var(--rocland-white);
+  color: var(--rocland-green);
+  border: 2px solid var(--rocland-green);
+
+  &:hover:not(:disabled) {
+    background: rgba(74, 156, 31, 0.08);
+    box-shadow: 0 4px 14px rgba(74, 156, 31, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: var(--rocland-silver);
+    border-color: var(--rocland-silver);
+    color: var(--rocland-white);
+  }
+}

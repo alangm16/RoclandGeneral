@@ -37,7 +37,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './empty-state.component.html',
-  styleUrls: ['./empty-state.component.scss'],
+  styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateComponent {
