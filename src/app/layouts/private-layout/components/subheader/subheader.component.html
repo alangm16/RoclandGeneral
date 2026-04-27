@@ -19,15 +19,24 @@
           </div>
         }
 
-        <div class="filter-actions-inline" style="display: flex; gap: 8px; align-items: center; margin-left: 12px;">
+        <div class="filter-actions-inline">
           @for (action of config.actions; track action.label) {
-            <button 
-              [class]="action.variant === 'flat' ? 'btn-flat-small' : 'btn-stroked-small'"
-              [style.color]="action.color === 'warn' ? 'var(--red)' : 'inherit'"
-              (click)="action.handler()">
-              @if(action.icon) { <i class="bi {{action.icon}}"></i> }
-              {{ action.label }}
-            </button>
+            @if (action.variant === 'flat') {
+              <button mat-flat-button
+                [color]="action.color === 'warn' ? 'warn' : 'primary'"
+                (click)="action.handler()">
+                @if(action.icon) { <i class="bi {{action.icon}}"></i> }
+                {{ action.label }}
+              </button>
+            }
+            @if (action.variant === 'stroked') {
+              <button mat-stroked-button
+                [style.color]="action.color === 'warn' ? 'var(--red)' : null"
+                (click)="action.handler()">
+                @if(action.icon) { <i class="bi {{action.icon}}"></i> }
+                {{ action.label }}
+              </button>
+            }
           }
         </div>
 
@@ -44,7 +53,8 @@
           </button>
         }
         @if (config.showAddButton) {
-          <button mat-flat-button color="primary" class="add-button">
+          <button mat-flat-button color="primary" class="add-button"
+            (click)="config.addHandler ? config.addHandler() : null">
             <i class="bi bi-plus-lg"></i>
             {{ config.addButtonLabel || 'Agregar' }}
           </button>

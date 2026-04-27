@@ -1,0 +1,60 @@
+/* ══════════════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile-first breakpoints
+   ─────────────────────────────────────────────────────────────────
+   xs  < 380px  (móvil pequeño)
+   sm  < 576px  (móvil estándar — Bootstrap sm)
+   md  < 768px  (tablet vertical)
+   lg  < 992px  (tablet horizontal / laptop pequeña)
+   xl  ≥ 1200px (desktop)
+══════════════════════════════════════════════════════════════════ */
+
+/* Móvil estándar (≤ 575px) */
+@media (max-width: 575.98px) {
+  .form-section-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .confirm-detail-box {
+    padding: 1rem 1.1rem;
+  }
+
+  /* Las columnas de Bootstrap col-sm-* deben ser 100% en móvil */
+  .row > [class*='col-sm-'] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .btn-rocland {
+    font-size: 0.95rem;
+    padding: 0.8rem 1.25rem;
+  }
+}
+
+/* Móvil pequeño (≤ 380px) */
+@media (max-width: 380px) {
+  .form-section-card {
+    padding: 0.875rem;
+  }
+  .consent-card {
+    padding: 0.875rem;
+  }
+  .confirm-detail-box {
+    padding: 0.875rem;
+  }
+}
+
+/* Tablet horizontal y laptop pequeña (768px – 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* el main ya tiene max-width: 700px — se ve bien de por sí */
+}
+
+/* Desktop amplio (≥ 1200px) */
+@media (min-width: 1200px) {
+  /* el max-width: 700px del layout contiene bien el formulario */
+}
+
+// Asegurar que las variables CSS de Material no pisen las de Rocland
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: transparent;
+}

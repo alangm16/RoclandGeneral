@@ -1,0 +1,379 @@
+app-modal {
+    /* ── 1. OVERLAY ── */
+    .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(26, 26, 26, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
+
+    &.open {
+        opacity: 1;
+        visibility: visible;
+
+        .modal-panel {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        }
+    }
+    }
+
+    /* ── 2. PANEL ── */
+    .modal-panel {
+    background: var(--rocland-white);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.14),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+
+    transform: translateY(16px) scale(0.98);
+    opacity: 0;
+    transition:
+        transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.22s ease;
+    }
+
+    /* ── 3. TAMAÑOS (max-height) ── */
+    .modal--sm .modal-panel { max-height: min(480px, 92dvh); }
+    .modal--md .modal-panel { max-height: min(640px, 92dvh); }
+    .modal--lg .modal-panel { max-height: 92dvh; }
+    .modal--xl .modal-panel { max-height: 96dvh; }
+
+    /* ── 4. HEADER ── */
+    .modal-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 28px;
+    background: linear-gradient(135deg, var(--rocland-black) 0%, var(--rocland-dark) 100%);
+    border-bottom: 3px solid var(--rocland-green);
+    }
+
+    .modal-header-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+    }
+
+    /* ── 5. BOTÓN CERRAR ── */
+    .modal-close {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--rocland-silver);
+    cursor: pointer;
+    /* Touch target 40×40 */
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition);
+    line-height: 1;
+
+    &:hover {
+        background: rgba(192, 57, 43, 0.25);
+        border-color: rgba(192, 57, 43, 0.4);
+        color: #ff6b6b;
+    }
+    }
+
+    /* ── 6. BODY ── */
+    .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* reducido de 24px para dar más espacio al contenido */
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar { width: 5px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+        background: var(--rocland-border);
+        border-radius: 99px;
+        &:hover { background: var(--rocland-silver); }
+    }
+    }
+
+    /* ── 7. FOOTER ── */
+    ::ng-deep [footer] {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 28px;
+    border-top: 1px solid var(--rocland-border);
+    background: var(--rocland-white);
+    /* En móvil los botones ocupan todo el ancho */
+    flex-wrap: wrap;
+    }
+
+    /* ── 8. CLASES DE APOYO ── */
+    .modal-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(74, 156, 31, 0.2);
+    border: 2px solid var(--rocland-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+    color: var(--rocland-green);
+    }
+
+    .modal-title {
+    font-family: var(--font-display);
+    /* clamp garantiza legibilidad en cualquier ancho */
+    font-size: clamp(1rem, 4vw, 1.45rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--rocland-white);
+    margin: 0 0 2px 0;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+    .modal-subtitle {
+    font-size: 12px;
+    color: var(--rocland-silver);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+    .modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 24px;
+    color: var(--rocland-gray);
+    font-size: 14px;
+    }
+
+    .modal-loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--rocland-border);
+    border-top-color: var(--rocland-green);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+    RESPONSIVIDAD
+    ════════════════════════════════════════════════════════════ */
+
+    /* ── Tablet grande (≤ 1024px) ── */
+    @media (max-width: 1024px) {
+    .modal-overlay {
+        padding: 12px;
+    }
+    }
+
+    /* ── Tablet (≤ 768px) ── */
+    @media (max-width: 768px) {
+    .modal-header {
+        padding: 16px 20px;
+    }
+
+    .modal-body {
+        padding: 18px 20px;
+        gap: 16px;
+    }
+
+    ::ng-deep [footer] {
+        padding: 14px 20px;
+    }
+
+    .modal-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    /* KPI grid de 3 cols → 2 cols dentro del modal */
+    ::ng-deep .modal-body .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* La tercera card ocupa toda la fila */
+    ::ng-deep .modal-body .kpi-grid > *:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+    }
+
+    /* ── Móvil (≤ 575px) — Bottom Sheet ── */
+    @media (max-width: 575.98px) {
+    .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modal-panel {
+        max-width: 100% !important;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        /* bottom-sheet se desliza desde abajo */
+        transform: translateY(60px);
+    }
+
+    .modal-overlay.open .modal-panel {
+        transform: translateY(0);
+    }
+
+    /* Todos los tamaños unifican en bottom-sheet */
+    .modal--sm .modal-panel,
+    .modal--md .modal-panel,
+    .modal--lg .modal-panel,
+    .modal--xl .modal-panel {
+        max-height: 94dvh;
+    }
+
+    .modal-header {
+        padding: 14px 16px;
+    }
+
+    .modal-body {
+        padding: 16px;
+        gap: 14px;
+    }
+
+    ::ng-deep [footer] {
+        padding: 12px 16px;
+        /* Botones a full width en bottom-sheet */
+        > * { flex: 1; justify-content: center; }
+    }
+
+    /* KPI grid → 1 col en bottom-sheet */
+    ::ng-deep .modal-body .kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    ::ng-deep .modal-body .kpi-grid > *:nth-child(3) {
+        grid-column: auto;
+    }
+    }
+
+    /* ── Móvil muy pequeño (≤ 380px) ── */
+    @media (max-width: 380px) {
+    .modal-header {
+        padding: 12px 14px;
+        gap: 8px;
+    }
+
+    .modal-body {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .modal-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    ::ng-deep .kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+    ::ng-deep .kpi-grid > *:nth-child(3) {
+        grid-column: auto;
+    }
+    }
+}
+
+
+.modal-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(74, 156, 31, 0.2);
+  border: 2px solid var(--rocland-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--rocland-green);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 4vw, 1.45rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--rocland-white);
+  margin: 0 0 2px 0;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: var(--rocland-silver);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  margin: 0;
+}
+
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--rocland-gray);
+  font-size: 14px;
+}
+
+.modal-loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--rocland-border);
+  border-top-color: var(--rocland-green);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}

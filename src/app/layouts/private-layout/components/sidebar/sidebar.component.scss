@@ -40,26 +40,6 @@
   color: #000000; /* Negro puro */
 }
 
-.brand-tag {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--accent-dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.brand-sub {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .nav-links {
   flex: 1;
   overflow-y: auto;
@@ -94,7 +74,7 @@
     /* Cuando está activo, el icono brilla y crece ligeramente */
     .bi {
       color: var(--accent) !important; /* Verde corporativo */
-      transform: scale(1.15); /* Efecto de "pop" */
+      transform: scale(1.05); /* Efecto de "pop" */
       filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.4)); /* Resplandor sutil */
     }
 
@@ -128,7 +108,7 @@
 .nav-label {
   font-size: 14.5px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-sec);
   transition: all 0.3s ease;
   letter-spacing: 0.3px;
 }
@@ -178,7 +158,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -187,7 +167,7 @@
 .sidebar-rol {
   font-size: 11px;
   color: var(--muted);
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -207,5 +187,11 @@
     background: #FEF2F2;
     color: var(--red);
     border-color: #FECACA;
+  }
+}
+
+@media (max-width: 599px) {
+  .sub-nav-link {
+    padding-left: 32px !important;
   }
 }

@@ -33,8 +33,7 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.scss",
-              "src/assets/scss/rocland-theme.scss"
+              "src/styles/main.scss"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",

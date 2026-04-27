@@ -1,5 +1,42 @@
 /* acceso-selector.component.scss */
 
+/* ── Selector de tipo ───────────────────────────────────────────── */
+.selector-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  color: var(--rocland-black);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.selector-subtitle {
+  color: var(--rocland-gray);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.selector-note {
+  background: rgba(74, 156, 31, 0.06);
+  border: 1px solid var(--rocland-border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-size: 0.82rem;
+  color: var(--rocland-gray);
+  margin-top: 1rem;
+  line-height: 1.55;
+
+  a {
+    color: var(--rocland-green-dark);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .selector-page {
   padding-top: 1rem;
 }

@@ -1,0 +1,230 @@
+/* ── Componentes visuales compartidos ───────────────────────────── */
+
+/* Encabezado de página */
+.form-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.form-page-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--rocland-green);
+  color: var(--rocland-white);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.6rem;
+}
+
+.form-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--rocland-black);
+  margin-bottom: 0.2rem;
+}
+
+.form-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--rocland-gray);
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: color var(--transition);
+  margin-bottom: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  /* Área táctil */
+  min-height: 44px;
+
+  &:hover {
+    color: var(--rocland-green);
+  }
+}
+
+/* Tarjeta de sección */
+.form-section-card {
+  background: var(--rocland-white);
+  border: 1px solid var(--rocland-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+.form-section-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--rocland-green-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--rocland-border);
+}
+
+/* Campo prellenado por autocompletado */
+.prefilled-field {
+  transition: background 0.3s ease;
+  &.filled {
+    background: #f0faea !important;
+  }
+}
+
+/* Spinner de búsqueda de ID */
+.id-search-wrapper {
+  position: relative;
+
+  .form-control {
+    padding-right: 2.5rem;
+  }
+}
+
+.id-search-spinner {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+/* Badge visitante recurrente */
+.returning-badge {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(74, 156, 31, 0.08);
+  border: 1px solid rgba(74, 156, 31, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.85rem;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--rocland-green-dark);
+  animation: fadeIn 0.3s ease;
+
+  &.show {
+    display: flex;
+  }
+  strong {
+    font-weight: 700;
+  }
+}
+
+/* Consentimiento */
+.consent-card {
+  background: #fefffd;
+  border: 1.5px solid var(--rocland-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.consent-text {
+  font-size: 0.82rem;
+  color: var(--rocland-gray);
+  line-height: 1.55;
+  margin-bottom: 0.85rem;
+}
+
+/* Botón principal */
+.btn-rocland {
+  background: var(--rocland-green);
+  color: var(--rocland-white);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.5rem;
+  min-height: 48px; /* área táctil WCAG */
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background var(--transition),
+    transform 0.1s,
+    box-shadow var(--transition);
+
+  &:hover:not(:disabled) {
+    background: var(--rocland-green-dark);
+    box-shadow: 0 4px 14px rgba(74, 156, 31, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: var(--rocland-silver);
+    cursor: not-allowed;
+  }
+}
+
+/* Spinner dentro del botón */
+.btn-spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+
+  &.active {
+    display: inline-block;
+  }
+}
+
+/* Alert de error global */
+.alert-form-error {
+  background: rgba(192, 57, 43, 0.06);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  border-radius: var(--radius-md);
+  color: var(--rocland-danger);
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+  display: none;
+
+  &.show {
+    display: block;
+  }
+}
+
+/* Botón de reintentar dentro del alert */
+.btn-retry {
+  background: none;
+  border: none;
+  color: var(--rocland-danger);
+  font-weight: 700;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}

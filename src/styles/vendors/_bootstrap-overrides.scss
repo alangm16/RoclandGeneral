@@ -1,0 +1,117 @@
+/* ── Sobreescrituras de Bootstrap para el tema Rocland ──────────── */
+.form-control,
+.form-select {
+  border: 1.5px solid var(--rocland-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--rocland-white);
+  color: var(--rocland-black);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+  /* Evita el zoom en iOS al enfocar un input < 16px */
+  font-size: max(16px, 0.95rem);
+
+  &:focus {
+    border-color: var(--rocland-green);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+
+  &.is-invalid {
+    border-color: var(--rocland-danger);
+    background-image: none;
+  }
+
+  &:disabled {
+    background: #f0f4ee;
+    color: var(--rocland-gray);
+    cursor: not-allowed;
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--rocland-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+
+  .req {
+    color: var(--rocland-danger);
+    margin-left: 2px;
+  }
+}
+
+/* Feedback de validación */
+.invalid-feedback {
+  font-size: 0.78rem;
+  color: var(--rocland-danger);
+  margin-top: 0.28rem;
+  font-weight: 500;
+  display: none;
+}
+
+/* Muestra los mensajes de error cuando el form fue enviado */
+.show-errors {
+  .invalid-feedback {
+    display: block;
+  }
+
+  .form-control.ng-invalid,
+  .form-select.ng-invalid {
+    border-color: var(--rocland-danger);
+  }
+
+  .form-check-input.ng-invalid {
+    border-color: var(--rocland-danger);
+  }
+}
+
+/* Checkbox */
+.form-check-input[type='checkbox'] {
+  width: 1.15em;
+  height: 1.15em;
+  border: 1.5px solid var(--rocland-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition);
+  flex-shrink: 0;
+  appearance: none;
+  background: var(--rocland-white);
+  margin-top: 0.15em;
+  /* Área táctil mínima recomendada (WCAG 2.5.5) */
+  min-width: 1.15em;
+
+  &:checked {
+    background-color: var(--rocland-green);
+    border-color: var(--rocland-green);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.75em;
+  }
+
+  &:focus {
+    box-shadow: var(--shadow-focus);
+    border-color: var(--rocland-green);
+    outline: none;
+  }
+
+  &.is-invalid {
+    border-color: var(--rocland-danger);
+  }
+}
+
+.form-check-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--rocland-dark);
+  cursor: pointer;
+  line-height: 1.4;
+}

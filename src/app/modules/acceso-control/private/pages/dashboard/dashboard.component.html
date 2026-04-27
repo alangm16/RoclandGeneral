@@ -1,51 +1,50 @@
-<!-- dashboard.component.html -->
-<div class="kpi-grid">
-  <div class="kpi-card green">
-    <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Dentro ahora</div>
-      <div class="kpi-value">{{ kpis?.dentroAhora ?? '—' }}</div>
-      <div class="kpi-sub">personas en instalaciones</div>
+<div class="dashboard-kpi-grid">
+  <div class="dashboard-kpi-card green">
+    <div class="dashboard-kpi-icon"><i class="bi bi-people-fill"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Dentro ahora</div>
+      <div class="dashboard-kpi-value">{{ kpis?.dentroAhora ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">personas en instalaciones</div>
     </div>
   </div>
-  <div class="kpi-card blue">
-    <div class="kpi-icon"><i class="bi bi-card-checklist"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Total hoy</div>
-      <div class="kpi-value">{{ kpis?.totalHoy ?? '—' }}</div>
-      <div class="kpi-sub">accesos registrados</div>
+  <div class="dashboard-kpi-card blue">
+    <div class="dashboard-kpi-icon"><i class="bi bi-card-checklist"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Total hoy</div>
+      <div class="dashboard-kpi-value">{{ kpis?.totalHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">accesos registrados</div>
     </div>
   </div>
-  <div class="kpi-card blue">
-    <div class="kpi-icon"><i class="bi bi-person-badge-fill"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Visitantes</div>
-      <div class="kpi-value">{{ kpis?.totalVisitantesHoy ?? '—' }}</div>
-      <div class="kpi-sub">hoy</div>
+  <div class="dashboard-kpi-card blue">
+    <div class="dashboard-kpi-icon"><i class="bi bi-person-badge-fill"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Visitantes</div>
+      <div class="dashboard-kpi-value">{{ kpis?.totalVisitantesHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">hoy</div>
     </div>
   </div>
-  <div class="kpi-card purple">
-    <div class="kpi-icon"><i class="bi bi-truck"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Proveedores</div>
-      <div class="kpi-value">{{ kpis?.totalProveedoresHoy ?? '—' }}</div>
-      <div class="kpi-sub">hoy</div>
+  <div class="dashboard-kpi-card purple">
+    <div class="dashboard-kpi-icon"><i class="bi bi-truck"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Proveedores</div>
+      <div class="dashboard-kpi-value">{{ kpis?.totalProveedoresHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">hoy</div>
     </div>
   </div>
-  <div class="kpi-card amber">
-    <div class="kpi-icon"><i class="bi bi-clock-fill"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Prom. estancia</div>
-      <div class="kpi-value">{{ kpis?.promedioEstanciaMinutos ?? '—' }}</div>
-      <div class="kpi-sub">minutos promedio</div>
+  <div class="dashboard-kpi-card amber">
+    <div class="dashboard-kpi-icon"><i class="bi bi-clock-fill"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Prom. estancia</div>
+      <div class="dashboard-kpi-value">{{ kpis?.promedioEstanciaMinutos ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">minutos promedio</div>
     </div>
   </div>
-  <div class="kpi-card red">
-    <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
-    <div class="kpi-content">
-      <div class="kpi-label">Pendientes</div>
-      <div class="kpi-value">{{ kpis?.solicitudesPendientes ?? '—' }}</div>
-      <div class="kpi-sub">solicitudes sin resolver</div>
+  <div class="dashboard-kpi-card red">
+    <div class="dashboard-kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Pendientes</div>
+      <div class="dashboard-kpi-value">{{ kpis?.solicitudesPendientes ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">solicitudes sin resolver</div>
     </div>
   </div>
 </div>
@@ -84,7 +83,7 @@
         Sin visitantes dentro actualmente.
       </div>
       <div class="person-card visitor-card" *ngFor="let v of visitantesDentro">
-        <div class="person-avatar avatar-purple">{{ v.nombrePersona?.charAt(0) || '?' }}</div>
+        <div class="person-avatar avatar-purple">{{ v.nombrePersona.charAt(0) || '?' }}</div>
         <div class="person-info">
           <div class="person-name">{{ v.nombrePersona }}</div>
           <div class="person-detail">{{ v.empresa || 'Particular' }} · {{ v.area || '—' }}</div>
@@ -105,7 +104,7 @@
         Sin proveedores dentro actualmente.
       </div>
       <div class="person-card provider-card" *ngFor="let p of proveedoresDentro">
-        <div class="person-avatar avatar-amber">{{ p.nombrePersona?.charAt(0) || '?' }}</div>
+        <div class="person-avatar avatar-amber">{{ p.nombrePersona.charAt(0) || '?' }}</div>
         <div class="person-info">
           <div class="person-name">{{ p.nombrePersona }}</div>
           <div class="person-detail">{{ p.empresa || 'Independiente' }}</div>

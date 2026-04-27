@@ -1,0 +1,72 @@
+/* ════════════════════════════════════════════════════════════
+   TABLE LAYOUT — Contenedores de tabla comunes
+   Sistema de diseño Rocland
+════════════════════════════════════════════════════════════ */
+
+.page-content {
+  animation: fadeIn 0.3s ease-in-out;
+  background-color: var(--rocland-light);
+  min-height: calc(100vh - 120px);
+  padding: 0;
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.table-card {
+  background: var(--rocland-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: clip;
+  border: 1px solid var(--rocland-border);
+  margin: 0;
+}
+
+.table-header {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--rocland-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--rocland-white);
+}
+
+.table-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rocland-black);
+}
+
+// Utilidades de texto comunes en tablas
+.text-muted  { color: var(--rocland-gray); }
+.text-mono   { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.text-center { text-align: center; }
+.text-danger { color: var(--rocland-danger); }
+.text-success { color: var(--rocland-green); }
+
+// Botón fantasma para acciones
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--rocland-silver);
+  border-radius: 50%;
+  transition: color var(--transition), background var(--transition);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--rocland-dark);
+    background: var(--rocland-light);
+  }
+
+  &.btn-sm {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

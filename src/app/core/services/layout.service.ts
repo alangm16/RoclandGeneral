@@ -9,12 +9,13 @@ export interface SubheaderAction {
 }
 
 export interface SubheaderConfig {
-  title: string;
+  title?: string;
   showSearch?: boolean;
   searchPlaceholder?: string;
-  showAddButton?: boolean;
   showExport?: boolean;
+  showAddButton?: boolean;
   addButtonLabel?: string;
+  addHandler?: () => void;
   actions?: SubheaderAction[];
 }
 

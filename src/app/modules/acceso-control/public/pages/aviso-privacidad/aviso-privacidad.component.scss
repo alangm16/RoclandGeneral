@@ -1,5 +1,16 @@
 /* aviso-privacidad.component.scss */
 
+/* ── Lista de privacidad ────────────────────────────────────────── */
+.privacy-list {
+  padding-left: 1.25rem;
+  margin-top: 0.35rem;
+
+  li {
+    margin-bottom: 0.25rem;
+    line-height: 1.5;
+  }
+}
+
 /* Hereda estilos de styles.scss (selector-page, form-section-card, etc.) */
 .selector-page { padding-top: 1rem; }
 

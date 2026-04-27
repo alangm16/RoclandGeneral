@@ -5,6 +5,7 @@ import {
   EventEmitter,
   HostListener,
   ChangeDetectionStrategy,
+  ViewEncapsulation
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -42,8 +43,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.scss'],
+  styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class ModalComponent {
   /** Controla la visibilidad del modal. */

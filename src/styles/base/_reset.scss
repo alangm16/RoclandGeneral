@@ -1,0 +1,33 @@
+/* ── Reset base ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  /* Escala de fuente fluida: 14px en móvil → 16px en desktop */
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--rocland-light);
+  color: var(--rocland-black);
+  min-height: 100vh;
+  min-height: 100dvh; /* dvh para móviles con barra de navegación */
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* app-root ocupa todo el espacio para que el layout pueda hacer sticky footer */
+app-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+}

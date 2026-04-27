@@ -24,10 +24,10 @@
       <button mat-button [matMenuTriggerFor]="userMenu" class="user-profile-btn">
         <div class="profile-content">
           <div class="user-avatar">
-            {{ userName?.charAt(0) || 'U' | uppercase }}
+            {{ userName.charAt(0) || 'U' | uppercase }}
           </div>
           <div class="user-info-text">
-            <span class="user-label">{{ userName }}</span>
+            <span class="user-name">{{ userName }}</span>
             <span class="user-status">En línea</span>
           </div>
           <i class="bi bi-chevron-down chevron-icon"></i>
@@ -37,7 +37,7 @@
       <mat-menu #userMenu="matMenu" class="custom-profile-menu" xPosition="before">
         <div class="menu-header">
           <div class="menu-avatar-lg">
-            {{ userName?.charAt(0) || 'U' | uppercase }}
+            {{ userName.charAt(0) || 'U' | uppercase }}
           </div>
           <div class="menu-user-info">
             <span class="menu-name">{{ userName }}</span>

@@ -1,0 +1,41 @@
+/* ── Skeletons ──────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton {
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, #e8ede6 25%, #d8e4d0 50%, #e8ede6 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-wrap {
+  .form-section-card {
+    pointer-events: none;
+  }
+}
+.skeleton-title {
+  height: 14px;
+  width: 40%;
+  margin-bottom: 1rem;
+}
+.skeleton-field {
+  height: 42px;
+  margin-bottom: 0.75rem;
+}
+.skeleton-field-half {
+  height: 42px;
+  width: calc(50% - 0.375rem);
+  display: inline-block;
+  margin-bottom: 0.75rem;
+
+  & + & {
+    margin-left: 0.75rem;
+  }
+}

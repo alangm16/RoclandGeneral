@@ -36,7 +36,7 @@ import { GuardiaResumen, GuardiaCreateDto, GuardiaUpdateDto } from '../../../mod
     BadgeComponent,
   ],
   templateUrl: './guardias.component.html',
-  styleUrls: ['./guardias.component.scss'],
+  styleUrls: [],
 })
 export class GuardiasComponent implements OnInit, OnDestroy {
   public readonly layoutSvc = inject(LayoutService);
@@ -109,29 +109,21 @@ export class GuardiasComponent implements OnInit, OnDestroy {
       title: 'Guardias',
       showSearch: true,
       searchPlaceholder: 'Buscar por nombre o usuario...',
+      showAddButton: true,
+      addButtonLabel: 'Nuevo Guardia',
+      addHandler: () => this.abrirModalNuevo(),
       actions: [
         {
           label: 'Buscar',
           icon: 'bi-search',
           variant: 'flat' as const,
-          color: 'primary',
-          handler: () => {
-            this.paginaActual.set(1);
-            this.cargarGuardias();
-          },
+          handler: () => { /* ... */ }
         },
         {
           label: 'Limpiar',
           icon: 'bi-arrow-counterclockwise',
-          variant: 'stroked' as const,
-          handler: () => this.layoutSvc.onSearchInput(''),
-        },
-        {
-          label: 'Nuevo guardia',
-          icon: 'bi-shield-plus',
-          variant: 'flat' as const,
-          color: 'primary',
-          handler: () => this.abrirModalNuevo(),
+          variant: 'stroked' as const,        // ← antes era 'stroked'
+          handler: () => this.layoutSvc.onSearchInput('')
         },
       ],
     });

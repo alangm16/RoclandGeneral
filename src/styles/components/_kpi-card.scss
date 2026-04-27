@@ -1,0 +1,71 @@
+/* ════════════════════════════════════════════════════════════
+   KPI CARD — Estilos globales
+   Sistema de diseño Rocland
+════════════════════════════════════════════════════════════ */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--rocland-light);
+  border: 1px solid var(--rocland-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: box-shadow var(--transition);
+
+  &:hover {
+    box-shadow: var(--shadow-sm);
+  }
+
+  &.accent {
+    background: linear-gradient(135deg, rgba(74,156,31,0.1) 0%, rgba(74,156,31,0.04) 100%);
+    border-color: rgba(74, 156, 31, 0.35);
+
+    .kpi-label { color: var(--rocland-green-dark); }
+    .kpi-value { color: var(--rocland-black); }
+  }
+}
+
+.kpi-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--rocland-gray);
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--rocland-black);
+  line-height: 1;
+  letter-spacing: 0.02em;
+
+  &.sm {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kpi-grid .kpi-card:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 380px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

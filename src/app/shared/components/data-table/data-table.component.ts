@@ -6,6 +6,7 @@ import {
   ContentChild,
   TemplateRef,
   ChangeDetectionStrategy,
+  ViewEncapsulation
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -21,7 +22,8 @@ export interface DataTableColumn {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './data-table.component.html',
-  styleUrls: ['./data-table.component.scss'],
+  styleUrls: [],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataTableComponent<T = any> {

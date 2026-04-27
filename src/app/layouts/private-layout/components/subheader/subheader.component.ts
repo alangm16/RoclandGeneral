@@ -4,13 +4,12 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, startWith } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { NgClass } from '@angular/common';
 import { LayoutService } from '../../../../core/services/layout.service';
 
 @Component({
   selector: 'app-subheader',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, NgClass],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './subheader.component.html',
   styleUrls: ['./subheader.component.scss']
 })

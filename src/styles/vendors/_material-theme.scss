@@ -1,8 +1,9 @@
+// src/styles/vendors/_material-theme.scss
 @use '@angular/material' as mat;
 
 @include mat.core();
 
-/* Paleta Rocland EXACTA */
+// Paleta Rocland EXACTA
 $rocland-palette: (
   50 : #eaf4e4,
   100 : #cbe3bc,
@@ -28,7 +29,6 @@ $rocland-palette: (
   )
 );
 
-/* Material 2 theming API */
 $rocland-primary: mat.m2-define-palette($rocland-palette, 500);
 $rocland-accent: mat.m2-define-palette(mat.$m2-grey-palette, 800, 600, 900);
 $rocland-warn: mat.m2-define-palette(mat.$m2-red-palette);

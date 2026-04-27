@@ -3,7 +3,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { NgClass } from '@angular/common';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UpperCasePipe } from '@angular/common';
 
@@ -15,7 +14,6 @@ import { UpperCasePipe } from '@angular/common';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    NgClass,
     UpperCasePipe
   ],
   templateUrl: './topbar.component.html',

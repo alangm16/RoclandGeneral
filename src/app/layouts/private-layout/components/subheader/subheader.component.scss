@@ -26,14 +26,6 @@
   flex: 1;   /* Permite que crezca para empujar los botones a la derecha */
 }
 
-/* Estilos para el divisor vertical (|) */
-.subheader-left {
-  display: flex;
-  align-items: center;
-  gap: 20px; /* Espacio entre Título, Buscador y Filtros */
-  flex: 1;   /* Permite que crezca para empujar los botones a la derecha */
-}
-
 .divider {
   width: 1px;          
   height: 20px;        
@@ -93,12 +85,10 @@
   }
 }
 
-.add-button {
-  background: var(--accent);
-  
-  &:hover {
-    background: var(--accent-dim);
-  }
+.filter-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;   /* puedes ajustar a 8px, 12px, lo que prefieras */
 }
 
 /* ── Media Queries (sincronizados con private-layout.component.scss) ── */
@@ -167,34 +157,3 @@
     min-width: 100%;
   }
 }
-
-.btn-flat-small {
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-stroked-small {
-    background-color: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    padding: 6px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-flat-small:hover { background-color: var(--accent-dim); }
-.btn-stroked-small:hover { background-color: var(--surface-2); }
