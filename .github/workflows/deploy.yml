@@ -14,13 +14,14 @@ jobs:
       - name: 1. Descargar el código más reciente
         uses: actions/checkout@v4
 
-      - name: 2. Detener contenedor de la versión anterior
-        run: docker-compose down
-        continue-on-error: true 
+      # Opcional pero recomendado: Asegura que el runner use la versión correcta de Node
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' 
 
-      - name: 3. Construir la app de Angular y levantar Nginx
-        run: docker-compose up -d --build
+      - name: 3. Instalar dependencias
+        run: npm install
 
-      - name: 4. Limpiar imágenes de Docker huérfanas
-        run: docker image prune -f
-        continue-on-error: true
+      - name: 4. Compilar Angular para Producción
+        run: npm run build --configuration=production
