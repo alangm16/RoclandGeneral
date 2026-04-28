@@ -22,8 +22,10 @@
 .subheader-left {
   display: flex;
   align-items: center;
-  gap: 20px; /* Espacio entre Título, Buscador y Filtros */
-  flex: 1;   /* Permite que crezca para empujar los botones a la derecha */
+  gap: 16px;
+  flex: 1 1 auto;
+  flex-wrap: wrap; 
+  min-width: 0; 
 }
 
 .divider {
@@ -38,6 +40,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap; 
 }
 
 .page-title {
@@ -47,6 +50,7 @@
   color: var(--text);
   margin: 0;
   letter-spacing: -0.3px;
+  white-space: nowrap; 
 }
 
 .subheader-right {
@@ -54,6 +58,7 @@
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .search-wrapper {
@@ -63,7 +68,9 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 12px;
-  min-width: 280px;
+  min-width: 180px; 
+  flex: 1 1 auto; 
+  max-width: 320px; 
   
   i {
     color: var(--muted);
@@ -88,7 +95,8 @@
 .filter-actions-inline {
   display: flex;
   align-items: center;
-  gap: 10px;   /* puedes ajustar a 8px, 12px, lo que prefieras */
+  gap: 10px;
+  flex-wrap: wrap; 
 }
 
 /* ── Media Queries (sincronizados con private-layout.component.scss) ── */
@@ -155,5 +163,51 @@
 
   .search-wrapper {
     min-width: 100%;
+  }
+}
+
+/* 1. Ultra-wide Monitors (> 1800px) */
+@media (min-width: 1800px) {
+  .subheader-inner {
+    padding: 16px 48px;
+  }
+}
+
+/* 2. Laptops / Tablets horizontales: Los elementos empiezan a hacer wrap, ocultamos los divisores para que no se vean mal colgados */
+@media (max-width: 1200px) {
+  .divider {
+    display: none; 
+  }
+}
+
+/* 3. Tablets normales */
+@media (max-width: 1024px) {
+  .subheader-inner {
+    padding: 16px 20px;
+  }
+}
+
+/* 4. Móviles y Tablets pequeñas */
+@media (max-width: 768px) {
+  .subheader-inner {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch; /* Estira el contenido al ancho completo */
+  }
+  
+  .subheader-right {
+    justify-content: flex-start;
+  }
+  
+  .search-wrapper {
+    min-width: 100%; /* El buscador toma todo el ancho en móvil */
+    max-width: none;
+  }
+}
+
+/* 5. Móviles pequeños */
+@media (max-width: 599px) {
+  .subheader-inner {
+    padding: 12px 14px;
   }
 }
