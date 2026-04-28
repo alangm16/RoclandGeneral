@@ -51,15 +51,15 @@ export class HistorialComponent implements OnInit, OnDestroy {
     { key: 'tipo',            label: 'Tipo',             headerClass: 'col-tipo',     cellClass: 'col-tipo' },
     { key: 'nombre',          label: 'Nombre',           headerClass: 'col-nombre',   cellClass: 'col-nombre' },
     { key: 'empresa',         label: 'Empresa',          headerClass: 'col-empresa',  cellClass: 'text-muted col-empresa' },
-    { key: 'numeroIdentificacion', label: 'No. ID',      headerClass: 'col-id',       cellClass: 'text-mono col-id' },
+    // { key: 'numeroIdentificacion', label: 'No. ID',      headerClass: 'col-id',       cellClass: 'text-mono col-id' },
     { key: 'area',            label: 'Área / Dest.',     headerClass: 'col-area',     cellClass: 'col-area' },
     { key: 'motivo',          label: 'Motivo',           headerClass: 'col-motivo',   cellClass: 'col-motivo' },
     { key: 'fechaEntrada',    label: 'Entrada',          headerClass: 'col-fecha',    cellClass: 'text-mono col-fecha' },
     { key: 'fechaSalida',     label: 'Salida',           headerClass: 'col-fecha',    cellClass: 'text-mono col-fecha' },
     { key: 'minutosEstancia', label: 'Min.',             headerClass: 'col-min',      cellClass: 'text-mono col-min' },
-    { key: 'estadoAcceso',    label: 'Estado',           headerClass: 'col-estado',   cellClass: 'col-estado' },
+    // { key: 'estadoAcceso',    label: 'Estado',           headerClass: 'col-estado',   cellClass: 'col-estado' },
     { key: 'codigoGafete',    label: 'Gafete',           headerClass: 'col-gafete',   cellClass: 'text-mono col-gafete' },
-    { key: 'guardia',         label: 'Guardia',          headerClass: 'col-guardia',  cellClass: 'text-muted col-guardia' },
+    // { key: 'guardia',         label: 'Guardia',          headerClass: 'col-guardia',  cellClass: 'text-muted col-guardia' },
   ];
 
   // ── Datos mapeados para la tabla (datos crudos, el formateo va en el template) ──
@@ -73,7 +73,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
   // ── Lifecycle ──────────────────────────────────────────────────
   ngOnInit(): void {
     this.layoutSvc.setSubheader({
-      title: 'Historial de Accesos',
+      title: 'Historial',
       showSearch: true,
       searchPlaceholder: 'Buscar nombre, ID, empresa...',
       filters: [
