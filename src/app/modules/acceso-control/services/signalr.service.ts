@@ -87,11 +87,11 @@ export class SignalrService {
     // 5. Iniciar
     this.hubConnection.start()
       .then(() => {
-        console.log('🔌 SignalR: Conectado exitosamente a AccesoHub');
+        
         this.statusSubject.next('connected');
       })
       .catch(err => {
-        console.warn('SignalR: error al conectar, reintentando...', err);
+        
         this.statusSubject.next('disconnected');
         
         // 💡 FIX: Mismo freno de emergencia aquí
