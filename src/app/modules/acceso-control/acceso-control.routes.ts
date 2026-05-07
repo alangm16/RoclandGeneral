@@ -20,7 +20,7 @@ export const ACCESO_CONTROL_ROUTES: Routes = [
 
   // ── ZONA PÚBLICA ──────────────────────────────────────────────────────────
   {
-    path: 'public/acceso-control-web',
+    path: '',
     component: PublicLayoutComponent,
     children: [
       {
