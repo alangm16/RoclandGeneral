@@ -48,9 +48,9 @@ export const ACCESO_PRIVATE_ROUTES: Routes = [
     data: { subheader: { title: 'Catálogos', showSearch: false } },
   },
   {
-    path: 'guardias',
+    path: 'usuarios',
     loadComponent: () =>
-      import('./pages/guardias/guardias.component').then(
+      import('./pages/usuarios/usuarios.component').then(
         (m) => m.GuardiasComponent
       ),
     title: 'Guardias — AccesoControl',

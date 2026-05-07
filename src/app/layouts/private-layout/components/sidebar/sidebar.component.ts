@@ -15,17 +15,16 @@ import { AuthService } from '../../../../core/auth/auth.service';
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
 
-  // Construimos el menú dinámicamente desde la sesión
+  // Generamos los items del menú automáticamente al cambiar la sesión
   readonly menuItems = computed(() => {
     const sesion = this.authService.sesion();
-    const proyecto = this.authService.proyectoActual();
+    const proyecto = this.authService.proyectoActual(); // ej: 'acceso-control-web'
     
     if (!sesion || !sesion.vistasPermitidas) return [];
 
     return sesion.vistasPermitidas.map(vista => ({
       label: vista.nombre,
-      icon: vista.icono || 'bi-circle',
-      // Construimos la ruta: /private/super-admin/usuarios
+      icon:  vista.icono || 'bi-circle',
       route: `/private/${proyecto}/${vista.ruta}`
     }));
   });

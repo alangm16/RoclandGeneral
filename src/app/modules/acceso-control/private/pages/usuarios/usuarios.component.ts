@@ -24,7 +24,7 @@ import { AuthService } from '../../../../../core/auth/auth.service';
     CommonModule, FormsModule, MatButtonModule, MatMenuModule, 
     MatDividerModule, ModalComponent, DataTableComponent, BadgeComponent
   ],
-  templateUrl: './guardias.component.html',
+  templateUrl: './usuarios.component.html',
   styleUrls: [],
 })
 export class GuardiasComponent implements OnInit, OnDestroy {
