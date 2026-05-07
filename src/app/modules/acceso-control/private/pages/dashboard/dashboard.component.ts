@@ -74,8 +74,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       showSearch: false,
       showExport: true,
       exportHandlers: {
-        excel: () => this.exportarExcel(),
-        pdf:   () => this.exportarPDF(),
+        excel: () => this.descargarExcel(),
+        pdf:   () => this.descargarPdf(),
       },
     });
 
@@ -142,18 +142,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // ── Exportar ──────────────────────────────────────────────────────────────
-  exportarExcel(): void {
-    window.open(
-      `${environment.apiUrl}/api/web/accesocontrol/admin/exportar/excel`,
-      '_blank'
-    );
+  descargarExcel() {
+    this.adminService.exportarExcel().subscribe({
+      next: (blob: Blob) => {
+        // 1. Creamos una URL local en la memoria del navegador para el archivo
+        const url = window.URL.createObjectURL(blob);
+        
+        // 2. Creamos una etiqueta <a> invisible
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Reporte_Acceso_Control.xlsx'; // Nombre del archivo a guardar
+        
+        // 3. Simulamos el clic y limpiamos la memoria
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al descargar Excel', err);
+        // Aquí puedes mostrar un Toast o Snackbar de error
+      }
+    });
   }
 
-  exportarPDF(): void {
-    window.open(
-      `${environment.apiUrl}/api/web/accesocontrol/admin/exportar/pdf`,
-      '_blank'
-    );
+  descargarPdf() {
+    this.adminService.exportarPdf().subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Reporte_Acceso_Control.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al descargar PDF', err);
+      }
+    });
   }
 
   // ── Reloj ─────────────────────────────────────────────────────────────────

@@ -148,4 +148,12 @@ export class AdminService {
   toggleCatalogo(tipo: 'areas' | 'motivos' | 'tiposid', id: number): Observable<void> {
     return this.http.put<void>(`${this.adminUrl}/${tipo}/${id}/toggle`, {});
   }
+
+  exportarExcel() {
+    return this.http.get(`${this.adminUrl}/exportar/excel`, { responseType: 'blob' });
+  }
+
+  exportarPdf() {
+    return this.http.get(`${this.adminUrl}/exportar/pdf`, { responseType: 'blob' });
+  }
 }
