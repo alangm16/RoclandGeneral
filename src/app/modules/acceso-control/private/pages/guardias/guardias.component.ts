@@ -1,11 +1,5 @@
 import {
-  Component,
-  OnInit,
-  OnDestroy,
-  inject,
-  signal,
-  computed,
-  Injector,
+  Component, OnInit, OnDestroy, inject, signal, computed, Injector
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,21 +13,16 @@ import { AdminService } from '../../../services/admin.service';
 import { DataTableColumn, DataTableComponent } from '../../../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
-import { GuardiaResumen, GuardiaCreateDto, GuardiaUpdateDto } from '../../../models/admin.models';
+import { GuardiaResumen, GuardiaUpdateDto } from '../../../models/admin.models';
+import { AuthService } from '../../../../../core/auth/auth.service';
 
 // ─────────────────────────────────────────────────────────────────
 @Component({
-  selector: 'app-guardias',
+  selector: 'app-guardias', // Puedes mantener este selector o cambiarlo a app-usuarios luego
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatDividerModule,
-    ModalComponent,
-    DataTableComponent,
-    BadgeComponent,
+    CommonModule, FormsModule, MatButtonModule, MatMenuModule, 
+    MatDividerModule, ModalComponent, DataTableComponent, BadgeComponent
   ],
   templateUrl: './guardias.component.html',
   styleUrls: [],
@@ -44,57 +33,37 @@ export class GuardiasComponent implements OnInit, OnDestroy {
   private readonly injector = inject(Injector);
   private readonly destroy$ = new Subject<void>();
 
-  // ── Tabla ──────────────────────────────────────────────────────
   guardias      = signal<GuardiaResumen[]>([]);
   totalGuardias = signal(0);
   cargando      = signal(false);
 
-  // ── Paginación ─────────────────────────────────────────────────
   paginaActual   = signal(1);
   readonly porPagina = 10;
   totalPaginas   = computed(() => Math.max(1, Math.ceil(this.totalGuardias() / this.porPagina)));
 
-  // ── Guardia seleccionado (compartido por editar / reset / toggle) ──
   guardiaSeleccionado = signal<GuardiaResumen | null>(null);
 
-  // ── Modal: Nuevo ────────────────────────────────────────────────
-  mostrarModalNuevo  = signal(false);
-  guardandoNuevo     = signal(false);
-  errorGlobalNuevo   = signal('');
-  mostrarPwdNuevo    = false;
-  formNuevo: GuardiaCreateDto = { nombre: '', usuario: '', password: '' };
-  erroresNuevo: Partial<Record<keyof GuardiaCreateDto, string>> = {};
-
-  // ── Modal: Editar ───────────────────────────────────────────────
+  // ── Modal: Editar (Solo permite asignar Turno/Numero Empleado si lo requieres luego)
   mostrarModalEditar = signal(false);
   guardandoEditar    = signal(false);
   errorGlobalEditar  = signal('');
-  formEditar = { nombre: '' };
-  erroresEditar: { nombre?: string } = {};
+  formEditar = { activo: true }; // Nota: El nombre ya no se edita aquí, viene de SuperAdmin.
 
-  // ── Modal: Reset pwd ────────────────────────────────────────────
-  mostrarModalReset  = signal(false);
-  guardandoReset     = signal(false);
-  errorGlobalReset   = signal('');
-  mostrarPwdReset    = false;
-  formReset = { password: '' };
-  erroresReset: { password?: string } = {};
-
-  // ── Modal: Toggle estado ────────────────────────────────────────
+  // ── Modal: Toggle estado
   mostrarModalToggle = signal(false);
   guardandoToggle    = signal(false);
 
-  // ── Columnas ────────────────────────────────────────────────────
+  // ── Columnas Actualizadas ──
   readonly tableColumns: DataTableColumn[] = [
     { key: 'indice',        label: '#',          headerClass: 'col-index',    cellClass: 'text-mono text-muted col-index' },
-    { key: 'nombre',        label: 'Nombre',     headerClass: 'col-nombre',   cellClass: 'col-nombre' },
-    { key: 'usuario',       label: 'Usuario',    headerClass: 'col-usuario',  cellClass: 'text-mono col-usuario' },
-    { key: 'estado',        label: 'Estado',     headerClass: 'col-estado',   cellClass: 'col-estado' },
-    { key: 'fechaCreacion', label: 'Fecha Alta', headerClass: 'col-fecha',    cellClass: 'text-mono text-muted col-fecha' },
+    { key: 'nombre',        label: 'Nombre Completo', headerClass: 'col-nombre',   cellClass: 'col-nombre' },
+    { key: 'rol',           label: 'Rol',        headerClass: 'col-rol',      cellClass: 'col-rol' }, 
+    { key: 'usuario',       label: 'No. Empleado', headerClass: 'col-usuario',  cellClass: 'text-mono col-usuario' }, 
+    { key: 'estado',        label: 'Estado Local', headerClass: 'col-estado',   cellClass: 'col-estado' },
+    { key: 'fechaCreacion', label: 'Fecha Alta',   headerClass: 'col-fecha',    cellClass: 'text-mono text-muted col-fecha' },
     { key: 'acciones',      label: '',           headerClass: 'col-actions',  cellClass: 'col-actions' },
   ];
 
-  // ── Datos mapeados para la tabla ────────────────────────────────
   readonly tableData = computed(() =>
     this.guardias().map((g, i) => ({
       ...g,
@@ -103,26 +72,21 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     }))
   );
 
-  // ── Lifecycle ──────────────────────────────────────────────────
+  readonly authSvc = inject(AuthService);
+  readonly miId = computed(() => this.authSvc.miPerfilId());
+  readonly miRol = computed(() => this.authSvc.rolActual());
+
   ngOnInit(): void {
     this.layoutSvc.setSubheader({
-      title: 'Guardias',
+      title: 'Usuarios', // Cambio de título
       showSearch: true,
-      searchPlaceholder: 'Buscar por nombre o usuario...',
-      showAddButton: true,
-      addButtonLabel: 'Nuevo Guardia',
-      addHandler: () => this.abrirModalNuevo(),
+      searchPlaceholder: 'Buscar por nombre o rol...',
+      showAddButton: false, // 
       actions: [
-        {
-          label: 'Buscar',
-          icon: 'bi-search',
-          variant: 'flat' as const,
-          handler: () => { /* ... */ }
-        },
         {
           label: 'Limpiar',
           icon: 'bi-arrow-counterclockwise',
-          variant: 'stroked' as const,        // ← antes era 'stroked'
+          variant: 'stroked' as const,
           handler: () => this.layoutSvc.onSearchInput('')
         },
       ],
@@ -145,7 +109,6 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     this.layoutSvc.closeModal();
   }
 
-  // ── Carga de datos ─────────────────────────────────────────────
   cargarGuardias(): void {
     this.cargando.set(true);
     const busqueda = this.layoutSvc.searchValue().trim();
@@ -170,146 +133,7 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Modal: Nuevo ────────────────────────────────────────────────
-  abrirModalNuevo(): void {
-    this.formNuevo   = { nombre: '', usuario: '', password: '' };
-    this.erroresNuevo = {};
-    this.errorGlobalNuevo.set('');
-    this.mostrarPwdNuevo = false;
-    this.mostrarModalNuevo.set(true);
-  }
-
-  cerrarModalNuevo(): void {
-    this.mostrarModalNuevo.set(false);
-  }
-
-  crearGuardia(): void {
-    this.erroresNuevo = {};
-    this.errorGlobalNuevo.set('');
-
-    const { nombre, usuario, password } = this.formNuevo;
-    let valido = true;
-
-    if (!nombre.trim()) {
-      this.erroresNuevo.nombre = 'El nombre es requerido.';
-      valido = false;
-    }
-    if (!usuario.trim()) {
-      this.erroresNuevo.usuario = 'El usuario es requerido.';
-      valido = false;
-    }
-    if (!password || password.length < 6) {
-      this.erroresNuevo.password = 'La contraseña debe tener al menos 6 caracteres.';
-      valido = false;
-    }
-    if (!valido) return;
-
-    this.guardandoNuevo.set(true);
-
-    this.adminSvc.crearGuardia({ nombre: nombre.trim(), usuario: usuario.trim(), password })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.cerrarModalNuevo();
-          this.cargarGuardias();
-        },
-        error: () => {
-          this.errorGlobalNuevo.set('No se pudo crear. El usuario ya existe o hubo un error.');
-          this.guardandoNuevo.set(false);
-        },
-      });
-  }
-
-  // ── Modal: Editar nombre ────────────────────────────────────────
-  abrirEditar(guardia: GuardiaResumen): void {
-    this.guardiaSeleccionado.set(guardia);
-    this.formEditar  = { nombre: guardia.nombre };
-    this.erroresEditar = {};
-    this.errorGlobalEditar.set('');
-    this.mostrarModalEditar.set(true);
-  }
-
-  cerrarModalEditar(): void {
-    this.mostrarModalEditar.set(false);
-    this.guardiaSeleccionado.set(null);
-  }
-
-  guardarEditar(): void {
-    this.erroresEditar = {};
-    this.errorGlobalEditar.set('');
-
-    const guardia = this.guardiaSeleccionado();
-    if (!guardia) return;
-
-    if (!this.formEditar.nombre.trim()) {
-      this.erroresEditar.nombre = 'El nombre es requerido.';
-      return;
-    }
-
-    this.guardandoEditar.set(true);
-
-    const dto: GuardiaUpdateDto = {
-      nombre: this.formEditar.nombre.trim(),
-      activo: guardia.activo,
-    };
-
-    this.adminSvc.actualizarGuardia(guardia.id, dto)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.cerrarModalEditar();
-          this.cargarGuardias();
-        },
-        error: () => {
-          this.errorGlobalEditar.set('No se pudo actualizar. Intenta de nuevo.');
-          this.guardandoEditar.set(false);
-        },
-      });
-  }
-
-  // ── Modal: Reset contraseña ─────────────────────────────────────
-  abrirReset(guardia: GuardiaResumen): void {
-    this.guardiaSeleccionado.set(guardia);
-    this.formReset  = { password: '' };
-    this.erroresReset = {};
-    this.errorGlobalReset.set('');
-    this.mostrarPwdReset = false;
-    this.mostrarModalReset.set(true);
-  }
-
-  cerrarModalReset(): void {
-    this.mostrarModalReset.set(false);
-    this.guardiaSeleccionado.set(null);
-  }
-
-  confirmarReset(): void {
-    this.erroresReset = {};
-    this.errorGlobalReset.set('');
-
-    const guardia = this.guardiaSeleccionado();
-    if (!guardia) return;
-
-    if (!this.formReset.password || this.formReset.password.length < 6) {
-      this.erroresReset.password = 'La contraseña debe tener al menos 6 caracteres.';
-      return;
-    }
-
-    this.guardandoReset.set(true);
-
-    this.adminSvc.resetPasswordGuardia(guardia.id, this.formReset.password)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.cerrarModalReset();
-        },
-        error: () => {
-          this.errorGlobalReset.set('No se pudo actualizar la contraseña. Intenta de nuevo.');
-          this.guardandoReset.set(false);
-        },
-      });
-  }
-
-  // ── Modal: Toggle estado ────────────────────────────────────────
+  // ── Toggle estado ────────────────────────────────────────
   toggleEstado(guardia: GuardiaResumen): void {
     this.guardiaSeleccionado.set(guardia);
     this.mostrarModalToggle.set(true);
@@ -327,7 +151,7 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     this.guardandoToggle.set(true);
 
     const dto: GuardiaUpdateDto = {
-      nombre: guardia.nombre,
+      nombre: guardia.nombre, // Solo lo mandamos por compatibilidad con el DTO actual
       activo: !guardia.activo,
     };
 
@@ -337,6 +161,7 @@ export class GuardiasComponent implements OnInit, OnDestroy {
         next: () => {
           this.cerrarModalToggle();
           this.cargarGuardias();
+          this.guardandoToggle.set(false);
         },
         error: () => {
           this.guardandoToggle.set(false);

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, inject, signal, OnDestroy, computed } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,13 +48,8 @@ export class TopbarComponent implements OnDestroy {
     clearInterval(this.clockInterval);
   }
 
-  get userName(): string {
-    return this.authService.nombreUsuario() || 'Usuario';
-  }
-
-  get projectName(): string {
-    return this.authService.proyectoNombre();
-  }
+  readonly userName = computed(() => this.authService.nombreUsuario() || 'Usuario');
+  readonly projectName = computed(() => this.authService.proyectoNombre() || 'Cargando...');
 
   logout(): void {
     this.authService.logout();

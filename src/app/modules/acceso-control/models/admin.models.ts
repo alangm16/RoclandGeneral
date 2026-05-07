@@ -2,10 +2,10 @@
 
 export interface DashboardKpis {
   dentroAhora: number | null;
-  totalHoy: number | null;
-  totalVisitantesHoy: number | null;
-  totalProveedoresHoy: number | null;
-  promedioEstanciaMinutos: number | null;
+  accesosHoy: number | null;
+  visitantesHoy: number | null;
+  proveedoresHoy: number | null;
+  tiempoPromedio: number | null;
   solicitudesPendientes: number | null;
 }
 
@@ -69,6 +69,7 @@ export interface GuardiaResumen {
   id: number;
   nombre: string;
   usuario: string;
+  rol: string;
   activo: boolean;
   fechaCreacion: string;
 }

@@ -1,0 +1,102 @@
+<div class="page-content fade-in">
+
+  <div class="mb-4">
+    <h2 style="font-weight: 700; color: var(--rocland-text); margin-bottom: 4px;">
+      Hola, {{ miNombre() }}
+    </h2>
+    <p class="text-muted">
+      Estás en el panel de control central. Aquí administras los accesos y recursos de todo el ecosistema.
+    </p>
+  </div>
+
+  <div class="row g-3 mb-4">
+    
+    <div class="col-12 col-md-3">
+      <div class="kpi-card p-3 rounded" style="background: white; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">Usuarios Totales</span>
+          <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(13, 110, 253, 0.1); color: var(--bs-blue);">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+        <h3 style="font-weight: 700; margin: 0; font-size: 24px;">{{ kpis.usuariosTotales }}</h3>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="kpi-card p-3 rounded" style="background: white; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">Conectados Hoy</span>
+          <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(25, 135, 84, 0.1); color: var(--bs-success);">
+            <i class="bi bi-activity"></i>
+          </div>
+        </div>
+        <h3 style="font-weight: 700; margin: 0; font-size: 24px;">{{ kpis.usuariosActivosHoy }}</h3>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="kpi-card p-3 rounded" style="background: white; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">Módulos Activos</span>
+          <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(111, 66, 193, 0.1); color: var(--bs-purple);">
+            <i class="bi bi-diagram-3-fill"></i>
+          </div>
+        </div>
+        <h3 style="font-weight: 700; margin: 0; font-size: 24px;">{{ kpis.proyectosInstalados }}</h3>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="kpi-card p-3 rounded" style="background: white; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">Alertas Seguridad</span>
+          <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(220, 53, 69, 0.1); color: var(--bs-danger);">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+        </div>
+        <h3 style="font-weight: 700; margin: 0; font-size: 24px;">{{ kpis.alertasSeguridad }}</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row g-4">
+    
+    <div class="col-12 col-md-6">
+      <div class="p-4 rounded h-100 d-flex flex-column" style="background: white; border: 1px solid rgba(0,0,0,0.08);">
+        <div class="mb-3">
+          <i class="bi bi-person-badge text-primary" style="font-size: 2rem;"></i>
+        </div>
+        <h4 style="font-weight: 600;">Gestión de Usuarios</h4>
+        <p class="text-muted flex-grow-1">
+          Crea nuevas cuentas globales, resetea contraseñas y asigna a qué paneles puede entrar cada empleado.
+        </p>
+        <div>
+          <button class="btn-rocland btn-sm" routerLink="../usuarios">
+            Ir a Usuarios <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="p-4 rounded h-100 d-flex flex-column" style="background: white; border: 1px solid rgba(0,0,0,0.08);">
+        <div class="mb-3">
+          <i class="bi bi-building-gear text-primary" style="font-size: 2rem;"></i>
+        </div>
+        <h4 style="font-weight: 600;">Gestión de Proyectos</h4>
+        <p class="text-muted flex-grow-1">
+          Administra los módulos del ecosistema (Web y Móvil) y configura los permisos de vistas específicas.
+        </p>
+        <div>
+          <button class="btn-rocland btn-sm" routerLink="../proyectos">
+            Ir a Proyectos <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

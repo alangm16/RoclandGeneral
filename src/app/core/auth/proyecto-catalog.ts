@@ -26,11 +26,6 @@ export const PROYECTOS_HARDCODED: ProyectoDisponible[] = [
     nombre:      'AccesoControl Web',
     descripcion: 'Panel de control de acceso a instalaciones',
     icono:       'bi-shield-lock-fill',
-    loginEndpoint: {
-      admin:   `${environment.apiUrl}/api/web/accesocontrol/auth/admin/login`,
-      guardia: `${environment.apiUrl}/api/web/accesocontrol/auth/guardia/login`,
-    },
-    rolesPermitidos: ['Admin', 'Supervisor', 'Guardia'],
     rutaBase:    '/private/acceso-control-web',
     activo:      true,
   },

@@ -23,14 +23,14 @@ export class AdminService {
   private readonly http = inject(HttpClient);
   // Ajustamos la ruta según tu nueva estructura de controladores API
   private readonly adminUrl = `${environment.apiUrl}/api/web/accesocontrol/admin`;
-  private readonly guardiasUrl = `${environment.apiUrl}/api/web/accesocontrol/guardias`;
+  private readonly operacionesUrl = `${environment.apiUrl}/api/web/accesocontrol/operaciones`;
 
   getKpis(): Observable<DashboardKpis> {
     return this.http.get<DashboardKpis>(`${this.adminUrl}/kpis`);
   }
 
   getActivosZona(): Observable<ActivoZona[]> {
-    return this.http.get<ActivoZona[]>(`${this.guardiasUrl}/activosZona`);
+    return this.http.get<ActivoZona[]>(`${this.operacionesUrl}/activosZona`);
   }
 
   getFlujoHoras(): Observable<FlujoHora[]> {

@@ -1,19 +1,12 @@
 // login.component.ts
-// Rocland — Página de Login Universal
-// Sprint 4
-
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
-import { ProyectoDisponible } from '../../../core/auth/auth.models';
+import { ProyectoPermitido } from '../../../core/auth/auth.models';
 
 @Component({
   selector: 'app-login',
@@ -22,42 +15,53 @@ import { ProyectoDisponible } from '../../../core/auth/auth.models';
   templateUrl: './login.component.html',
   styleUrl:    './login.component.scss',
 })
-export class LoginComponent implements OnInit {
-
-  private readonly fb      = inject(FormBuilder);
-  private readonly auth    = inject(AuthService);
-  private readonly router  = inject(Router);
-  private readonly route   = inject(ActivatedRoute);
+export class LoginComponent implements OnInit, OnDestroy {
+  private readonly fb     = inject(FormBuilder);
+  private readonly auth   = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route  = inject(ActivatedRoute);
 
   // ── Estado ────────────────────────────────────────────────────
   form!:      FormGroup;
   submitted   = false;
   loading     = false;
+  buscando    = false;
   errorMsg    = '';
   mostrarPass = false;
 
   // ── Proyectos ─────────────────────────────────────────────────
-  proyectos: ProyectoDisponible[] = [];
-  proyectoSeleccionado: ProyectoDisponible | null = null;
+  proyectos: ProyectoPermitido[] = [];
+  proyectoSeleccionado: ProyectoPermitido | null = null;
+  
+  private destroy$ = new Subject<void>();
+  readonly year = new Date().getFullYear();
 
   // ── Lifecycle ─────────────────────────────────────────────────
   ngOnInit(): void {
-    // 1. SIEMPRE inicializar el formulario primero
     this.buildForm();
 
-    // 2. Si ya hay sesión activa (browser hidratado con localStorage),
-    //    navegar de inmediato sin mostrar el formulario.
-    //    Respeta el returnUrl para volver exactamente a donde estaba el usuario.
     if (this.auth.estaLogueado()) {
-      this.navegarPostLogin();
+      this.navegarPostLogin(this.auth.proyectoActual());
       return;
     }
 
-    this.proyectos = this.auth.getProyectosActivos();
+    // Escuchamos el teclado en el campo de usuario
+    this.form.get('usuario')?.valueChanges.pipe(
+      debounceTime(500), 
+      distinctUntilChanged(), 
+      takeUntil(this.destroy$)
+    ).subscribe(username => {
+      if (username && username.length >= 3) {
+        this.buscarProyectosDinamicamente(username);
+      } else {
+        this.limpiarProyectos();
+      }
+    });
+  }
 
-    if (this.proyectos.length === 1) {
-      this.seleccionarProyecto(this.proyectos[0].id);
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Formulario ────────────────────────────────────────────────
@@ -69,29 +73,54 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // ── Navegación post-login ─────────────────────────────────────
-  // Centraliza la lógica de a dónde ir después de autenticarse.
-  // Prioridad: returnUrl (ruta donde estaba el usuario) → dashboard del proyecto.
-  // Protección contra open redirect: solo se aceptan rutas internas (inician con /).
-  private navegarPostLogin(): void {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    const esRutaInterna = typeof returnUrl === 'string' && returnUrl.startsWith('/');
-    const destino = esRutaInterna
-      ? returnUrl
-      : `/private/${this.auth.proyectoActual()}/dashboard`;
+  // ── Descubrimiento Automático ─────────────────────────────────
+  private buscarProyectosDinamicamente(username: string): void {
+    this.buscando = true;
+    this.auth.descubrirProyectos(username).subscribe({
+      next: (res) => {
+        // 👇 FIX: Filtramos estrictamente para mostrar SOLO proyectos Web
+        this.proyectos = res.filter(p => p.plataforma && p.plataforma.toLowerCase() === 'web');
+        this.buscando = false;
 
-    this.router.navigateByUrl(destino);
+        if (this.proyectos.length === 1) {
+          this.seleccionarProyecto(this.proyectos[0].codigo);
+        } else {
+          this.form.get('proyectoId')?.setValue('');
+          this.proyectoSeleccionado = null;
+        }
+      },
+      error: () => {
+        this.limpiarProyectos();
+        this.buscando = false;
+      }
+    });
   }
 
-  // ── Selección de proyecto ─────────────────────────────────────
-  seleccionarProyecto(id: string): void {
-    this.proyectoSeleccionado = this.auth.getProyecto(id) ?? null;
-    this.form.get('proyectoId')?.setValue(id);
+  private limpiarProyectos(): void {
+    this.proyectos = [];
+    this.proyectoSeleccionado = null;
+    this.form.get('proyectoId')?.setValue('');
+  }
+
+  // ── Selección y Navegación ────────────────────────────────────
+  
+  // Se llama cuando el usuario cambia el Dropdown manualmente en el HTML
+  onProyectoChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.seleccionarProyecto(selectElement.value);
+  }
+
+  seleccionarProyecto(codigo: string): void {
+    this.proyectoSeleccionado = this.proyectos.find(p => p.codigo === codigo) ?? null;
+    this.form.get('proyectoId')?.setValue(codigo);
     this.errorMsg = '';
   }
 
-  getProyecto(id: string): ProyectoDisponible | undefined {
-    return this.proyectos.find(p => p.id === id);
+  private navegarPostLogin(proyectoCodigo: string): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    const esRutaInterna = typeof returnUrl === 'string' && returnUrl.startsWith('/');
+    const destino = esRutaInterna ? returnUrl : `/private/${proyectoCodigo}/dashboard`;
+    this.router.navigateByUrl(destino);
   }
 
   // ── Submit ────────────────────────────────────────────────────
@@ -103,27 +132,27 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
 
-    const { usuario, password } = this.form.value;
+    const credenciales = {
+      username: this.form.value.usuario, 
+      password: this.form.value.password,
+      plataforma: 'Web'
+    };
 
-    this.auth.login(
-      { usuario, password },
-      this.proyectoSeleccionado
-    ).subscribe({
-      next: (response) => {
-        const rolesPermitidos = this.proyectoSeleccionado!.rolesPermitidos;
-        if (!rolesPermitidos.includes(response.rol)) {
-          this.loading  = false;
-          this.errorMsg = 'No tienes permisos para acceder a este módulo.';
-          this.auth.logout();
-          return;
-        }
-
-        // Navegar respetando el returnUrl si existe, o al dashboard del proyecto
-        this.navegarPostLogin();
+    this.auth.login(credenciales, this.proyectoSeleccionado).subscribe({
+      next: () => {
+        this.navegarPostLogin(this.proyectoSeleccionado!.codigo);
       },
       error: (err) => {
         this.loading = false;
-        if (err.status === 401) {
+        this.auth.logout();
+
+        if (err.message === 'NO_PROJECT_ACCESS') {
+          this.errorMsg = 'No tienes permiso para acceder a este proyecto.';
+        } else if (err.message === 'NO_MODULE_PROFILE') {
+          this.errorMsg = 'Tu usuario no tiene un perfil configurado en Control de Acceso.';
+        } else if (err.message === 'NO_MODULE_ROLE') {
+          this.errorMsg = 'Requieres permisos de Supervisor para entrar al panel Web.';
+        } else if (err.status === 401 || err.status === 400) {
           this.errorMsg = 'Usuario o contraseña incorrectos.';
         } else if (err.status === 0) {
           this.errorMsg = 'No se pudo conectar con el servidor.';
@@ -143,6 +172,4 @@ export class LoginComponent implements OnInit {
   togglePass(): void {
     this.mostrarPass = !this.mostrarPass;
   }
-
-  readonly year = new Date().getFullYear();
 }

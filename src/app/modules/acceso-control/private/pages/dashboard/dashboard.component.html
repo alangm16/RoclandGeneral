@@ -11,7 +11,7 @@
     <div class="dashboard-kpi-icon"><i class="bi bi-card-checklist"></i></div>
     <div class="dashboard-kpi-content">
       <div class="dashboard-kpi-label">Total hoy</div>
-      <div class="dashboard-kpi-value">{{ kpis?.totalHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-value">{{ kpis?.accesosHoy }}</div>
       <div class="dashboard-kpi-sub">accesos registrados</div>
     </div>
   </div>
@@ -19,7 +19,7 @@
     <div class="dashboard-kpi-icon"><i class="bi bi-person-badge-fill"></i></div>
     <div class="dashboard-kpi-content">
       <div class="dashboard-kpi-label">Visitantes</div>
-      <div class="dashboard-kpi-value">{{ kpis?.totalVisitantesHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-value">{{ kpis?.visitantesHoy }}</div>
       <div class="dashboard-kpi-sub">hoy</div>
     </div>
   </div>
@@ -27,7 +27,7 @@
     <div class="dashboard-kpi-icon"><i class="bi bi-truck"></i></div>
     <div class="dashboard-kpi-content">
       <div class="dashboard-kpi-label">Proveedores</div>
-      <div class="dashboard-kpi-value">{{ kpis?.totalProveedoresHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-value">{{ kpis?.proveedoresHoy ?? '—' }}</div>
       <div class="dashboard-kpi-sub">hoy</div>
     </div>
   </div>
@@ -35,7 +35,7 @@
     <div class="dashboard-kpi-icon"><i class="bi bi-clock-fill"></i></div>
     <div class="dashboard-kpi-content">
       <div class="dashboard-kpi-label">Prom. estancia</div>
-      <div class="dashboard-kpi-value">{{ kpis?.promedioEstanciaMinutos ?? '—' }}</div>
+      <div class="dashboard-kpi-value">{{ kpis?.tiempoPromedio }}</div>
       <div class="dashboard-kpi-sub">minutos promedio</div>
     </div>
   </div>
