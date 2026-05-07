@@ -1,15 +1,16 @@
-import { Component, inject, computed, effect, viewChild } from '@angular/core';
+// src/app/layouts/private-layout/private-layout.component.ts
+import { Component, inject, effect, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { SidebarComponent, NavItem } from './components/sidebar/sidebar.component';
+
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
 import { SubheaderComponent } from './components/subheader/subheader.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LayoutService } from '../../core/services/layout.service';
-import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-private-layout',
@@ -28,11 +29,11 @@ import { AuthService } from '../../core/auth/auth.service';
 export class PrivateLayoutComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);
   readonly layoutService = inject(LayoutService);
-  readonly authService   = inject(AuthService);
 
-  /** Referencia al mat-sidenav del template para abrirlo/cerrarlo desde código. */
-  readonly sidenav = viewChild.required<MatSidenav>('sidenav');
+  // Referencia al mat-sidenav del HTML
+  private readonly sidenav = viewChild.required(MatSidenav);
 
+  // Control responsivo: ¿Estamos en una pantalla pequeña?
   readonly isHandset = toSignal(
     this.breakpointObserver.observe([
       Breakpoints.Handset,
@@ -42,42 +43,24 @@ export class PrivateLayoutComponent {
     { initialValue: false }
   );
 
-  toggleSidenav(): void {
-    const sidenav = this.sidenav();
-    sidenav.toggle();
-  }
-
-  navItems: NavItem[] = this.buildNavItems();
-
   private sidenavWasOpen = false;
 
   constructor() {
+    // Control automático de modales vs Sidebar
     effect(() => {
       const modalOpen = this.layoutService.modalOpen();
-      const sidenav   = this.sidenav();
+      const sidenavRef = this.sidenav();
 
       if (modalOpen) {
-        this.sidenavWasOpen = sidenav.opened;
-        sidenav.close();
+        this.sidenavWasOpen = sidenavRef.opened;
+        sidenavRef.close();
       } else if (this.sidenavWasOpen && !this.isHandset()) {
-        sidenav.open();
+        sidenavRef.open();
       }
     });
   }
 
-  private buildNavItems(): NavItem[] {
-    const proyecto = this.authService.proyectoActual() || '';
-    if (proyecto.includes('acceso-control')) {
-      const base = '/private/acceso-control-web';
-      return [
-        { label: 'Dashboard', icon: 'bi-speedometer2',    route: `${base}/dashboard` },
-        { label: 'Personas',  icon: 'bi-people',          route: `${base}/personas`  },
-        { label: 'Guardias',  icon: 'bi-shield-shaded',   route: `${base}/guardias`  },
-        { label: 'Historial', icon: 'bi-clock-history',   route: `${base}/historial` },
-        { label: 'Catálogos', icon: 'bi-collection-fill', route: `${base}/catalogos` },
-      ];
-    }
-    return [{ label: 'Dashboard', icon: 'bi-speedometer2', route: '/dashboard' }];
+  toggleSidenav(): void {
+    this.sidenav().toggle();
   }
 }
-

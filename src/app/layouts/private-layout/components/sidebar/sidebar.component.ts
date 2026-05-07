@@ -1,47 +1,37 @@
-import { Component, Input, inject } from '@angular/core';
+// src/app/layouts/private-layout/components/sidebar/sidebar.component.ts
+import { Component, inject, computed } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { NgClass } from '@angular/common';
-import { LayoutService } from '../../../../core/services/layout.service';
+import { NgClass, CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/auth/auth.service';
-
-export interface NavItem {
-  label: string;
-  icon?: string;
-  route?: string;
-  children?: NavItem[];
-}
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [
-    RouterModule,
-    MatListModule,
-    MatExpansionModule,
-    MatIconModule,
-    NgClass
-  ],
-  templateUrl: 'sidebar.component.html',
-  styleUrls: ['sidebar.component.scss']
+  imports: [RouterModule, MatListModule, NgClass, CommonModule],
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
-  @Input() navItems: NavItem[] = [];
-  
-  readonly layoutService = inject(LayoutService);
-  readonly authService = inject(AuthService);
-  
-  get userName(): string {
-    return this.authService.nombreUsuario() || 'Usuario';
-  }
-  
-  get userRole(): string {
-    return this.authService.rolActual() || 'Sin rol';
-  }
-  
-  logout(): void {
-    this.authService.logout();
-  }
+  private readonly authService = inject(AuthService);
+
+  // Construimos el menú dinámicamente desde la sesión
+  readonly menuItems = computed(() => {
+    const sesion = this.authService.sesion();
+    const proyecto = this.authService.proyectoActual();
+    
+    if (!sesion || !sesion.vistasPermitidas) return [];
+
+    return sesion.vistasPermitidas.map(vista => ({
+      label: vista.nombre,
+      icon: vista.icono || 'bi-circle',
+      // Construimos la ruta: /private/super-admin/usuarios
+      route: `/private/${proyecto}/${vista.ruta}`
+    }));
+  });
+
+  get userName() { return this.authService.nombreUsuario(); }
+  get userRole() { return this.authService.rolActual(); }
+
+  logout(): void { this.authService.logout(); }
 }

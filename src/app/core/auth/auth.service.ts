@@ -73,7 +73,7 @@ export class AuthService {
             expiracion: superAdminRes.accessTokenExpira,
             proyectoId: proyecto.codigo,
             proyectoNombre: proyecto.nombre,
-            vistasPermitidas: proyecto.vistas?.map(v => v.ruta) || [],
+            vistasPermitidas: proyecto.vistas || [],
             permisos: {
               puedeLeer: proyecto.puedeLeer, puedeCrear: proyecto.puedeCrear,
               puedeEditar: proyecto.puedeEditar, puedeBorrar: proyecto.puedeBorrar
@@ -103,7 +103,7 @@ export class AuthService {
               expiracion: superAdminRes.accessTokenExpira,
               proyectoId: proyecto.codigo, // Usamos 'codigo' de la BD, ej: 'acceso-control-web'
               proyectoNombre: proyecto.nombre,
-              vistasPermitidas: proyecto.vistas?.map(v => v.ruta) || [],
+              vistasPermitidas: proyecto.vistas || [],
               permisos: {
                 puedeLeer: proyecto.puedeLeer, puedeCrear: proyecto.puedeCrear,
                 puedeEditar: proyecto.puedeEditar, puedeBorrar: proyecto.puedeBorrar

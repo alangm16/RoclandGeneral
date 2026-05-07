@@ -1,6 +1,6 @@
 <div class="sidebar-brand">
   <div class="brand-container">
-    <img src="assets/images/logo_rocland.png" alt="Logo Rocland" class="brand-logo">
+    <img src="assets/images/logo_rocland.png" alt="Logo" class="brand-logo">
     <div class="brand-text">
       <span class="brand-name">ROCLAND</span>
       <span class="brand-panel">PANEL</span>
@@ -9,45 +9,25 @@
 </div>
 
 <mat-nav-list class="nav-links">
-  @for (item of navItems; track item.route) {
-    @if (!item.children?.length) {
-      <a mat-list-item 
-         [routerLink]="item.route" 
-         routerLinkActive="active-link"
-         [routerLinkActiveOptions]="{ exact: item.route?.endsWith('dashboard') ?? false }"
-         class="nav-link">
-        <div class="nav-item-wrapper">
-          <i class="bi" [ngClass]="item.icon || 'bi-circle'"></i>
-          <span class="nav-label">{{ item.label }}</span>
-        </div>
-      </a>
-    } @else {
-      <mat-expansion-panel class="nav-group" hideToggle>
-        <mat-expansion-panel-header>
-          <mat-panel-title class="nav-item-wrapper">
-            <i class="bi" [ngClass]="item.icon || 'bi-folder'"></i>
-            <span class="nav-label">{{ item.label }}</span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        @for (child of item.children; track child.route) {
-          <a mat-list-item 
-             [routerLink]="child.route" 
-             routerLinkActive="active-link"
-             class="sub-nav-link">
-            <span class="nav-label">{{ child.label }}</span>
-          </a>
-        }
-      </mat-expansion-panel>
-    }
+  @for (item of menuItems(); track item.route) {
+    <a mat-list-item 
+       [routerLink]="item.route" 
+       routerLinkActive="active-link"
+       class="nav-link">
+      <div class="nav-item-wrapper">
+        <i class="bi" [ngClass]="item.icon"></i>
+        <span class="nav-label">{{ item.label }}</span>
+      </div>
+    </a>
   }
 </mat-nav-list>
 
 <div class="sidebar-footer">
-  <div class="sidebar-user-info">
-    <span class="sidebar-user">{{ userName }}</span>
-    <span class="sidebar-rol">{{ userRole }}</span>
+  <div class="user-info">
+    <span class="user-name">{{ userName }}</span>
+    <span class="user-role">{{ userRole }}</span>
   </div>
-  <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
-    <i class="bi bi-box-arrow-right"></i>
+  <button (click)="logout()" class="btn-logout">
+    <i class="bi bi-box-arrow-left"></i>
   </button>
 </div>

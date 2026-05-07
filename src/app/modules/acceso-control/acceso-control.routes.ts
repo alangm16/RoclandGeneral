@@ -35,18 +35,13 @@ export const ACCESO_CONTROL_ROUTES: Routes = [
 
   // ── ZONA PRIVADA ──────────────────────────────────────────────────────────
   {
-    path: 'private/acceso-control-web',
+    path: '', 
     component: PrivateLayoutComponent,
-    canActivate: [authGuard],
-    data: { renderMode: 'client' },
     children: [
       {
         path: '',
-        loadChildren: () =>
-          import('./private/acceso-private.routes').then(
-            (m) => m.ACCESO_PRIVATE_ROUTES
-          ),
-      },
-    ],
-  },
+        loadChildren: () => import('./private/acceso-private.routes').then(m => m.ACCESO_PRIVATE_ROUTES)
+      }
+    ]
+  }
 ];

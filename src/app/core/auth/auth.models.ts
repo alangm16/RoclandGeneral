@@ -58,7 +58,7 @@ export interface SesionActiva {
   expiracion: string;
   proyectoId: string;
   proyectoNombre: string;
-  vistasPermitidas: string[];
+  vistasPermitidas: VistaPermitida[];
   permisos: {
     puedeLeer: boolean;
     puedeCrear: boolean;
