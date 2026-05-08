@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://controlacceso.rocland.mx",
+    "target": "https://localhost:7244",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 const BADGE_MAP: Record<string, string> = {
@@ -22,6 +22,7 @@ const BADGE_MAP: Record<string, string> = {
   `,
   styles: [], // Las clases .bd y .badge--* están en styles.scss
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class BadgeComponent {
   @Input({ required: true }) label!: string;

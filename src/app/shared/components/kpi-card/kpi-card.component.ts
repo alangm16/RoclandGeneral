@@ -2,6 +2,7 @@ import {
   Component,
   Input,
   ChangeDetectionStrategy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -43,6 +44,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './kpi-card.component.html',
   styleUrls: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class KpiCardComponent {
   /**
