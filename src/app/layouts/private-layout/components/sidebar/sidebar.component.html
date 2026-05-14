@@ -1,6 +1,7 @@
+<!-- sidebar.component.html -->
 <div class="sidebar-brand">
   <div class="brand-container">
-    <img src="assets/images/logo_rocland.png" alt="Logo" class="brand-logo">
+    <img src="assets/images/logo_rocland.png" alt="Rocland" class="brand-logo">
     <div class="brand-text">
       <span class="brand-name">ROCLAND</span>
       <span class="brand-panel">PANEL</span>
@@ -8,26 +9,85 @@
   </div>
 </div>
 
-<mat-nav-list class="nav-links">
-  @for (item of menuItems(); track item.route) {
-    <a mat-list-item 
-       [routerLink]="item.route" 
-       routerLinkActive="active-link"
-       class="nav-link">
-      <div class="nav-item-wrapper">
-        <i class="bi" [ngClass]="item.icon"></i>
-        <span class="nav-label">{{ item.label }}</span>
-      </div>
-    </a>
-  }
-</mat-nav-list>
+<nav class="nav-links">
+  @for (item of menuItems(); track item.id) {
 
+    <!-- ── CONTENEDOR (agrupa hijos) ──────────────────────── -->
+    @if (item.esContenedor) {
+      <div class="nav-group" [class.is-open]="isActivo(item)">
+
+        <button class="nav-group-trigger" (click)="toggleGrupo(item.id)" [class.activo]="isActivo(item)">
+          <span class="trigger-left">
+            <i class="bi {{ item.icono || 'bi-folder' }} nav-icon"></i>
+            <span class="nav-label">{{ item.nombre }}</span>
+          </span>
+          <i class="bi bi-chevron-right chevron" [class.open]="gruposAbiertos().has(item.id)"></i>
+        </button>
+
+        <!-- ↓ El div.nav-children envuelve un div interno — necesario para el grid trick de animación -->
+        <div class="nav-children" [class.expanded]="gruposAbiertos().has(item.id)">
+          <div><!-- slot interno: overflow:hidden aquí permite la animación de altura -->
+
+            @for (hijo of item.hijos; track hijo.id) {
+
+              <!-- ── HIJO: contenedor anidado (ej: Configuración) ── -->
+              @if (hijo.esContenedor) {
+                <div class="nav-subgroup">
+                  <button class="nav-subgroup-trigger" (click)="toggleGrupo(hijo.id)" [class.activo]="isActivo(hijo)">
+                    <span class="subgroup-label">{{ hijo.nombre }}</span>
+                    <i class="bi bi-chevron-right sub-chevron" [class.open]="gruposAbiertos().has(hijo.id)"></i>
+                  </button>
+
+                  <!-- ↓ Mismo patrón para nietos -->
+                  <div class="nav-subchildren" [class.expanded]="gruposAbiertos().has(hijo.id)">
+                    <div><!-- slot interno -->
+                      @for (nieto of hijo.hijos; track nieto.id) {
+                        <a class="nav-sub-link"
+                           [routerLink]="getRuta(nieto)"
+                           routerLinkActive="active-sub">
+                          <span class="sub-dot"></span>
+                          {{ nieto.nombre }}
+                        </a>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+              <!-- ── HIJO: ítem navegable ── -->
+              } @else {
+                <a class="nav-child-link"
+                   [routerLink]="getRuta(hijo)"
+                   routerLinkActive="active-child">
+                  <span class="child-dot"></span>
+                  {{ hijo.nombre }}
+                </a>
+              }
+
+            }
+          </div><!-- /slot interno -->
+        </div>
+      </div>
+
+    <!-- ── ÍTEM RAÍZ NAVEGABLE ─────────────────────────────── -->
+    } @else {
+      <a class="nav-item"
+         [routerLink]="getRuta(item)"
+         routerLinkActive="active-item">
+        <i class="bi {{ item.icono || 'bi-circle' }} nav-icon"></i>
+        <span class="nav-label">{{ item.nombre }}</span>
+      </a>
+    }
+
+  }
+</nav>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
 <div class="sidebar-footer">
-  <div class="user-info">
-    <span class="user-name">{{ userName }}</span>
-    <span class="user-role">{{ userRole }}</span>
+  <div class="sidebar-user-info">
+    <span class="sidebar-user">{{ userName() }}</span>
+    <span class="sidebar-rol">{{ userRole() }}</span>
   </div>
-  <button (click)="logout()" class="btn-logout">
+  <button (click)="logout()" class="logout-btn" title="Cerrar sesión">
     <i class="bi bi-box-arrow-left"></i>
   </button>
 </div>

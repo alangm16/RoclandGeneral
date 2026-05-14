@@ -1,88 +1,89 @@
-// src/app/modules/acceso-control/models/admin.models.ts
+// admin.models.ts
+// Modelos alineados con AdminController y OperacionesController
 
+// ── Dashboard ──────────────────────────────────────────────────────
 export interface DashboardKpis {
-  dentroAhora: number | null;
-  accesosHoy: number | null;
-  visitantesHoy: number | null;
-  proveedoresHoy: number | null;
-  tiempoPromedio: number | null;
-  solicitudesPendientes: number | null;
+  dentroAhora: number;
+  accesosHoy: number;
+  visitantesHoy: number;
+  proveedoresHoy: number;
+  tiempoPromedio: number;
+  solicitudesPendientes: number;
 }
 
-export interface ActivoZona {
-  tipoRegistro: 'Visitante' | 'Proveedor';
+// ── Zona / Activos ─────────────────────────────────────────────────
+export interface AccesoActivoResponse {
+  registroId: number;
+  tipoRegistro: string;
   nombrePersona: string;
   empresa?: string;
-  area?: string;
-  fechaEntrada: string; // ISO String
-  numeroGafete?: string;
+  numeroGafete: string;
+  fechaEntrada: string;
+  area: string;
+  minutosLlevaDentro: number;
 }
 
-export interface FlujoHora {
+// ── KPIs secundarios ───────────────────────────────────────────────
+export interface FlujoPorHoraDto {
   hora: number;
   total: number;
 }
 
-export interface AreaRanking {
+export interface AreaVisitadaDto {
   area: string;
   total: number;
 }
 
-export interface FlujoDiario {
+export interface FlujoDiarioDto {
   fecha: string;
   visitantes: number;
   proveedores: number;
 }
 
-export interface PersonaResumen {
+// ── Personas ───────────────────────────────────────────────────────
+export interface PersonaPerfilDto {
   id: number;
   nombre: string;
+  tipoIdentificacion: string;  // nombre del tipo de ID
   numeroIdentificacion: string;
-  tipoID: string;
   empresa?: string;
+  telefono?: string;
+  email?: string;
   totalVisitas: number;
+  fechaRegistro: string;
   fechaUltimaVisita?: string;
 }
 
-export interface PersonaPerfil extends PersonaResumen {
-  telefono?: string;
-  fechaRegistro: string;
-}
-
-export interface HistorialPersonaItem {
-  tipo: string;
-  area?: string;
-  empresa?: string;
-  motivo: string;
-  fechaEntrada: string;
-  fechaSalida?: string;
-  minutosEstancia?: number;
-  estadoAcceso: string;
-}
-
 export interface PersonasPaginadas {
-  items: PersonaResumen[];
+  items: PersonaPerfilDto[];
   total: number;
 }
 
+// ── Historial (ítem individual) ────────────────────────────────────
+export interface HistorialAccesoItemDto {
+  id: number;
+  tipo: string;
+  nombre: string;
+  empresa?: string;
+  numeroIdentificacion: string;
+  area?: string;
+  motivo: string;
+  fechaEntrada: string;
+  fechaSalida?: string | null;
+  minutosEstancia?: number | null;
+  estadoAcceso: string;
+  codigoGafete?: string;
+  guardia: string;           // NombreCompleto del perfil
+}
+
+// ── Guardias (Perfiles) ────────────────────────────────────────────
 export interface GuardiaResumen {
   id: number;
-  nombre: string;
-  usuario: string;
-  rol: string;
+  nombre: string;            // NombreCompleto del perfil
+  usuario: string;           // Número de empleado o "N/A"
+  rol: string;               // Turno o "Sin turno"
   activo: boolean;
   fechaCreacion: string;
-}
-
-export interface GuardiaCreateDto {
-  nombre: string;
-  usuario: string;
-  password: string;
-}
-
-export interface GuardiaUpdateDto {
-  nombre: string;
-  activo: boolean;
 }
 
 export interface GuardiasPaginados {
@@ -90,27 +91,12 @@ export interface GuardiasPaginados {
   total: number;
 }
 
-export interface HistorialAccesoDto {
-  items: HistorialResumen[];
-  total: number;
+export interface GuardiaUpdateDto {
+  numeroEmpleado?: string | null;
+  turno?: string | null;
 }
 
-export interface HistorialResumen {
-  id: number;
-  tipo: string;                    
-  nombre: string;
-  empresa?: string;
-  numeroIdentificacion: string;
-  area?: string;
-  motivo: string;
-  fechaEntrada: string;           
-  fechaSalida?: string | null;    
-  minutosEstancia?: number | null;
-  estadoAcceso: string;          
-  codigoGafete?: string;
-  guardia?: string;
-}
-
+// ── Catálogos administrativos ─────────────────────────────────────
 export interface CatalogoItem {
   id: number;
   nombre: string;
@@ -118,5 +104,13 @@ export interface CatalogoItem {
 }
 
 export interface CatalogoCreateDto {
-  nombre: string
+  nombre: string;
+}
+
+// ── Respuesta paginada de historial ────────────────────────────────
+export interface HistorialPaginado {
+  items: HistorialAccesoItemDto[];
+  total: number;
+  pagina: number;
+  porPagina: number;
 }

@@ -1,0 +1,433 @@
+<div class="page-content fade-in">
+  @if (cargando()) {
+    <div class="du-loading">
+      <div class="spinner-border text-success" role="status"></div>
+      <span class="text-muted">Cargando usuario...</span>
+    </div>
+  } @else if (!usuario()) {
+    <app-empty-state layout="page" icon="bi-person-x" message="Usuario no encontrado" />
+  } @else {
+
+    <!-- ══════════════════ HERO HEADER ══════════════════ -->
+    <div class="du-hero">
+      <div class="du-hero-left">
+        <div class="du-avatar">{{ usuario()!.nombreCompleto.charAt(0) }}</div>
+        <div class="du-hero-info">
+          <div class="du-hero-name">{{ usuario()!.nombreCompleto }}</div>
+          <div class="du-hero-meta">
+            <span class="du-username"><i class="bi bi-at"></i>{{ usuario()!.username }}</span>
+            @if (usuario()!.email) {
+              <span class="du-dot">·</span>
+              <span class="du-email"><i class="bi bi-envelope"></i>{{ usuario()!.email }}</span>
+            }
+          </div>
+          <div class="du-hero-badges">
+            <app-badge [label]="usuario()!.activo ? 'Activo' : 'Inactivo'" [variant]="usuario()!.activo ? 'green' : 'red'"></app-badge>
+            @if (usuario()!.bloqueadoHasta) { <app-badge label="Bloqueado" variant="red"></app-badge> }
+          </div>
+        </div>
+      </div>
+      <a routerLink="/private/super-admin/usuarios/" class="form-page-back du-back-btn">
+        <i class="bi bi-arrow-left"></i> Volver al listado
+      </a>
+    </div>
+
+    <!-- ══════════════════ GRID PRINCIPAL ══════════════════ -->
+    <div class="du-body">
+
+      <!-- ── Fila superior: Info + Seguridad + Auditoría ── -->
+      <div class="du-grid-top">
+
+        <!-- Información General -->
+        <div class="form-section-card">
+          <div class="form-section-title">
+            <i class="bi bi-card-text"></i> Información General
+          </div>
+          <div class="du-info-grid">
+            <div class="du-field">
+              <label class="du-label">Correo electrónico</label>
+              <span class="du-value">{{ usuario()!.email || '—' }}</span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Último acceso</label>
+              <span class="du-value du-mono">
+                {{ usuario()!.ultimoAcceso ? (usuario()!.ultimoAcceso | date:'dd/MM/yyyy hh:mm a') : 'Nunca' }}
+              </span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Proyectos asignados</label>
+              <span class="du-value du-count">{{ usuario()!.proyectos?.length || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seguridad -->
+        <div class="form-section-card">
+          <div class="form-section-title">
+            <i class="bi bi-shield-lock-fill"></i> Seguridad
+          </div>
+          <div class="du-info-grid">
+            <div class="du-field">
+              <label class="du-label">Intentos fallidos</label>
+              <span class="du-value du-bold"
+                    [class.du-value--danger]="usuario()!.intentosFallidos > 0">
+                {{ usuario()!.intentosFallidos }}
+              </span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Estado de bloqueo</label>
+              @if (usuario()!.bloqueadoHasta) {
+                <div>
+                  <app-badge label="Bloqueado" variant="red"></app-badge>
+                  <p class="du-hint">hasta {{ usuario()!.bloqueadoHasta | date:'dd/MM/yyyy hh:mm a' }}</p>
+                </div>
+              } @else {
+                <app-badge label="Desbloqueado" variant="green"></app-badge>
+              }
+            </div>
+          </div>
+          @if (puedeAdministrar() && usuario()!.bloqueadoHasta) {
+            <div class="du-action-row">
+              <button class="btn-rocland du-btn-action" (click)="resetearIntentos()">
+                <i class="bi bi-arrow-counterclockwise"></i> Resetear intentos
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Auditoría -->
+        <div class="form-section-card">
+          <div class="form-section-title">
+            <i class="bi bi-clock-history"></i> Auditoría
+          </div>
+          <div class="du-info-grid">
+            <div class="du-field">
+              <label class="du-label">Creado por</label>
+              <span class="du-value">{{ usuario()!.creadoPor || 'Sistema' }}</span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Fecha de creación</label>
+              <span class="du-value du-mono">{{ usuario()!.fechaCreacion | date:'dd/MM/yyyy hh:mm a' }}</span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Modificado por</label>
+              <span class="du-value">{{ usuario()!.modificadoPor || '—' }}</span>
+            </div>
+            <div class="du-field">
+              <label class="du-label">Fecha de modificación</label>
+              <span class="du-value du-mono">
+                {{ usuario()!.fechaModificacion ? (usuario()!.fechaModificacion | date:'dd/MM/yyyy hh:mm a') : '—' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /du-grid-top -->
+
+      <!-- ══════════════════ PROYECTOS ASIGNADOS ══════════════════ -->
+      <div class="du-section-card">
+        <div class="du-section-header">
+          <div class="du-section-title">
+            <i class="bi bi-folder-fill"></i> Proyectos Asignados
+            <span class="du-count-badge">{{ usuario()!.proyectos?.length || 0 }}</span>
+          </div>
+          @if (puedeAdministrar()) {
+            <button #btnAsignar class="btn-rocland du-btn-action" (click)="abrirModalAsignar()">
+              <i class="bi bi-plus-lg"></i> Asignar Proyecto
+            </button>
+          }
+        </div>
+
+        <app-data-table
+          [columns]="columnasProyectos"
+          [data]="usuario()!.proyectos || []">
+          <ng-template #cellTemplate let-item let-col="column">
+            @switch (col.key) {
+              @case ('proyecto') {
+                <div>
+                  <span class="fw-bold">{{ item.nombreProyecto }}</span>
+                  <span class="du-code-tag">{{ item.codigoProyecto }}</span>
+                </div>
+              }
+              @case ('rol') {
+                <span class="du-mono-sm">{{ item.rol }}</span>
+              }
+              @case ('nivel') {
+                <span class="du-level-pill">Nv. {{ item.nivelRol }}</span>
+              }
+              @case ('estado') {
+                <app-badge
+                  [label]="item.activo ? 'Activo' : 'Inactivo'"
+                  [variant]="item.activo ? 'green' : 'red'">
+                </app-badge>
+              }
+              @case ('acciones') {
+                <button mat-icon-button [matMenuTriggerFor]="menuProy" class="btn-ghost btn-sm">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <mat-menu #menuProy="matMenu" class="custom-mat-menu">
+                  @if (puedeAdministrar()) {
+                    <button mat-menu-item (click)="cambiarRol(item)">
+                      <i class="bi bi-arrow-repeat me-2"></i>Cambiar Rol
+                    </button>
+                    <button mat-menu-item (click)="revocarProyecto(item)">
+                      <i class="bi bi-x-circle me-2 text-danger"></i>Revocar Acceso
+                    </button>
+                  }
+                </mat-menu>
+              }
+            }
+          </ng-template>
+        </app-data-table>
+      </div>
+
+      <!-- ══════════════════ HISTORIAL DE ACCESOS ══════════════════ -->
+      <div class="du-section-card">
+        <div class="du-section-header">
+          <div class="du-section-title">
+            <i class="bi bi-clock-history"></i> Historial de Accesos
+          </div>
+        </div>
+
+        <app-data-table
+          [columns]="columnasHistorial"
+          [data]="historialAccesos()">
+          <ng-template #cellTemplate let-item let-col="column">
+            @switch (col.key) {
+              @case ('fecha') {
+                <span class="text-mono text-muted" style="font-size:13px;">
+                  {{ item.fecha | date:'dd/MM/yyyy hh:mm a' }}
+                </span>
+              }
+              @case ('proyectoCodigo') {
+                <span class="du-code-tag">{{ item.proyectoCodigo || 'SA' }}</span>
+              }
+              @case ('plataforma') {
+                <span class="du-platform-chip">
+                  @if (item.plataforma?.toLowerCase() === 'web') {
+                    <i class="bi bi-globe2"></i>
+                  } @else if (item.plataforma?.toLowerCase() === 'mobile') {
+                    <i class="bi bi-phone"></i>
+                  } @else {
+                    <i class="bi bi-display"></i>
+                  }
+                  {{ item.plataforma }}
+                </span>
+              }
+              @case ('exitoso') {
+                <app-badge
+                  [label]="item.exitoso ? 'Exitoso' : 'Fallido'"
+                  [variant]="item.exitoso ? 'green' : 'red'">
+                </app-badge>
+              }
+              @default { {{ item[col.key] ?? '—' }} }
+            }
+          </ng-template>
+        </app-data-table>
+
+        <div class="pagination-footer">
+          <button class="btn-pagination" (click)="cambiarPaginaHistorial(-1)" [disabled]="historialPage() === 1">
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+          <span class="pagination-info">Página {{ historialPage() }} de {{ obtenerTotalPaginas() }}</span>
+          <button class="btn-pagination" (click)="cambiarPaginaHistorial(1)" [disabled]="historialPage() >= obtenerTotalPaginas()">
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════ TOKENS Y DISPOSITIVOS ══════════════════ -->
+      <div class="du-section-card">
+        <div class="du-section-header">
+          <div class="du-section-title">
+            <i class="bi bi-phone-fill"></i> Tokens y Dispositivos
+            <span class="du-count-badge">{{ dispositivos().length }}</span>
+          </div>
+        </div>
+
+        <app-data-table
+          [columns]="columnasDispositivos"
+          [data]="dispositivos()">
+          <ng-template #cellTemplate let-item let-col="column">
+            @switch (col.key) {
+              @case ('proyecto') {
+                <span class="du-code-tag">{{ item.proyectoCodigo }}</span>
+              }
+              @case ('plataforma') {
+                <span class="du-platform-chip">
+                  @if (item.plataforma?.toLowerCase() === 'web') {
+                    <i class="bi bi-globe2"></i>
+                  } @else if (item.plataforma?.toLowerCase() === 'mobile') {
+                    <i class="bi bi-phone"></i>
+                  } @else {
+                    <i class="bi bi-display"></i>
+                  }
+                  {{ item.plataforma }}
+                </span>
+              }
+              @case ('dispositivoInfo') {
+                <span class="text-muted" style="font-size:13px;">{{ item.dispositivoInfo || '—' }}</span>
+              }
+              @case ('fechaCreacion') {
+                <span class="text-mono text-muted" style="font-size:13px;">
+                  {{ item.fechaCreacion | date:'dd/MM/yyyy' }}
+                </span>
+              }
+              @case ('activo') {
+                <app-badge
+                  [label]="item.activo ? 'Activo' : 'Revocado'"
+                  [variant]="item.activo ? 'green' : 'red'">
+                </app-badge>
+              }
+              @case ('acciones') {
+                @if (item.activo) {
+                  <button mat-icon-button [matMenuTriggerFor]="menuDispositivo" class="btn-ghost btn-sm">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuDispositivo="matMenu" class="custom-mat-menu">
+                    @if (puedeAdministrar()) {
+                      <button mat-menu-item (click)="confirmarRevocarDispositivo(item)">
+                        <i class="bi bi-x-circle me-2 text-danger"></i> Revocar token
+                      </button>
+                    }
+                  </mat-menu>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              }
+              @default { {{ item[col.key] ?? '—' }} }
+            }
+          </ng-template>
+        </app-data-table>
+      </div>
+
+    </div><!-- /du-body -->
+  }
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: ASIGNAR PROYECTO
+═══════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="mostrarModalAsignar()" size="md" (closed)="cerrarModalAsignar()">
+  <ng-container header>
+    <div class="modal-avatar"><i class="bi bi-folder-plus"></i></div>
+    <div style="min-width:0;">
+      <h2 class="modal-title">Asignar Proyecto</h2>
+      <p class="modal-subtitle">{{ usuario()?.nombreCompleto }}</p>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <div class="mb-3">
+      <label class="form-label">Proyecto <span class="req">*</span></label>
+      <select class="form-select"
+              [ngModel]="proyectoSeleccionadoId()"
+              (ngModelChange)="onProyectoChange($event)">
+        <option [ngValue]="null" disabled>Selecciona un proyecto</option>
+        @for (proy of proyectosDisponibles(); track proy.id) {
+          <option [ngValue]="proy.id">{{ proy.nombre }} ({{ proy.codigo }})</option>
+        }
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Rol <span class="req">*</span></label>
+      <select class="form-select"
+              [ngModel]="rolSeleccionadoId()"
+              (ngModelChange)="rolSeleccionadoId.set($event)"
+              [disabled]="!proyectoSeleccionadoId()">
+        <option [ngValue]="null" disabled>Selecciona un rol</option>
+        @for (rol of rolesProyectoSeleccionado(); track rol.id) {
+          <option [ngValue]="rol.id">{{ rol.nombre }} — Nivel {{ rol.nivel }}</option>
+        }
+      </select>
+      @if (proyectoSeleccionadoId() && rolesProyectoSeleccionado().length === 0) {
+        <small class="text-muted">No hay roles disponibles para este proyecto.</small>
+      }
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+      <button type="button" class="btn-rocland btn-secondary" style="width:auto;padding:0.6rem 1.2rem;" (click)="cerrarModalAsignar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-rocland" style="width:auto;padding:0.6rem 1.2rem;"
+              [disabled]="!proyectoSeleccionadoId() || !rolSeleccionadoId()"
+              (click)="guardarAsignacion()">
+        <i class="bi bi-check-lg"></i> Asignar
+      </button>
+    </div>
+  </ng-container>
+</app-modal>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: CAMBIAR ROL
+═══════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="mostrarModalCambiarRol()" size="md" (closed)="cerrarModalCambiarRol()">
+  <ng-container header>
+    <div class="modal-avatar"><i class="bi bi-arrow-repeat"></i></div>
+    <div style="min-width:0;">
+      <h2 class="modal-title">Cambiar Rol</h2>
+      <p class="modal-subtitle">Actualiza el rol en el proyecto</p>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <div class="mb-3">
+      <label class="form-label">Nuevo Rol <span class="req">*</span></label>
+      <select class="form-select"
+              [ngModel]="rolSeleccionadoId()"
+              (ngModelChange)="rolSeleccionadoId.set($event)">
+        <option [ngValue]="null" disabled>Selecciona un rol</option>
+        @for (rol of rolesProyectoSeleccionado(); track rol.id) {
+          <option [ngValue]="rol.id">{{ rol.nombre }} — Nivel {{ rol.nivel }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+      <button type="button" class="btn-rocland btn-secondary" style="width:auto;padding:0.6rem 1.2rem;" (click)="cerrarModalCambiarRol()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-rocland" style="width:auto;padding:0.6rem 1.2rem;"
+              [disabled]="!rolSeleccionadoId()"
+              (click)="guardarCambioRol()">
+        <i class="bi bi-check-lg"></i> Actualizar Rol
+      </button>
+    </div>
+  </ng-container>
+</app-modal>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: CONFIRMAR REVOCAR ACCESO
+═══════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="mostrarModalRevocar()" size="sm" (closed)="cerrarModalRevocar()">
+  <ng-container header>
+    <div class="modal-avatar" style="background:rgba(192,57,43,0.15); border-color:var(--rocland-danger);">
+      <i class="bi bi-exclamation-triangle-fill" style="color:var(--rocland-danger);"></i>
+    </div>
+    <div style="min-width:0;">
+      <h2 class="modal-title">Revocar Acceso</h2>
+      <p class="modal-subtitle">{{ proyectoARevocar?.nombreProyecto }}</p>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <p class="text-muted" style="font-size:14px;line-height:1.6;">
+      El usuario perderá acceso al proyecto <strong>{{ proyectoARevocar?.nombreProyecto }}</strong>.
+      Esta acción se puede revertir asignándolo de nuevo.
+    </p>
+
+    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+      <button type="button" class="btn-rocland btn-secondary" style="width:auto;padding:0.6rem 1.2rem;" (click)="cerrarModalRevocar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-rocland" style="width:auto;padding:0.6rem 1.2rem;background:var(--rocland-danger);"
+              (click)="confirmarRevocar()">
+        <i class="bi bi-x-circle"></i> Revocar
+      </button>
+    </div>
+  </ng-container>
+</app-modal>

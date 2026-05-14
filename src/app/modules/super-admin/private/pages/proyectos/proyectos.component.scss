@@ -1,0 +1,287 @@
+// ── Utilidades ───────────────────────────────────────────────────
+.text-mono { font-family: 'Courier New', Courier, monospace; }
+
+// ── Table header con botón reordenar ─────────────────────────────
+.table-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// ── Banner modo reorden ───────────────────────────────────────────
+.reorder-banner {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--accent, #3b82f6);
+  background: rgba(59, 130, 246, 0.07);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+
+  strong { font-weight: 700; }
+}
+
+// ── Tabla reorden ─────────────────────────────────────────────────
+.reorder-table-wrap {
+  overflow-x: auto;
+}
+
+.reorder-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    padding: 11px 14px;
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--muted, #9ca3af);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .drag-col { width: 36px; }
+}
+
+.reorder-row {
+  cursor: grab;
+  transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+  user-select: none;
+
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  &:last-child td { border-bottom: none; }
+
+  &:hover { background: rgba(59, 130, 246, 0.04); }
+
+  &.reorder-row--dragging {
+    opacity: 0.35;
+    background: rgba(59, 130, 246, 0.06);
+    pointer-events: none;
+  }
+}
+
+// ── Ghost flotante (pointer drag) ────────────────────────────────
+.reorder-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  display: table;
+  border-collapse: collapse;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14), 0 0 0 2px var(--accent, #3b82f6);
+  background: var(--surface, #fff);
+  opacity: 0.92;
+  transform: rotate(0.8deg) scale(1.01);
+  transition: transform 0.1s;
+
+  // Heredar ancho de columnas de la tabla real
+  td {
+    padding: 11px 14px;
+    vertical-align: middle;
+    font-size: 13px;
+    border-bottom: none;
+    white-space: nowrap;
+  }
+
+  .drag-handle {
+    color: var(--accent, #3b82f6);
+    font-size: 16px;
+    text-align: center;
+    width: 36px;
+  }
+}
+
+// ── Placeholder (hueco durante el drag) ───────────────────────────
+.reorder-placeholder {
+  display: block;
+  background: rgba(59, 130, 246, 0.07);
+  border: 2px dashed rgba(59, 130, 246, 0.35);
+  border-radius: 6px;
+  margin: 2px 0;
+  transition: height 0.1s;
+}
+
+// ── Handle ────────────────────────────────────────────────────────
+.drag-handle {
+  color: var(--muted, #9ca3af);
+  font-size: 16px;
+  text-align: center;
+  width: 36px;
+  cursor: grab;
+
+  .reorder-row:hover & { color: var(--accent, #3b82f6); }
+}
+
+// ── Orden badges (tabla reorden) ──────────────────────────────────
+.orden-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+
+  &--muted {
+    background: var(--surface-alt, #f3f4f6);
+    border: 1px solid var(--border, #e5e7eb);
+    color: var(--muted, #9ca3af);
+    text-decoration: line-through;
+  }
+
+  &--new {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--accent, #3b82f6);
+    font-weight: 800;
+  }
+
+  // Variante por defecto (vista normal)
+  &:not(&--muted):not(&--new) {
+    background: var(--surface-alt, #f3f4f6);
+    border: 1px solid var(--border, #e5e7eb);
+    color: var(--muted, #9ca3af);
+  }
+}
+
+// ── App cell ─────────────────────────────────────────────────────
+.app-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  &--web    { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+  &--mobile { background: rgba(34, 197, 94,  0.12); color: #16a34a; }
+  &--api    { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.app-code {
+  font-size: 11px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+// ── Plataforma pill ───────────────────────────────────────────────
+.plataforma-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--surface-alt, #f3f4f6);
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+// ── Modal vistas: form ────────────────────────────────────────────
+.vista-form {
+  padding: 14px 16px;
+  background: var(--surface-alt, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent, #3b82f6);
+    margin-bottom: 10px;
+  }
+}
+
+// ── Modal vistas: tabla ───────────────────────────────────────────
+.vistas-table-wrap {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.m-table {
+  border-collapse: collapse;
+
+  th {
+    padding: 10px 14px;
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--muted, #9ca3af);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    text-align: left;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover    { background: rgba(0,0,0,0.015); }
+}
+
+// ── Botón fix ─────────────────────────────────────────────────────
+.btn-rocland { width: auto; }
+
+// ── Data-table overrides ──────────────────────────────────────────
+::ng-deep app-data-table table {
+  th {
+    padding: 14px 16px;
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--muted, #9ca3af);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border, #e5e7eb);
+    text-align: left;
+  }
+
+  td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    font-size: 14px;
+  }
+
+  tbody tr:hover { background: rgba(0,0,0,0.015); }
+}

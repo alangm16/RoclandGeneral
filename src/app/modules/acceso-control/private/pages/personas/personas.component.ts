@@ -6,7 +6,7 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { AdminService } from '../../../services/admin.service';
-import { PersonaResumen, PersonaPerfil, HistorialPersonaItem } from '../../../models/admin.models';
+import { PersonaPerfilDto, HistorialAccesoItemDto } from '../../../models/admin.models';
 import { DataTableColumn, DataTableComponent } from '../../../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
@@ -32,7 +32,9 @@ export class PersonasComponent implements OnInit, OnDestroy {
   private readonly destroy$  = new Subject<void>();
 
   // ── Tabla ──
-  personas      = signal<PersonaResumen[]>([]);
+  personas = signal<PersonaPerfilDto[]>([]);
+  perfilSeleccionado = signal<PersonaPerfilDto | null>(null);
+  historialPersona = signal<HistorialAccesoItemDto[]>([]);
   totalPersonas = signal(0);
   cargando      = signal(false);
 
@@ -42,8 +44,6 @@ export class PersonasComponent implements OnInit, OnDestroy {
   totalPaginas = computed(() => Math.max(1, Math.ceil(this.totalPersonas() / this.porPagina)));
 
   // ── Modal ──
-  perfilSeleccionado = signal<PersonaPerfil | null>(null);
-  historialPersona   = signal<HistorialPersonaItem[]>([]);
   cargandoDetalle    = signal(false);
   mostrarModal       = signal(false);
 
@@ -66,6 +66,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
       indice:      (this.paginaActual() - 1) * this.porPagina + i + 1,
       visitas:     p.totalVisitas,
       ultimaVisita: p.fechaUltimaVisita,
+      tipoID: p.tipoIdentificacion,
       _raw: p,
     }))
   );
@@ -137,7 +138,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
    * 1. Cierra el sidenav completamente y espera la animación.
    * 2. Muestra el modal y carga los datos en paralelo.
    */
-  async abrirDetalles(persona: PersonaResumen): Promise<void> {
+  async abrirDetalles(persona: PersonaPerfilDto): Promise<void> {
     await this.layoutSvc.openModal();
 
     this.mostrarModal.set(true);

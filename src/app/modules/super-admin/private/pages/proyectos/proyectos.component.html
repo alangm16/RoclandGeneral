@@ -1,0 +1,404 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Aplicaciones</span>
+      <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ proyectos().length }}</span>
+
+      <!-- Botones de reorden (solo SuperAdmin / Admin) -->
+      @if (puedeAdministrar()) {
+        <div class="ms-auto d-flex gap-2">
+          @if (!modoReorden()) {
+            <button class="btn-rocland btn-secondary btn-sm" (click)="activarReorden()" title="Reordenar aplicaciones">
+              <i class="bi bi-arrow-down-up me-1"></i> Reordenar
+            </button>
+          } @else {
+            <button class="btn-rocland btn-secondary btn-sm" (click)="cancelarReorden()" [disabled]="guardandoOrden()">
+              <i class="bi bi-x-lg me-1"></i> Cancelar
+            </button>
+            <button class="btn-rocland btn-sm" (click)="guardarOrden()" [disabled]="guardandoOrden()">
+              @if (guardandoOrden()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Guardando…
+              } @else {
+                <i class="bi bi-floppy me-1"></i> Guardar orden
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Banner informativo modo reorden ── -->
+    @if (modoReorden()) {
+      <div class="reorder-banner">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        Arrastra las filas para cambiar el orden. Pulsa  <strong> Guardar orden </strong>  para confirmar.
+      </div>
+    }
+
+    <!-- ── Vista normal (data-table) ── -->
+    @if (!modoReorden()) {
+      <app-data-table
+        [columns]="columnas"
+        [data]="proyectos()"
+        [loading]="cargando()">
+
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+
+            @case ('app') {
+              <div class="app-cell">
+                <div class="app-icon"
+                     [ngClass]="item.plataforma === 'Web' ? 'app-icon--web' :
+                                 item.plataforma === 'Mobile' ? 'app-icon--mobile' : 'app-icon--api'">
+                  <i class="bi {{ item.iconoCss || 'bi-box' }}"></i>
+                </div>
+                <div>
+                  <div class="app-name">{{ item.nombre }}</div>
+                  <div class="app-code text-muted">
+                    <i class="bi bi-code-slash me-1"></i>{{ item.codigo }}
+                  </div>
+                </div>
+              </div>
+            }
+
+            @case ('plataforma') {
+              <span class="plataforma-pill">
+                <i class="bi me-1"
+                   [ngClass]="item.plataforma === 'Web' ? 'bi-globe' :
+                               item.plataforma === 'Mobile' ? 'bi-phone' : 'bi-cpu'"></i>
+                {{ item.plataforma }}
+              </span>
+            }
+
+            @case ('estado') {
+              <app-badge [label]="labelEstado(item)" [variant]="badgeEstado(item)"></app-badge>
+            }
+
+            @case ('version') {
+              <span class="text-muted text-mono" style="font-size:13px;">{{ item.version ?? '—' }}</span>
+            }
+
+            @case ('orden') {
+              <span class="orden-badge">{{ item.orden }}</span>
+            }
+
+            @case ('activo') {
+              <app-badge
+                [label]="item.activo ? 'Activo' : 'Inactivo'"
+                [variant]="item.activo ? 'green' : 'red'">
+              </app-badge>
+            }
+
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menu="matMenu" class="custom-mat-menu">
+                @if (puedeAdministrar()) {
+                  <button mat-menu-item (click)="abrirModalProyecto(item)">
+                    <i class="bi bi-pencil me-2"></i> Editar App
+                  </button>
+                }
+                <button mat-menu-item (click)="abrirModalVistas(item)">
+                  <i class="bi bi-diagram-3 me-2"></i> Gestionar Vistas
+                </button>
+                @if (puedeAdministrar()) {
+                  <button mat-menu-item [routerLink]="['/private/super-admin/proyectos/configuracion', item.id]">
+                    <i class="bi bi-gear me-2"></i> Configuración
+                  </button>
+                }
+                @if (puedeAdministrar()) {
+                  <button mat-menu-item (click)="toggleEstadoProyecto(item)">
+                    <i class="bi me-2" [ngClass]="item.activo ? 'bi-power' : 'bi-play-circle'"></i>
+                    {{ item.activo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                }
+              </mat-menu>
+            }
+
+            @default { {{ item[col.key] ?? '—' }} }
+          }
+        </ng-template>
+      </app-data-table>
+    }
+
+    <!-- ── Vista reorden (tabla draggable) ── -->
+    @if (modoReorden()) {
+      <div class="reorder-table-wrap">
+        <table class="reorder-table">
+          <thead>
+            <tr>
+              <th class="drag-col"></th>
+              <th>APLICACIÓN</th>
+              <th>PLATAFORMA</th>
+              <th>ESTADO</th>
+              <th class="text-center">ORDEN ACTUAL</th>
+              <th class="text-center">NUEVA POSICIÓN</th>
+            </tr>
+          </thead>
+          <tbody #reorderList>
+            @for (item of proyectosOrden(); track item.id; let i = $index) {
+              <tr
+                class="reorder-row"
+                [class.reorder-row--dragging]="dragFromIndex() === i">
+
+                <!-- Handle -->
+                <td class="drag-handle"
+                    (pointerdown)="onHandlePointerDown($event, i)">
+                  <i class="bi bi-grip-vertical"></i>
+                </td>
+
+                <!-- App -->
+                <td>
+                  <div class="app-cell">
+                    <div class="app-icon app-icon--sm"
+                         [ngClass]="item.plataforma === 'Web' ? 'app-icon--web' :
+                                     item.plataforma === 'Mobile' ? 'app-icon--mobile' : 'app-icon--api'">
+                      <i class="bi {{ item.iconoCss || 'bi-box' }}"></i>
+                    </div>
+                    <div>
+                      <div class="app-name">{{ item.nombre }}</div>
+                      <div class="app-code text-muted">{{ item.codigo }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Plataforma -->
+                <td>
+                  <span class="plataforma-pill">
+                    <i class="bi me-1"
+                       [ngClass]="item.plataforma === 'Web' ? 'bi-globe' :
+                                   item.plataforma === 'Mobile' ? 'bi-phone' : 'bi-cpu'"></i>
+                    {{ item.plataforma }}
+                  </span>
+                </td>
+
+                <!-- Estado -->
+                <td>
+                  <app-badge [label]="labelEstado(item)" [variant]="badgeEstado(item)"></app-badge>
+                </td>
+
+                <!-- Orden original -->
+                <td class="text-center">
+                  <span class="orden-badge orden-badge--muted">{{ item.orden }}</span>
+                </td>
+
+                <!-- Nueva posición -->
+                <td class="text-center">
+                  <span class="orden-badge orden-badge--new">{{ i }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- ── Modal crear / editar proyecto ── -->
+<app-modal [isOpen]="modalProyectoAbierto()" size="md" (closed)="cerrarModalProyecto()">
+  <ng-container header>
+    <div class="d-flex align-items-center gap-3">
+      <div class="modal-avatar">
+        <i class="bi bi-box-fill"></i>
+      </div>
+      <div style="min-width:0;">
+        <h2 class="modal-title">{{ editandoProyectoId() ? 'Editar Aplicación' : 'Nueva Aplicación' }}</h2>
+        <p class="modal-subtitle">Ecosistema Rocland</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <form [formGroup]="proyectoForm" (ngSubmit)="guardarProyecto()">
+      <div class="row g-3">
+
+        <div class="col-md-8">
+          <label class="form-label">Nombre <span class="req">*</span></label>
+          <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Acceso Control">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Ícono (CSS)</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi {{ proyectoForm.get('iconoCss')?.value || 'bi-box' }}"></i>
+            </span>
+            <input type="text" class="form-control" formControlName="iconoCss" placeholder="bi-shield">
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Código interno <span class="req">*</span></label>
+          <input type="text" class="form-control text-mono" formControlName="codigo" placeholder="acceso-control-web">
+          @if (editandoProyectoId()) {
+            <small class="text-muted">El código no puede modificarse.</small>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Plataforma <span class="req">*</span></label>
+          <select class="form-select" formControlName="plataforma">
+            <option value="Web">Web</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Desktop">Desktop</option>
+            <option value="Web+Mobile">Web + Mobile</option>
+            <option value="Web+Desktop">Web + Desktop</option>
+            <option value="Todos">Todos</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Versión <span class="req">*</span></label>
+          <input type="text" class="form-control text-center text-mono" formControlName="version" placeholder="1.0.0">
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label">Estado <span class="req">*</span></label>
+          <select class="form-select" formControlName="estado">
+            <option value="Produccion">Producción</option>
+            <option value="Desarrollo">Desarrollo</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Orden</label>
+          <input type="number" class="form-control text-center" formControlName="orden" min="0">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">URL Base</label>
+          <input type="text" class="form-control text-mono" formControlName="urlBase" placeholder="https://app.rocland.mx">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" formControlName="descripcion" rows="2" placeholder="Descripción breve de la aplicación"></textarea>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalProyecto()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="proyectoForm.invalid">
+          {{ editandoProyectoId() ? 'Guardar Cambios' : 'Crear Aplicación' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>
+
+<!-- ── Modal gestor de vistas ── -->
+<app-modal [isOpen]="modalVistasAbierto()" size="lg" (closed)="modalVistasAbierto.set(false)">
+  <ng-container header>
+    <div class="d-flex align-items-center gap-3">
+      <div class="modal-avatar">
+        <i class="bi bi-diagram-3-fill"></i>
+      </div>
+      <div style="min-width:0;">
+        @if (proyectoSeleccionado(); as app) {
+          <h2 class="modal-title">{{ app.nombre }}</h2>
+          <p class="modal-subtitle">
+            <i class="bi bi-code-slash me-1"></i>{{ app.codigo }}
+            <span class="mx-1">·</span>{{ app.plataforma }}
+            <span class="mx-1">·</span>{{ app.vistas.length }} vista(s)
+          </p>
+        }
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    @if (proyectoSeleccionado(); as app) {
+
+      @if (puedeAdministrar()) {
+        <form [formGroup]="vistaForm" (ngSubmit)="agregarVista()" class="vista-form mb-4">
+          <div class="vista-form__title">
+            <i class="bi bi-plus-circle-fill me-2"></i>Registrar nueva vista
+          </div>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Código <span class="req">*</span></label>
+              <input type="text" class="form-control form-control-sm text-mono" formControlName="codigo" placeholder="reportes">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Nombre <span class="req">*</span></label>
+              <input type="text" class="form-control form-control-sm" formControlName="nombre" placeholder="Reportes">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Ruta (URL) <span class="req">*</span></label>
+              <input type="text" class="form-control form-control-sm text-mono" formControlName="ruta" placeholder="reportes">
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small">Ícono</label>
+              <input type="text" class="form-control form-control-sm" formControlName="icono" placeholder="bi-graph-up">
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small">Orden</label>
+              <input type="number" class="form-control form-control-sm text-center" formControlName="orden">
+            </div>
+            <div class="col-md-1 d-grid">
+              <button type="submit" class="btn-rocland btn-sm" [disabled]="vistaForm.invalid">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+
+      <div class="vistas-table-wrap">
+        <table class="m-table w-100">
+          <thead>
+            <tr>
+              <th style="width:50px" class="text-center">Ord.</th>
+              <th>Nombre</th>
+              <th>Código</th>
+              <th>Ruta</th>
+              <th style="width:70px" class="text-center">Estado</th>
+              @if (puedeAdministrar()) {
+                <th style="width:60px" class="text-center">Acción</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @if (app.vistas.length === 0) {
+              <tr>
+                <td [attr.colspan]="puedeAdministrar() ? 6 : 5" class="text-center text-muted py-4">
+                  No hay vistas registradas en esta aplicación.
+                </td>
+              </tr>
+            }
+            @for (vista of app.vistas; track vista.id) {
+              <tr>
+                <td class="text-center fw-bold text-muted">{{ vista.orden }}</td>
+                <td class="fw-semibold">
+                  <i class="bi {{ vista.icono || 'bi-file-earmark' }} text-primary me-2"></i>
+                  {{ vista.nombre }}
+                </td>
+                <td class="text-mono text-muted" style="font-size:12px;">{{ vista.codigo }}</td>
+                <td class="text-mono text-muted" style="font-size:12px;">/{{ vista.ruta }}</td>
+                <td class="text-center">
+                  <app-badge
+                    [label]="vista.activo ? 'Activa' : 'Inactiva'"
+                    [variant]="vista.activo ? 'green' : 'red'">
+                  </app-badge>
+                </td>
+                @if (puedeAdministrar()) {
+                  <td class="text-center">
+                    <button class="btn-ghost btn-sm text-danger" title="Eliminar vista"
+                            (click)="eliminarVista(vista.id)">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+    }
+  </ng-container>
+</app-modal>

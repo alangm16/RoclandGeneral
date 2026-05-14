@@ -1,0 +1,385 @@
+<div class="page-content fade-in">
+  <div class="config-card">
+    <mat-tab-group [dynamicHeight]="true">
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 1 – INFORMACIÓN GENERAL                              -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Información General">
+        <div class="tab-content">
+          @if (proyecto(); as proy) {
+            <form [formGroup]="proyectoForm" class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Nombre <span class="req">*</span></label>
+                <input type="text" class="form-control" formControlName="nombre"
+                       [readonly]="!puedeAdministrar()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Ícono (CSS)</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi {{ proyectoForm.get('iconoCss')?.value || 'bi-box' }}"></i>
+                  </span>
+                  <input type="text" class="form-control" formControlName="iconoCss"
+                         [readonly]="!puedeAdministrar()">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Código interno <span class="req">*</span></label>
+                <input type="text" class="form-control text-mono" formControlName="codigo">
+                <small class="text-muted">El código no puede modificarse.</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Plataforma <span class="req">*</span></label>
+                <select class="form-select" formControlName="plataforma" [disabled]="!puedeAdministrar()">
+                  <option value="Web">Web</option>
+                  <option value="Mobile">Mobile</option>
+                  <option value="Desktop">Desktop</option>
+                  <option value="Web+Mobile">Web + Mobile</option>
+                  <option value="Web+Desktop">Web + Desktop</option>
+                  <option value="Todos">Todos</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Versión <span class="req">*</span></label>
+                <input type="text" class="form-control text-center text-mono" formControlName="version"
+                       [readonly]="!puedeAdministrar()">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Estado <span class="req">*</span></label>
+                <select class="form-select" formControlName="estado" [disabled]="!puedeAdministrar()">
+                  <option value="Produccion">Producción</option>
+                  <option value="Desarrollo">Desarrollo</option>
+                  <option value="Mantenimiento">Mantenimiento</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Orden</label>
+                <input type="number" class="form-control text-center" formControlName="orden"
+                       [readonly]="!puedeAdministrar()" min="0">
+              </div>
+              <div class="col-12">
+                <label class="form-label">URL Base</label>
+                <input type="text" class="form-control text-mono" formControlName="urlBase"
+                       [readonly]="!puedeAdministrar()">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" formControlName="descripcion" rows="2"
+                          [readonly]="!puedeAdministrar()"></textarea>
+              </div>
+              @if (puedeAdministrar()) {
+                <div class="col-12">
+                  <button type="button" class="btn-rocland" (click)="guardarInformacionGeneral()">
+                    <i class="bi bi-save me-1"></i> Guardar cambios
+                  </button>
+                </div>
+              }
+            </form>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 2 – ROLES DEL PROYECTO                              -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Roles del Proyecto">
+        <div class="tab-content">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Catálogo de Roles</h4>
+            @if (puedeAdministrar()) {
+              <button class="btn-rocland btn-sm" (click)="abrirModalRol()">
+                <i class="bi bi-plus-lg me-1"></i> Crear rol
+              </button>
+            }
+          </div>
+
+          <app-data-table
+            [columns]="columnasRoles"
+            [data]="roles()"
+            [loading]="cargando()">
+            <ng-template #cellTemplate let-item let-col="column">
+              @switch (col.key) {
+                @case ('nombre') {
+                  {{ item.nombre }}
+                }
+                @case ('nivel') {
+                  <span class="badge-level">{{ item.nivel }}</span>
+                }
+                @case ('descripcion') {
+                  {{ item.descripcion || '—' }}
+                }
+                @case ('activo') {
+                  <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'"
+                             [variant]="badgeActivo(item.activo)"></app-badge>
+                }
+                @case ('acciones') {
+                  <div class="actions-cell">
+                    @if (puedeAdministrar()) {
+                      <button class="btn-ghost btn-sm" (click)="abrirModalRol(item)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn-ghost btn-sm" (click)="toggleActivoRol(item)">
+                        <i class="bi" [ngClass]="item.activo ? 'bi-power' : 'bi-play-circle'"></i>
+                      </button>
+                    }
+                  </div>
+                }
+              }
+            </ng-template>
+          </app-data-table>
+        </div>
+      </mat-tab>
+
+      <!-- PESTAÑA 3 – VISTAS DEL PROYECTO (TREE + FORMULARIO) -->
+      <mat-tab label="Vistas del Proyecto">
+        <div class="tab-content">
+          <!-- FORMULARIO RÁPIDO (CORREGIDO: dentro de <form>) -->
+          @if (puedeAdministrar()) {
+            <form [formGroup]="vistaForm" (ngSubmit)="guardarVista()" class="vista-form mb-4">
+              <div class="vista-form__title">
+                <i class="bi bi-plus-circle-fill me-2"></i>Registrar nueva vista
+              </div>
+              <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label small">Código *</label>
+                  <input type="text" class="form-control form-control-sm text-mono" formControlName="codigo">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small">Nombre *</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="nombre">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small">Ruta *</label>
+                  <input type="text" class="form-control form-control-sm text-mono" formControlName="ruta"
+                        [disabled]="vistaForm.get('esContenedor')?.value">
+                </div>
+                <div class="col-md-1">
+                  <label class="form-label small">Ícono</label>
+                  <input type="text" class="form-control form-control-sm" formControlName="icono">
+                </div>
+                <div class="col-md-1">
+                  <label class="form-label small">Orden</label>
+                  <input type="number" class="form-control form-control-sm text-center" formControlName="orden">
+                </div>
+                <div class="col-md-1 d-grid">
+                  <button type="submit" class="btn-rocland btn-sm" [disabled]="vistaForm.invalid">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="esContenedor"
+                          id="esContenedorFast" (change)="onEsContenedorChange($event)">
+                    <label class="form-check-label" for="esContenedorFast">
+                      Es contenedor (puede tener subvistas)
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <select class="form-select form-select-sm" formControlName="vistaPadreId">
+                    <option [value]="null">— Ninguna (raíz) —</option>
+                    @for (cand of getParentCandidates(); track cand.id) {
+                      <option [value]="cand.id">{{ cand.nombre }} ({{ cand.codigo }})</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </form>
+          }
+
+          <!-- ÁRBOL DE VISTAS -->
+          <div class="vistas-tree-container">
+            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+              <!-- Nodo hoja (sin hijos) -->
+              <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                <button mat-icon-button disabled></button>
+                <div class="vista-node">
+                  <i class="bi" [ngClass]="node.esContenedor ? 'bi-folder-fill' : (node.icono || 'bi-file-earmark')"></i>
+                  <span class="vista-name">{{ node.nombre }}</span>
+                  <span class="vista-code text-muted">({{ node.codigo }})</span>
+                  <span class="vista-ruta text-muted">/{{ node.ruta }}</span>
+                  <span class="vista-order">Ord: {{ node.orden }}</span>
+                  <app-badge [label]="node.activo ? 'Activa' : 'Inactiva'"
+                            [variant]="node.activo ? 'green' : 'red'" class="ms-2"></app-badge>
+                  @if (puedeAdministrar()) {
+                    <button class="btn-ghost btn-sm ms-auto" [matMenuTriggerFor]="vistaMenu">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <mat-menu #vistaMenu="matMenu">
+                      <button mat-menu-item (click)="abrirModalVista(node)">
+                        <i class="bi bi-pencil me-2"></i> Editar
+                      </button>
+                      <button mat-menu-item (click)="toggleActivoVista(node)">
+                        <i class="bi" [ngClass]="node.activo ? 'bi-eye-slash' : 'bi-eye'"></i>
+                        {{ node.activo ? 'Desactivar' : 'Activar' }}
+                      </button>
+                      <button mat-menu-item (click)="eliminarVista(node.id)">
+                        <i class="bi bi-trash3 me-2 text-danger"></i> Eliminar
+                      </button>
+                    </mat-menu>
+                  }
+                </div>
+              </mat-tree-node>
+
+              <!-- Nodo con hijos (contenedor) -->
+              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                <button mat-icon-button matTreeNodeToggle>
+                  <i class="bi" [ngClass]="treeControl.isExpanded(node) ? 'bi-folder2-open' : 'bi-folder2'"></i>
+                </button>
+                <div class="vista-node">
+                  <i class="bi bi-folder-fill"></i>
+                  <span class="vista-name">{{ node.nombre }}</span>
+                  <span class="vista-code text-muted">({{ node.codigo }})</span>
+                  <span class="vista-ruta text-muted">/{{ node.ruta }}</span>
+                  <span class="vista-order">Ord: {{ node.orden }}</span>
+                  <app-badge [label]="node.activo ? 'Activa' : 'Inactiva'"
+                            [variant]="node.activo ? 'green' : 'red'" class="ms-2"></app-badge>
+                  @if (puedeAdministrar()) {
+                    <button class="btn-ghost btn-sm ms-auto" [matMenuTriggerFor]="vistaMenuContainer">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <mat-menu #vistaMenuContainer="matMenu">
+                      <!-- Botón especial para añadir subvista solo si nivel < 2 -->
+                      @if (node.nivel < 2) {
+                        <button mat-menu-item (click)="abrirModalVista(undefined, node.id)">
+                          <i class="bi bi-plus-square me-2"></i> Agregar subvista
+                        </button>
+                      }
+                      <button mat-menu-item (click)="abrirModalVista(node)">
+                        <i class="bi bi-pencil me-2"></i> Editar
+                      </button>
+                      <button mat-menu-item (click)="toggleActivoVista(node)">
+                        <i class="bi" [ngClass]="node.activo ? 'bi-eye-slash' : 'bi-eye'"></i>
+                        {{ node.activo ? 'Desactivar' : 'Activar' }}
+                      </button>
+                      <button mat-menu-item (click)="eliminarVista(node.id)">
+                        <i class="bi bi-trash3 me-2 text-danger"></i> Eliminar
+                      </button>
+                    </mat-menu>
+                  }
+                </div>
+              </mat-tree-node>
+            </mat-tree>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL PARA CREAR/EDITAR ROL                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="modalRolAbierto()" size="md" (closed)="cerrarModalRol()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-person-badge-fill"></i>
+    </div>
+    <h2 class="modal-title">{{ editandoRolId() ? 'Editar rol' : 'Nuevo rol' }}</h2>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="rolForm" (ngSubmit)="guardarRol()">
+      <div class="mb-3">
+        <label class="form-label">Nombre *</label>
+        <input type="text" class="form-control" formControlName="nombre">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Nivel jerárquico *</label>
+        <input type="number" class="form-control" formControlName="nivel" min="1">
+        <small class="text-muted">1 = máximo privilegio</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" formControlName="descripcion" rows="2"></textarea>
+      </div>
+      @if (editandoRolId()) {
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" formControlName="activo" id="activoRol">
+          <label class="form-check-label" for="activoRol">Rol activo</label>
+        </div>
+      }
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalRol()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="rolForm.invalid">
+          {{ editandoRolId() ? 'Guardar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL PARA CREAR/EDITAR VISTA                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="modalVistaAbierto()" size="lg" (closed)="cerrarModalVista()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-layout-sidebar-fill"></i>
+    </div>
+    <h2 class="modal-title">{{ editandoVistaId() ? 'Editar vista' : 'Nueva vista' }}</h2>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="vistaForm" (ngSubmit)="guardarVista()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Código *</label>
+          <input type="text" class="form-control text-mono" formControlName="codigo">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Nombre *</label>
+          <input type="text" class="form-control" formControlName="nombre">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ruta *</label>
+          <input type="text" class="form-control text-mono" formControlName="ruta" placeholder="ej: /dashboard">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ícono CSS</label>
+          <input type="text" class="form-control" formControlName="icono" placeholder="bi-speedometer2">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Orden</label>
+          <input type="number" class="form-control" formControlName="orden" min="1">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Vista padre (opcional)</label>
+          <select class="form-select" formControlName="vistaPadreId">
+            <option [value]="null">— Ninguna (raíz) —</option>
+            @for (v of vistas(); track v.id) {
+              <option [value]="v.id">{{ v.nombre }} ({{ v.codigo }})</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" formControlName="esContenedor" id="esContenedor">
+            <label class="form-check-label" for="esContenedor">
+              Es contenedor (agrupa sub-vistas)
+            </label>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" formControlName="descripcion" rows="2"></textarea>
+        </div>
+        @if (editandoVistaId()) {
+          <div class="col-md-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" formControlName="activo" id="activoVista">
+              <label class="form-check-label" for="activoVista">Vista activa</label>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalVista()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="vistaForm.invalid">
+          {{ editandoVistaId() ? 'Guardar cambios' : 'Crear vista' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

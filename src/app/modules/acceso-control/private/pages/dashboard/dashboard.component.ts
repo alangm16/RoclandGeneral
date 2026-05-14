@@ -6,7 +6,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
 import { AdminService } from '../../../services/admin.service';
-import { DashboardKpis, ActivoZona } from '../../../models/admin.models';
+import { DashboardKpis, AccesoActivoResponse } from '../../../models/admin.models';
 import { SignalrService, SignalRStatus } from '../../../services/signalr.service';
 import { Subscription, interval } from 'rxjs';
 import { environment } from '../../../../../../environments/Environment';
@@ -29,8 +29,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private subs: Subscription = new Subscription();
 
   kpis: DashboardKpis | null = null;
-  visitantesDentro: ActivoZona[] = [];
-  proveedoresDentro: ActivoZona[] = [];
+  visitantesDentro: AccesoActivoResponse[] = [];
+  proveedoresDentro: AccesoActivoResponse[] = [];
   
   anioActual: number = new Date().getFullYear();
   mesActual:  number = new Date().getMonth() + 1;

@@ -1,0 +1,182 @@
+// Reutiliza estilos de proyectos.component.scss
+// o agrega los específicos para configuración.
+
+.text-mono {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.config-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+.badge-level {
+  display: inline-block;
+  background: var(--surface-alt, #f3f4f6);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent, #3b82f6);
+}
+
+.actions-cell {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &.text-danger:hover {
+    color: #dc2626;
+  }
+}
+
+.vista-form {
+  padding: 14px 16px;
+  background: var(--surface-alt, #f9fafb);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent, #3b82f6);
+    margin-bottom: 10px;
+  }
+}
+
+.vistas-table-wrap {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.m-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 10px 14px;
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--muted, #9ca3af);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    text-align: left;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: rgba(0, 0, 0, 0.015);
+  }
+}
+
+// Badge personalizado para niveles
+.badge-level {
+  background: var(--surface-alt, #f3f4f6);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent, #3b82f6);
+}
+
+// Ajustes para el data-table dentro de pestañas
+::ng-deep app-data-table table {
+  th {
+    background: var(--surface-alt, #f3f4f6);
+    font-size: 12px;
+  }
+}
+
+.vistas-tree-container {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  padding: 8px 0;
+  background: var(--surface, #fff);
+}
+
+.mat-tree-node {
+  min-height: 48px;
+  width: 100%;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.vista-node {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+
+  i {
+    font-size: 18px;
+    color: var(--accent, #3b82f6);
+  }
+
+  .vista-name {
+    font-weight: 600;
+  }
+
+  .vista-code, .vista-ruta {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+  }
+
+  .vista-order {
+    background: var(--surface-alt, #f3f4f6);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &.text-danger:hover {
+    color: #dc2626;
+  }
+}

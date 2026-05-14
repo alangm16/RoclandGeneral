@@ -1,0 +1,390 @@
+/* ════════════════════════════════════════════════════════════
+   DETALLE USUARIO — Estilos específicos
+   Sistema de diseño Rocland
+════════════════════════════════════════════════════════════ */
+
+/* ── Loading state ── */
+.du-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 24px;
+  color: var(--rocland-gray);
+  font-size: 14px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO HEADER
+════════════════════════════════════════════════════════════ */
+.du-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--rocland-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--rocland-border);
+  box-shadow: var(--shadow-card);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.du-hero-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+  flex: 1;
+}
+
+.du-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rocland-green), var(--rocland-green-dark));
+  color: var(--rocland-white);
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(74, 156, 31, 0.3);
+  flex-shrink: 0;
+  border: 3px solid rgba(74, 156, 31, 0.2);
+}
+
+.du-hero-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.du-hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--rocland-black);
+  line-height: 1.1;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.du-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.du-username,
+.du-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--rocland-gray);
+
+  i { font-size: 12px; }
+}
+
+.du-dot {
+  color: var(--rocland-silver);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.du-hero-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.du-back-btn {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BODY LAYOUT
+════════════════════════════════════════════════════════════ */
+.du-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Grid de 3 columnas para info/seguridad/auditoría */
+.du-grid-top {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: start;
+
+  /* Asegura que form-section-card dentro del grid no tenga margin-bottom */
+  .form-section-card {
+    margin-bottom: 0;
+    height: 100%;
+  }
+}
+
+/* ── Campos de información ── */
+.du-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.du-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.du-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--rocland-silver);
+  margin-bottom: 0;
+}
+
+.du-value {
+  font-size: 14px;
+  color: var(--rocland-dark);
+  font-weight: 500;
+
+  &.du-mono { font-family: var(--font-mono); font-size: 13px; }
+
+  &.du-bold { font-weight: 700; font-size: 18px; color: var(--rocland-black); }
+
+  &.du-count {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--rocland-green-dark);
+  }
+
+  &.du-value--danger { color: var(--rocland-danger); }
+}
+
+.du-hint {
+  font-size: 11px;
+  color: var(--rocland-gray);
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+}
+
+.du-action-row {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rocland-border);
+}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION CARD (para tablas)
+════════════════════════════════════════════════════════════ */
+.du-section-card {
+  background: var(--rocland-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--rocland-border);
+  box-shadow: var(--shadow-card);
+  overflow: clip;
+}
+
+.du-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--rocland-border);
+  background: var(--rocland-white);
+  flex-wrap: wrap;
+}
+
+.du-section-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rocland-black);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i { color: var(--rocland-green-dark); font-size: 14px; }
+}
+
+/* ── Botón de acción compacto ── */
+.du-btn-action {
+  width: auto !important;
+  padding: 0.5rem 1rem !important;
+  min-height: 38px !important;
+  font-size: 0.82rem !important;
+}
+
+/* ── Contador badge ── */
+.du-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rocland-light);
+  color: var(--rocland-gray);
+  border: 1px solid var(--rocland-border);
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  font-family: var(--font-mono);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ELEMENTOS DE TABLA
+════════════════════════════════════════════════════════════ */
+
+/* Código de proyecto */
+.du-code-tag {
+  display: inline-block;
+  background: var(--rocland-light);
+  color: var(--rocland-gray);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  margin-left: 6px;
+  border: 1px solid var(--rocland-border);
+}
+
+.du-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--rocland-dark);
+}
+
+/* Nivel de rol */
+.du-level-pill {
+  display: inline-block;
+  background: rgba(74, 156, 31, 0.08);
+  color: var(--rocland-green-dark);
+  border: 1px solid rgba(74, 156, 31, 0.2);
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+}
+
+/* Chip de plataforma */
+.du-platform-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--rocland-dark);
+
+  i { color: var(--rocland-gray); font-size: 13px; }
+}
+
+/* Botón revocar dispositivo */
+.du-revoke-btn {
+  color: var(--rocland-danger) !important;
+
+  &:hover {
+    background: rgba(192, 57, 43, 0.08) !important;
+    color: var(--rocland-danger) !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVIDAD
+════════════════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .du-grid-top {
+    grid-template-columns: 1fr 1fr;
+
+    /* Auditoría ocupa fila completa */
+    .form-section-card:last-child {
+      grid-column: 1 / -1;
+
+      .du-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .du-hero { padding: 18px 20px; }
+  .du-avatar { width: 54px; height: 54px; font-size: 22px; }
+  .du-grid-top { grid-template-columns: 1fr; }
+  .du-grid-top .form-section-card:last-child .du-info-grid { grid-template-columns: 1fr 1fr; }
+  .du-section-header { padding: 12px 16px; }
+}
+
+@media (max-width: 480px) {
+  .du-hero { flex-direction: column; }
+  .du-back-btn { align-self: flex-start; }
+  .du-info-grid { grid-template-columns: 1fr; }
+  .du-grid-top .form-section-card:last-child .du-info-grid { grid-template-columns: 1fr; }
+}
+
+/* Paginador */
+.pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--rocland-border);
+  background: var(--rocland-white);
+  margin-top: 0;
+
+  .btn-pagination {
+    background: transparent;
+    border: 1px solid var(--rocland-border);
+    border-radius: var(--radius-md);
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--rocland-dark);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover:not(:disabled) {
+      background: var(--rocland-light);
+      border-color: var(--rocland-silver);
+      cursor: pointer;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 12px;
+    }
+  }
+
+  .pagination-info {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--rocland-gray);
+  }
+}

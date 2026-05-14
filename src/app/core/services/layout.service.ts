@@ -15,12 +15,15 @@ export interface FilterConfig {
   key: string;
   placeholder?: string;
   options?: { label: string; value: string }[];
+  defaultValue?: string | null;
 }
 
 // ── Configuración completa del subheader ──────────────────────────────────────
 export interface SubheaderConfig {
   // Título de la página
   title?: string;
+
+  subtitle?: string;
 
   // Barra de búsqueda principal
   showSearch?: boolean;
@@ -68,6 +71,8 @@ export class LayoutService {
   /** Duración de la animación del mat-sidenav (debe coincidir con el CSS). */
   private readonly SIDENAV_TRANSITION_MS = 200;
 
+  private _filters = signal<FilterConfig[]>([]);
+
   // ── API pública ───────────────────────────────────────────────────────────
 
   /**
@@ -77,8 +82,19 @@ export class LayoutService {
    */
   setSubheader(config: Partial<SubheaderConfig>): void {
     this.subheaderConfig.update(c => ({ ...c, ...config }));
-    // Sincroniza los filtros dinámicos como señal separada
-    this.subheaderFilters.set(config.filters ?? []);
+
+    const filters = config.filters ?? [];
+    this.subheaderFilters.set(filters);
+
+    const initialValues: Record<string, string> = {};
+
+    filters.forEach(f => {
+      if (f.defaultValue != null) {
+        initialValues[f.key] = f.defaultValue;
+      }
+    });
+
+    this.filterValues.set(initialValues);
   }
 
   /** Restaura el subheader a su estado vacío y limpia la búsqueda. */

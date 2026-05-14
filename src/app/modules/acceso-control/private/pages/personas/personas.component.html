@@ -84,7 +84,7 @@
     <div style="min-width: 0;">
       @if (perfilSeleccionado(); as perfil) {
         <h2 class="modal-title">{{ perfil.nombre }}</h2>
-        <p class="modal-subtitle">{{ perfil.tipoID }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
+        <p class="modal-subtitle">{{ perfil.tipoIdentificacion }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
       } @else {
         <h2 class="modal-title">Cargando...</h2>
       }

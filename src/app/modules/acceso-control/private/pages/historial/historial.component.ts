@@ -18,7 +18,7 @@ import {
   DataTableComponent,
 } from '../../../../../shared/components/data-table/data-table.component';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
-import { HistorialResumen, HistorialAccesoDto } from '../../../models/admin.models';
+import { HistorialAccesoItemDto, HistorialPaginado } from '../../../models/admin.models';
 
 // ─────────────────────────────────────────────────────────────────
 @Component({
@@ -35,7 +35,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // ── Datos ──────────────────────────────────────────────────────
-  registros = signal<HistorialResumen[]>([]);
+  registros = signal<HistorialAccesoItemDto[]>([]);
   totalRegistros = signal(0);
   cargando = signal(false);
 
@@ -162,7 +162,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
       .getHistorial(this.paginaActual(), this.porPagina, filtros)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res: HistorialAccesoDto) => {
+        next: (res: HistorialPaginado) => {
           this.registros.set(res.items);
           this.totalRegistros.set(res.total);
           this.cargando.set(false);

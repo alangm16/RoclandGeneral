@@ -1,133 +1,123 @@
-// auth.service.ts
 import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, switchMap, map, of } from 'rxjs';
-
-import {
-  LoginRequest, LoginResponse, SesionActiva, ProyectoPermitido, PerfilModulo, RolUsuario
-} from './auth.models';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/Environment';
+import { SuperadminService } from '../../modules/super-admin/services/super-admin.service';
+import {
+  AuthMaestroResponse,
+  AuthResultResponse,
+  SesionActiva,
+  ProyectoAcceso,
+  LoginMaestroRequest,
+  LoginDirectoRequest
+} from './auth.models';
 
-const STORAGE_KEY = 'rocland_sesion';
+const STORAGE_KEY = 'rocland_sesion_sa';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http       = inject(HttpClient);
-  private readonly router     = inject(Router);
-  private readonly platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
+  private superAdminSvc = inject(SuperadminService);
 
-  private readonly _sesion = signal<SesionActiva | null>(this.cargarSesionStorage());
+  private _sesion = signal<SesionActiva | null>(this.cargarSesion());
   readonly sesion = this._sesion.asReadonly();
-  
+
   readonly estaLogueado = computed(() => {
     const s = this._sesion();
     return s ? new Date(s.expiracion) > new Date() : false;
   });
-  
-  readonly rolActual = computed(() => this._sesion()?.rolModulo ?? null);
-  readonly proyectoActual = computed(() => this._sesion()?.proyectoId ?? '');
-  readonly nombreUsuario = computed(() => this._sesion()?.nombre ?? '');
-  readonly proyectoNombre = computed(() => this._sesion()?.proyectoNombre ?? '');
-  readonly miPerfilId = computed(() => this._sesion()?.perfilId ?? 0);
 
-  tieneRol(...roles: RolUsuario[]): boolean {
-    const rol = this.rolActual();
-    return rol !== null && roles.includes(rol);
-  }
+  readonly usuario = computed(() => this._sesion()?.usuario);
+  readonly proyectosAccesibles = computed(() => this._sesion()?.proyectosAccesibles ?? []);
+  readonly proyectoActivo = computed(() => this._sesion()?.proyectoActivo);
+  readonly nombreUsuario = computed(() => this._sesion()?.usuario?.nombreCompleto ?? '');
 
-  esAdmin(): boolean {
-    return this.tieneRol('Guardia', 'Supervisor');
-  }
-
-  // ── 1. DESCUBRIMIENTO DE IDENTIDAD ──────────────────────────────
-  descubrirProyectos(identificador: string): Observable<ProyectoPermitido[]> {
-    return this.http.get<ProyectoPermitido[]>(
-      `${environment.apiUrl}/api/superadmin/auth/descubrir-proyectos`,
-      { params: { identificador } }
+  // ── Descubrir proyectos por username (sin contraseña) ─────────────
+  descubrirProyectos(username: string): Observable<ProyectoAcceso[]> {
+    const params = new HttpParams().set('username', username);
+    return this.http.get<ProyectoAcceso[]>(
+      `${environment.apiUrl}/api/superadmin/auth/proyectos`,
+      { params }
     );
   }
 
-  // ── 2. LOGIN FINAL Y CONSTRUCCIÓN DE SESIÓN ─────────────────────
-  login(credenciales: LoginRequest, proyecto: ProyectoPermitido): Observable<SesionActiva> {
-    const endpointSuperAdmin = `${environment.apiUrl}/api/superadmin/auth/login`;
-
-    return this.http.post<LoginResponse>(endpointSuperAdmin, credenciales).pipe(
-      switchMap((superAdminRes) => {
-        // A. Verificar si SuperAdmin realmente autoriza este proyecto
-        const tieneProyecto = superAdminRes.proyectosPermitidos.some(p => p.codigo === proyecto.codigo);
-        if (!tieneProyecto) {
-          return throwError(() => new Error('NO_PROJECT_ACCESS'));
+  // ── Login Maestro (orquestador) ──────────────────────────────────
+  loginMaestro(creds: LoginMaestroRequest): Observable<AuthMaestroResponse> {
+    const url = `${environment.apiUrl}/api/superadmin/auth/login-maestro`;
+    return this.http.post<AuthMaestroResponse>(url, creds).pipe(
+      tap(response => {
+        const sesion: SesionActiva = {
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          expiracion: response.expiracion,
+          usuario: response.usuario,
+          proyectosAccesibles: response.proyectosAccesibles,
+          proyectoActivo: undefined
+        };
+        const superAdminProj = response.proyectosAccesibles.find(p => p.codigo === 'super-admin');
+        if (superAdminProj) {
+            sesion.proyectoActivo = superAdminProj;
         }
-
-        // B. Si el destino es SUPER-ADMIN, construimos la sesión directo (no hay perfil local)
-        if (proyecto.codigo === 'super-admin') {
-          const sesionSuperAdmin: SesionActiva = {
-            perfilId: 0, // En SuperAdmin nos basamos en el Token general
-            token: superAdminRes.accessToken,
-            refreshToken: superAdminRes.refreshToken,
-            nombre: superAdminRes.nombreCompleto,
-            rolesSuperAdmin: superAdminRes.roles,
-            rolModulo: 'Administrador' as RolUsuario, // Rol virtual para dar acceso a todo en este panel
-            expiracion: superAdminRes.accessTokenExpira,
-            proyectoId: proyecto.codigo,
-            proyectoNombre: proyecto.nombre,
-            vistasPermitidas: proyecto.vistas || [],
-            permisos: {
-              puedeLeer: proyecto.puedeLeer, puedeCrear: proyecto.puedeCrear,
-              puedeEditar: proyecto.puedeEditar, puedeBorrar: proyecto.puedeBorrar
-            }
-          };
-          this.guardarSesion(sesionSuperAdmin);
-          return of(sesionSuperAdmin); // Devolvemos el observable envuelto
+        this.guardarSesion(sesion);
+        if (sesion.proyectoActivo) {
+          this.superAdminSvc.registrarDispositivo({ deviceToken: 'web' }).subscribe({
+            error: (err) => console.warn('No se pudo registrar dispositivo', err)
+          });
         }
-
-        // C. Si el destino es un MÓDULO (Acceso Control Web), consultamos su perfil local
-        const headers = new HttpHeaders({ Authorization: `Bearer ${superAdminRes.accessToken}` });
-        const endpointPerfil = `${environment.apiUrl}/api/web/accesocontrol/auth/mi-perfil`;
-
-        return this.http.get<PerfilModulo>(endpointPerfil, { headers }).pipe(
-          map((perfilRes) => {
-            if (perfilRes.tipoPerfil !== 'Supervisor' && perfilRes.tipoPerfil !== 'Administrador') {
-              throw new Error('NO_MODULE_ROLE');
-            }
-
-            const sesionFinal: SesionActiva = {
-              perfilId: perfilRes.id,
-              token: superAdminRes.accessToken,
-              refreshToken: superAdminRes.refreshToken,
-              nombre: perfilRes.nombreCompleto,
-              rolesSuperAdmin: superAdminRes.roles,
-              rolModulo: perfilRes.tipoPerfil as RolUsuario,
-              expiracion: superAdminRes.accessTokenExpira,
-              proyectoId: proyecto.codigo, // Usamos 'codigo' de la BD, ej: 'acceso-control-web'
-              proyectoNombre: proyecto.nombre,
-              vistasPermitidas: proyecto.vistas || [],
-              permisos: {
-                puedeLeer: proyecto.puedeLeer, puedeCrear: proyecto.puedeCrear,
-                puedeEditar: proyecto.puedeEditar, puedeBorrar: proyecto.puedeBorrar
-              }
-            };
-
-            this.guardarSesion(sesionFinal);
-            return sesionFinal;
-          }),
-          catchError((err) => {
-            if (err.message === 'NO_MODULE_ROLE') return throwError(() => err);
-            return throwError(() => new Error('NO_MODULE_PROFILE'));
-          })
-        );
+        this.router.navigate(['/private/super-admin/dashboard']);
+        this.guardarSesion(sesion);
+        // No navegar aquí; lo hará el componente
       })
     );
   }
 
-  navegarPostLogin(queryParams: { returnUrl?: string }, proyectoId: string): void {
-    const destino = queryParams['returnUrl'] ?? `/private/${proyectoId}/dashboard`;
-    const esRutaInterna = destino.startsWith('/');
-    this.router.navigateByUrl(esRutaInterna ? destino : `/private/${proyectoId}/dashboard`);
+  // ── Login Directo (a un proyecto específico) ─────────────────────
+  loginDirecto(creds: LoginDirectoRequest): Observable<AuthResultResponse> {
+    const url = `${environment.apiUrl}/api/superadmin/auth/login-directo`;
+    return this.http.post<AuthResultResponse>(url, creds).pipe(
+      tap(response => {
+        const claims = this.decodificarToken(response.accessToken);
+        const proyecto: ProyectoAcceso = {
+          id: +claims['proyectoId'] || 0,          // ahora sí obtiene el ID real
+          codigo: claims['codigoProyecto'] || creds.codigoProyecto,
+          nombre: creds.codigoProyecto,
+          plataforma: claims['plataforma'] || creds.plataforma,
+          iconoCss: undefined,
+          urlBase: undefined,
+          rolEnProyecto: claims['nombreRol'] || '',
+          nivelRol: +claims['nivelRol'] || 0
+        };
+        const sesion: SesionActiva = {
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+          expiracion: response.expiracion,
+          usuario: response.usuario,
+          proyectosAccesibles: [],
+          proyectoActivo: proyecto
+        };
+        this.guardarSesion(sesion);
+        if (sesion.proyectoActivo) {
+        this.superAdminSvc.registrarDispositivo({ deviceToken: 'web' }).subscribe({
+          error: (err) => console.warn('No se pudo registrar dispositivo', err)
+        });
+      }
+        // ← Sin navegación aquí; la hace el componente
+      })
+    );
   }
 
+  // ── Seleccionar proyecto activo (para tokens maestros) ───────────
+  seleccionarProyecto(proyecto: ProyectoAcceso): void {
+    const s = this._sesion();
+    if (!s) return;
+    this.guardarSesion({ ...s, proyectoActivo: proyecto });
+  }
+
+  // ── Logout ────────────────────────────────────────────────────────
   logout(): void {
     this.limpiarSesion();
     this.router.navigate(['/auth/login']);
@@ -137,7 +127,7 @@ export class AuthService {
     return this._sesion()?.token ?? null;
   }
 
-  // Métodos privados para manejar el Storage local
+  // ── Persistencia local ────────────────────────────────────────────
   private guardarSesion(sesion: SesionActiva): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sesion));
@@ -150,7 +140,7 @@ export class AuthService {
     this._sesion.set(null);
   }
 
-  private cargarSesionStorage(): SesionActiva | null {
+  private cargarSesion(): SesionActiva | null {
     if (typeof window === 'undefined') return null;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -161,8 +151,21 @@ export class AuthService {
         return null;
       }
       return sesion;
-    } catch {
-      return null;
+    } catch { return null; }
+  }
+
+  limpiarSesionExpirada(): void {
+    const s = this._sesion();
+    if (s && new Date(s.expiracion) <= new Date()) {
+      this.limpiarSesion();
     }
+  }
+
+  // ── Decodificar JWT (payload) ─────────────────────────────────────
+  private decodificarToken(token: string): Record<string, any> {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch { return {}; }
   }
 }

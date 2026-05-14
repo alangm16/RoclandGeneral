@@ -12,7 +12,7 @@
   "private": true,
   "packageManager": "npm@11.11.1",
   "dependencies": {
-    "@angular/cdk": "^21.2.7",
+    "@angular/cdk": "^21.2.11",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
@@ -28,6 +28,7 @@
     "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.5.1",
     "express": "^5.1.0",
+    "mathjs": "^15.2.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.24",
     "tslib": "^2.3.0",

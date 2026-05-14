@@ -1,5 +1,7 @@
 // super-admin.routes.ts
-// Rocland — Super Admin | Todas las vistas del módulo
+// Rutas alineadas al sidebar:  /private/super-admin/<ruta>
+// Todas las rutas coinciden exactamente con el campo `Ruta` del seed SQL
+// (sin el prefijo /private/super-admin, que viene del router parent).
 
 import { Routes } from '@angular/router';
 import { PrivateLayoutComponent } from '../../layouts/private-layout/private-layout.component';
@@ -8,10 +10,13 @@ export const SUPER_ADMIN_ROUTES: Routes = [
   {
     path: '',
     component: PrivateLayoutComponent,
+    data: { proyectoCodigo: 'super-admin' },
     children: [
+
+      // Redirección raíz
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
-      // ── 1. Dashboard ─────────────────────────────────────────────
+      // ── Dashboard ────────────────────────────────────────────── /dashboard
       {
         path: 'dashboard',
         loadComponent: () =>
@@ -19,70 +24,112 @@ export const SUPER_ADMIN_ROUTES: Routes = [
             .then(m => m.DashboardComponent),
       },
 
-      // ── 2. Directorio Global (Usuarios) ──────────────────────────
-      // Lista paginada de todos los usuarios del sistema.
-      // Alta, baja, edición, reset de password, asignación de roles.
+      // ── Dashboard por Proyecto ─────────────────── /dashboard/proyecto/:id
+      {
+        path: 'dashboard/proyecto/:id',
+        loadComponent: () =>
+          import('./private/pages/dashboard/dashboard-proyecto/dashboard-proyecto.component')
+            .then(m => m.DashboardProyectoComponent),
+      },
+
+      // ── Usuarios ─────────────────────────────────────────────── /usuarios/*
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('./private/pages/usuarios/usuarios.component')
+            .then(m => m.UsuariosComponent),
+      },
+      {
+        path: 'usuarios/detalle/:id',
+        loadComponent: () =>
+          import('./private/pages/usuarios/detalle-usuario/detalle-usuario.component')
+            .then(m => m.DetalleUsuarioComponent),
+      },
+
+      // ── Proyectos ─────────────────────────────────────────────── /proyectos/*
+      {
+        path: 'proyectos/listado',
+        loadComponent: () =>
+          import('./private/pages/proyectos/proyectos.component')
+            .then(m => m.ProyectosComponent),
+      },
+      {
+        // Configuración
+        path: 'proyectos/configuracion/:id',
+        loadComponent: () =>
+          import('./private/pages/proyectos/configuracion/conf-proyectos.component')
+            .then(m => m.ConfiguracionProyectoComponent),
+      },
+      {
+        // Usuarios del Proyecto → /proyectos/usuarios
+        path: 'proyectos/usuarios',
+        loadComponent: () =>
+          import('./private/pages/proyectos/usuarios/usuarios-proyecto.component')
+            .then(m => m.UsuariosProyectoComponent),
+      },
+
+      // // ── Control de Accesos ──────────────────── /control-accesos/vistas-usuario
       // {
-      //   path: 'usuarios',
+      //   path: 'control-accesos/vistas-usuario',
       //   loadComponent: () =>
-      //     import('./private/pages/usuarios/usuarios.component')
-      //       .then(m => m.UsuariosComponent),
+      //     import('./private/pages/control-accesos/vistas-usuario.component')
+      //       .then(m => m.VistasUsuarioComponent),
       // },
 
-      // ── 3. Catálogo de Módulos (Proyectos + Vistas) ──────────────
-      // Grid de proyectos con filtros por plataforma.
-      // CRUD de proyectos y constructor visual de menú (vistas).
+      // // ── SuperAdmin ──────────────────────────────────────── /superadmin/*
       // {
-      //   path: 'modulos',
+      //   path: 'superadmin/roles',
       //   loadComponent: () =>
-      //     import('./private/pages/modulos/modulos.component')
-      //       .then(m => m.ModulosComponent),
+      //     import('./private/pages/superadmin/roles-sa/roles-sa.component')
+      //       .then(m => m.RolesSAComponent),
+      // },
+      // {
+      //   path: 'superadmin/usuarios',
+      //   loadComponent: () =>
+      //     import('./private/pages/superadmin/usuarios-sa/usuarios-sa.component')
+      //       .then(m => m.UsuariosSAComponent),
       // },
 
-      // ── 4. Matriz de Permisos ─────────────────────────────────────
-      // Buscar usuario → ver/editar permisos granulares por módulo y vista.
-      // Buscar rol → editar permisos del rol (afecta a todos sus miembros).
+      // // ── Seguridad ────────────────────────────────────────── /seguridad/*
       // {
-      //   path: 'permisos',
+      //   path: 'seguridad/logs',
       //   loadComponent: () =>
-      //     import('./private/pages/permisos/permisos.component')
-      //       .then(m => m.PermisosComponent),
-      // },
-
-      // ── 5. Roles ──────────────────────────────────────────────────
-      // Lista de roles globales. Alta de roles, desactivar.
-      // Desde aquí se puede ir a la matriz de permisos de un rol.
-      // {
-      //   path: 'roles',
-      //   loadComponent: () =>
-      //     import('./private/pages/roles/roles.component')
-      //       .then(m => m.RolesComponent),
-      // },
-
-      // ── 6. Logs de Acceso ─────────────────────────────────────────
-      // Tabla completa y paginada de TBL_ROCLAND_SUPERADMIN_LOGS_ACCESO.
-      // Filtros: plataforma, resultado, usuario, rango de fechas.
-      // Export Excel/PDF.
-      // {
-      //   path: 'logs',
-      //   loadComponent: () =>
-      //     import('./private/pages/logs/logs.component')
+      //     import('./private/pages/seguridad/logs/logs.component')
       //       .then(m => m.LogsComponent),
       // },
+      // {
+      //   path: 'seguridad/sesiones',
+      //   loadComponent: () =>
+      //     import('./private/pages/seguridad/sesiones/sesiones.component')
+      //       .then(m => m.SesionesComponent),
+      // },
 
-      // ── 7. Configuración / Variables de Entorno ───────────────────
-      // Configuraciones globales del sistema:
-      //   - Cierre de sesión por inactividad (minutos)
-      //   - Intentos fallidos antes de bloqueo
-      //   - Duración de bloqueo (minutos)
-      //   - TTL de Refresh Token (días)
-      //   - Notificaciones FCM habilitadas
+      // // ── Alertas ──────────────────────────────────────────── /alertas
+      // {
+      //   path: 'alertas',
+      //   loadComponent: () =>
+      //     import('./private/pages/alertas/alertas.component')
+      //       .then(m => m.AlertasComponent),
+      // },
+
+      // // ── Auditoría ─────────────────────────────────────────── /auditoria
+      // {
+      //   path: 'auditoria',
+      //   loadComponent: () =>
+      //     import('./private/pages/auditoria/auditoria.component')
+      //       .then(m => m.AuditoriaComponent),
+      // },
+
+      // // ── Configuración ─────────────────────────────────────── /configuracion
       // {
       //   path: 'configuracion',
       //   loadComponent: () =>
       //     import('./private/pages/configuracion/configuracion.component')
       //       .then(m => m.ConfiguracionComponent),
       // },
+
+      // Wildcard — cualquier ruta desconocida vuelve al dashboard
+      { path: '**', redirectTo: 'dashboard' },
     ],
   },
 ];

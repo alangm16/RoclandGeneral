@@ -44,24 +44,14 @@
           }
 
           @case ('acciones') {
-            @if (item.id !== miId() && item.rol === 'Guardia') {
-              <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
-                <i class="bi bi-three-dots-vertical"></i>
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <mat-menu #menu="matMenu" class="custom-mat-menu">
+              <button mat-menu-item (click)="editarGuardia(item._raw)">
+                <i class="bi bi-pencil me-2"></i> Editar datos operativos
               </button>
-              <mat-menu #menu="matMenu" class="custom-mat-menu">
-                <button mat-menu-item (click)="toggleEstado(item._raw)">
-                  @if (item.activo) {
-                    <i class="bi bi-slash-circle me-2 text-danger"></i>
-                    <span class="text-danger">Suspender acceso</span>
-                  } @else {
-                    <i class="bi bi-check-circle me-2 text-success"></i>
-                    <span class="text-success">Restaurar acceso</span>
-                  }
-                </button>
-              </mat-menu>
-            } @else {
-              <span class="text-muted" style="font-size: 12px;"><i class="bi bi-lock"></i></span>
-            }
+            </mat-menu>
           }
 
           @default { {{ item[col.key] ?? '—' }} }
@@ -72,58 +62,48 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════
+     MODAL DE EDICIÓN DE DATOS OPERATIVOS
+══════════════════════════════════════════════════════════ -->
 <app-modal
-  [isOpen]="mostrarModalToggle()"
-  [maxWidth]="'380px'"
+  [isOpen]="mostrarModalEditar()"
+  [maxWidth]="'400px'"
   size="sm"
-  (closed)="cerrarModalToggle()">
+  (closed)="cerrarModalEditar()">
 
   <ng-container header>
-    @if (guardiaSeleccionado(); as g) {
-      <div
-        class="modal-avatar"
-        [style.background]="g.activo ? 'rgba(192,57,43,0.15)' : 'rgba(74,156,31,0.15)'"
-        [style.border-color]="g.activo ? 'var(--rocland-danger)' : 'var(--rocland-green)'"
-        [style.color]="g.activo ? 'var(--rocland-danger)' : 'var(--rocland-green)'">
-        <i class="bi" [class.bi-slash-circle]="g.activo" [class.bi-check-circle]="!g.activo"></i>
-      </div>
-      <div style="min-width: 0;">
-        <h2 class="modal-title">{{ g.activo ? 'Suspender' : 'Restaurar' }} Acceso</h2>
-        <p class="modal-subtitle">{{ g.nombre }}</p>
-      </div>
-    }
+    <div class="modal-avatar" style="background: rgba(59,130,246,0.1); border-color: #3B82F6; color: #3B82F6;">
+      <i class="bi bi-pencil"></i>
+    </div>
+    <div style="min-width: 0;">
+      <h2 class="modal-title">Editar Datos Operativos</h2>
+      <p class="modal-subtitle">{{ guardiaSeleccionado()?.nombre }}</p>
+    </div>
   </ng-container>
 
   <ng-container body>
-    @if (guardiaSeleccionado(); as g) {
-      <p class="confirm-text">
-        @if (g.activo) {
-          El usuario <strong>{{ g.nombre }}</strong> ya no podrá operar en el módulo de Control de Acceso. 
-          Su cuenta en el sistema central seguirá activa.
-          ¿Deseas continuar?
-        } @else {
-          El usuario <strong>{{ g.nombre }}</strong> volverá a tener permisos operativos en este módulo.
-          ¿Deseas continuar?
-        }
-      </p>
-    }
+    <div class="form-group">
+      <label class="field-label">Número de Empleado</label>
+      <input type="text" class="form-control" [(ngModel)]="formEditar.numeroEmpleado" placeholder="Ej. 12345" />
+    </div>
+    <div class="form-group mt-3">
+      <label class="field-label">Turno</label>
+      <select class="form-select" [(ngModel)]="formEditar.turno">
+        <option value="">Sin turno</option>
+        <option value="Matutino">Matutino</option>
+        <option value="Vespertino">Vespertino</option>
+        <option value="Nocturno">Nocturno</option>
+        <option value="Mixto">Mixto</option>
+      </select>
+    </div>
 
-    <div style="display: flex; gap: 10px;">
-      <button class="btn-rocland btn-secondary" (click)="cerrarModalToggle()" style="flex:1;">
-        Cancelar
-      </button>
-      <button
-        class="btn-rocland"
-        [class.btn-danger]="guardiaSeleccionado()?.activo"
-        [disabled]="guardandoToggle()"
-        (click)="confirmarToggle()"
-        style="flex:2;">
-        @if (guardandoToggle()) {
-          <span class="btn-spinner active"></span> Procesando...
-        } @else if (guardiaSeleccionado()?.activo) {
-          <i class="bi bi-slash-circle"></i> Sí, suspender
+    <div style="display: flex; gap: 10px; margin-top: 24px;">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalEditar()" style="flex:1;">Cancelar</button>
+      <button class="btn-rocland" [disabled]="guardandoEditar()" (click)="guardarEdicion()" style="flex:2;">
+        @if (guardandoEditar()) {
+          <span class="btn-spinner active"></span> Guardando...
         } @else {
-          <i class="bi bi-check-circle"></i> Sí, restaurar
+          <i class="bi bi-check-lg"></i> Guardar Cambios
         }
       </button>
     </div>

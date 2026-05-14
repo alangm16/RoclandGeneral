@@ -14,14 +14,12 @@ import { DataTableColumn, DataTableComponent } from '../../../../../shared/compo
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
 import { GuardiaResumen, GuardiaUpdateDto } from '../../../models/admin.models';
-import { AuthService } from '../../../../../core/auth/auth.service';
 
-// ─────────────────────────────────────────────────────────────────
 @Component({
-  selector: 'app-guardias', // Puedes mantener este selector o cambiarlo a app-usuarios luego
+  selector: 'app-guardias',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatButtonModule, MatMenuModule, 
+    CommonModule, FormsModule, MatButtonModule, MatMenuModule,
     MatDividerModule, ModalComponent, DataTableComponent, BadgeComponent
   ],
   templateUrl: './usuarios.component.html',
@@ -33,35 +31,30 @@ export class GuardiasComponent implements OnInit, OnDestroy {
   private readonly injector = inject(Injector);
   private readonly destroy$ = new Subject<void>();
 
-  guardias      = signal<GuardiaResumen[]>([]);
+  guardias = signal<GuardiaResumen[]>([]);
   totalGuardias = signal(0);
-  cargando      = signal(false);
+  cargando = signal(false);
 
-  paginaActual   = signal(1);
+  paginaActual = signal(1);
   readonly porPagina = 10;
-  totalPaginas   = computed(() => Math.max(1, Math.ceil(this.totalGuardias() / this.porPagina)));
+  totalPaginas = computed(() => Math.max(1, Math.ceil(this.totalGuardias() / this.porPagina)));
 
   guardiaSeleccionado = signal<GuardiaResumen | null>(null);
 
-  // ── Modal: Editar (Solo permite asignar Turno/Numero Empleado si lo requieres luego)
+  // ── Modal: Editar datos operativos ──
   mostrarModalEditar = signal(false);
-  guardandoEditar    = signal(false);
-  errorGlobalEditar  = signal('');
-  formEditar = { activo: true }; // Nota: El nombre ya no se edita aquí, viene de SuperAdmin.
+  guardandoEditar = signal(false);
+  formEditar = { numeroEmpleado: '', turno: '' };
 
-  // ── Modal: Toggle estado
-  mostrarModalToggle = signal(false);
-  guardandoToggle    = signal(false);
-
-  // ── Columnas Actualizadas ──
+  // ── Columnas ──
   readonly tableColumns: DataTableColumn[] = [
-    { key: 'indice',        label: '#',          headerClass: 'col-index',    cellClass: 'text-mono text-muted col-index' },
+    { key: 'indice',        label: '#',              headerClass: 'col-index',    cellClass: 'text-mono text-muted col-index' },
     { key: 'nombre',        label: 'Nombre Completo', headerClass: 'col-nombre',   cellClass: 'col-nombre' },
-    { key: 'rol',           label: 'Rol',        headerClass: 'col-rol',      cellClass: 'col-rol' }, 
-    { key: 'usuario',       label: 'No. Empleado', headerClass: 'col-usuario',  cellClass: 'text-mono col-usuario' }, 
-    { key: 'estado',        label: 'Estado Local', headerClass: 'col-estado',   cellClass: 'col-estado' },
-    { key: 'fechaCreacion', label: 'Fecha Alta',   headerClass: 'col-fecha',    cellClass: 'text-mono text-muted col-fecha' },
-    { key: 'acciones',      label: '',           headerClass: 'col-actions',  cellClass: 'col-actions' },
+    { key: 'rol',           label: 'Turno',          headerClass: 'col-rol',      cellClass: 'col-rol' },
+    { key: 'usuario',       label: 'No. Empleado',   headerClass: 'col-usuario',  cellClass: 'text-mono col-usuario' },
+    { key: 'estado',        label: 'Estado Local',    headerClass: 'col-estado',   cellClass: 'col-estado' },
+    { key: 'fechaCreacion', label: 'Fecha Alta',      headerClass: 'col-fecha',    cellClass: 'text-mono text-muted col-fecha' },
+    { key: 'acciones',      label: '',                headerClass: 'col-actions',  cellClass: 'col-actions' },
   ];
 
   readonly tableData = computed(() =>
@@ -72,16 +65,12 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     }))
   );
 
-  readonly authSvc = inject(AuthService);
-  readonly miId = computed(() => this.authSvc.miPerfilId());
-  readonly miRol = computed(() => this.authSvc.rolActual());
-
   ngOnInit(): void {
     this.layoutSvc.setSubheader({
-      title: 'Usuarios', // Cambio de título
+      title: 'Usuarios',
       showSearch: true,
       searchPlaceholder: 'Buscar por nombre o rol...',
-      showAddButton: false, // 
+      showAddButton: false,
       actions: [
         {
           label: 'Limpiar',
@@ -133,39 +122,38 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Toggle estado ────────────────────────────────────────
-  toggleEstado(guardia: GuardiaResumen): void {
+  // ── Editar datos operativos ──────────────────────────────────
+  editarGuardia(guardia: GuardiaResumen): void {
     this.guardiaSeleccionado.set(guardia);
-    this.mostrarModalToggle.set(true);
+    this.formEditar.numeroEmpleado = guardia.usuario === 'N/A' ? '' : guardia.usuario;
+    this.formEditar.turno = guardia.rol === 'Sin turno' ? '' : guardia.rol;
+    this.mostrarModalEditar.set(true);
   }
 
-  cerrarModalToggle(): void {
-    this.mostrarModalToggle.set(false);
+  cerrarModalEditar(): void {
+    this.mostrarModalEditar.set(false);
     this.guardiaSeleccionado.set(null);
   }
 
-  confirmarToggle(): void {
+  guardarEdicion(): void {
     const guardia = this.guardiaSeleccionado();
     if (!guardia) return;
-
-    this.guardandoToggle.set(true);
+    this.guardandoEditar.set(true);
 
     const dto: GuardiaUpdateDto = {
-      nombre: guardia.nombre, // Solo lo mandamos por compatibilidad con el DTO actual
-      activo: !guardia.activo,
+      numeroEmpleado: this.formEditar.numeroEmpleado || null,
+      turno: this.formEditar.turno || null,
     };
 
     this.adminSvc.actualizarGuardia(guardia.id, dto)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.cerrarModalToggle();
+          this.cerrarModalEditar();
           this.cargarGuardias();
-          this.guardandoToggle.set(false);
+          this.guardandoEditar.set(false);
         },
-        error: () => {
-          this.guardandoToggle.set(false);
-        },
+        error: () => this.guardandoEditar.set(false),
       });
   }
 }

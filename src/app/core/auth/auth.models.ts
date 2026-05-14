@@ -1,82 +1,70 @@
 // auth.models.ts
-// Rocland — Modelos de Autenticación
+// Modelos alineados con SuperAdmin v3.0
 
-export interface LoginRequest {
-  username:  string;
+export interface LoginMaestroRequest {
+  username: string;
   password: string;
-  plataforma: string;
+  plataforma: string; // "Web"
 }
 
-export interface VistaPermitida {
+// Respuesta del backend POST /api/superadmin/auth/login-maestro
+export interface AuthMaestroResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiracion: string;        // DateTime UTC como string
+  usuario: UsuarioToken;
+  proyectosAccesibles: ProyectoAcceso[];
+}
+
+export interface LoginDirectoRequest {
+  username: string;
+  password: string;
+  codigoProyecto: string;   // ej: "acceso-control"
+  plataforma: string;       // "Web"
+}
+
+export interface AuthResultResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiracion: string;
+  usuario: UsuarioToken;
+}
+
+export interface UsuarioToken {
   id: number;
-  nombre: string;
-  ruta: string;
-  icono?: string;
+  nombreCompleto: string;
+  username: string;
+  email?: string;
 }
 
-export interface ProyectoPermitido {
+export interface ProyectoAcceso {
   id: number;
   codigo: string;
   nombre: string;
   plataforma: string;
-  accesoTotal: boolean;
-  puedeLeer: boolean;
-  puedeCrear: boolean;
-  puedeEditar: boolean;
-  puedeBorrar: boolean;
-  vistas: VistaPermitida[]; // Controla qué menús verá el usuario
+  iconoCss?: string;
+  urlBase?: string;
+  rolEnProyecto: string;    // nombre del rol que tiene en ese proyecto
+  nivelRol: number;
 }
 
-// Actualizamos el LoginResponse para que coincida con el Backend
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  accessTokenExpira: string;
-  nombreCompleto: string;
-  username: string;
-  roles: string[];
-  proyectosPermitidos: ProyectoPermitido[];
-}
-
-// Espeja el PerfilDto de Acceso Control
-export interface PerfilModulo {
-  id: number;
-  superAdminUsuarioId: number;
-  nombreCompleto: string;
-  tipoPerfil: string; // "Guardia", "Supervisor", "Administrador"
-  activo: boolean;
-}
-
-// ── Sesión activa (lo que guardamos en localStorage) ─────────────
+// Sesión guardada en localStorage
 export interface SesionActiva {
-  perfilId: number;
   token: string;
   refreshToken: string;
-  nombre: string;
-  rolesSuperAdmin: string[];
-  rolModulo: RolUsuario;
   expiracion: string;
-  proyectoId: string;
-  proyectoNombre: string;
-  vistasPermitidas: VistaPermitida[];
-  permisos: {
-    puedeLeer: boolean;
-    puedeCrear: boolean;
-    puedeEditar: boolean;
-    puedeBorrar: boolean;
-  };
+  usuario: UsuarioToken;
+  proyectosAccesibles: ProyectoAcceso[];
+  proyectoActivo?: ProyectoAcceso; // proyecto seleccionado actualmente
 }
 
-// ── Definición de un Proyecto/Módulo ─────────────────────────────
-export interface ProyectoDisponible {
-  id: string; // Debe coincidir con el 'codigo' de SuperAdmin (ej. 'acceso-control-web')
+export interface VistaMenu {
+  id: number;
+  codigo: string;
   nombre: string;
-  descripcion: string;
-  icono: string;
-  rutaBase: string;
-  activo: boolean;
+  ruta: string;
+  icono?: string;
+  orden: number;
+  esContenedor: boolean;
+  hijos: VistaMenu[];
 }
-
-// ── Roles disponibles ─────────────────────────────────────────────
-export type RolUsuario = 'Guardia' | 'Admin' | 'Supervisor';
-

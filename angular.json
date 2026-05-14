@@ -34,7 +34,8 @@
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-              "src/styles/main.scss"
+              "src/styles/main.scss",
+              "node_modules/@angular/cdk/overlay-prebuilt.css"
             ],
             "security": {
               "allowedHosts": ["localhost", "0.0.0.0", "host.docker.internal"]

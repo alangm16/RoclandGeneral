@@ -1,14 +1,31 @@
+// sidebar.component.scss
+// ─────────────────────────────────────────────────────────────────────
+// Sidebar Rocland — rediseñado y corregido
+// Paleta verde corporativa Rocland, animaciones fluidas, jerarquía clara
+// ─────────────────────────────────────────────────────────────────────
+
 :host {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: var(--surface, #fff);
+  border-right: 1px solid var(--border, #d8e4d0);
+  overflow: hidden;
+  font-family: var(--font-body, 'Barlow', sans-serif);
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 1. BRAND
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 .sidebar-brand {
-  padding: 24px 20px;
-  border-bottom: 1px solid var(--border);
+  padding: 18px 16px 15px;
+  border-bottom: 1px solid var(--border, #d8e4d0);
+  flex-shrink: 0;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent, #4a9c1f) 4%, transparent),
+    transparent 60%
+  );
 }
 
 .brand-container {
@@ -18,180 +35,502 @@
 }
 
 .brand-logo {
-  width: 48px;  /* Ajusta el tamaño según necesites */
-  height: auto;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 3px rgba(74, 156, 31, 0.25));
 }
 
 .brand-text {
   display: flex;
-  gap: 4px;
-  font-family: var(--font-display); /* O la fuente que uses para títulos */
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  align-items: baseline;
+  gap: 5px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .brand-name {
-  color: #22C55E; /* El verde de tu paleta (var(--accent)) */
+  color: var(--accent, #4a9c1f);
+  font-family: var(--font-display, 'Barlow Condensed', sans-serif);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 .brand-panel {
-  color: #000000; /* Negro puro */
+  color: var(--muted, #5a5a5a);
+  font-family: var(--font-display, 'Barlow Condensed', sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  opacity: 0.6;
 }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 2. ÁREA SCROLLABLE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 .nav-links {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 0;
-}
+  overflow-x: hidden;
+  padding: 8px 0 16px;
 
-.nav-item-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 14px; /* Separación elegante */
-  width: 100%;
-}
-
-.bi {
-  font-size: 1.25rem; /* Iconos un poco más grandes */
-  color: var(--muted); /* Gris elegante por defecto */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animación fluida */
-}
-
-::ng-deep .mat-mdc-list-item {
-  border-radius: 8px !important;
-  margin: 0 8px !important;
-  width: auto !important;
-  transition: all 0.2s ease;
-
-  /* Estado Activo */
-  &.active-link {
-    background: rgba(74, 156, 31, 0.09) !important;
-    border-left: 3px solid var(--accent) !important;
-    border-radius: 0 8px 8px 0 !important;
-
-    /* Cuando está activo, el icono brilla y crece ligeramente */
-    .bi {
-      color: var(--accent) !important; /* Verde corporativo */
-      transform: scale(1.05); /* Efecto de "pop" */
-      filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.4)); /* Resplandor sutil */
-    }
-
-    .nav-label, .mdc-list-item__primary-text {
-      color: var(--text) !important; /* Texto más oscuro/fuerte */
-      font-weight: 600;
-    }
-  }
-
-  /* Estado Hover (pasar el mouse) */
-  &:hover:not(.active-link) {
-    background: rgba(74, 156, 31, 0.04) !important;
-    
-    /* El icono se desliza un poco a la derecha y se pinta sutilmente */
-    .bi {
-      color: var(--accent-dim);
-      transform: translateX(3px); 
-    }
-    
-    /* El texto se oscurece para indicar interactividad */
-    .nav-label {
-      color: var(--text);
-    }
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border, #d8e4d0);
+    border-radius: 4px;
+    &:hover { background: color-mix(in srgb, var(--accent, #4a9c1f) 40%, transparent); }
   }
 }
 
-.nav-link {
-  margin-bottom: 4px;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 3. ÍCONO Y ETIQUETA — COMPARTIDOS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.nav-icon {
+  font-size: 1rem;         // 16px
+  color: var(--muted, #5a5a5a);
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .nav-label {
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: var(--text-sec);
-  transition: all 0.3s ease;
-  letter-spacing: 0.3px;
+  color: var(--text-sec, #2a2a2a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
 }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 4. ÍTEM RAÍZ NAVEGABLE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 1px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  box-sizing: border-box;
+
+  &:hover {
+    background: var(--surface-2, #f4f6f2);
+    .nav-icon  { color: var(--accent, #4a9c1f); transform: translateX(1px); }
+    .nav-label { color: var(--text, #1a1a1a); }
+  }
+
+  &.active-item {
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 10%, transparent);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--accent, #4a9c1f);
+    }
+
+    .nav-icon  { color: var(--accent, #4a9c1f); }
+    .nav-label { color: var(--text, #1a1a1a); font-weight: 600; }
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 5. GRUPO CONTENEDOR (nivel 1)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 .nav-group {
-  background: transparent;
-  box-shadow: none;
-  margin: 0 8px;
-  
-  ::ng-deep .mat-expansion-panel-header {
-    padding: 0 16px;
-    height: 48px;
-    border-radius: 8px;
-    
-    &:hover {
-      background: var(--surface-2);
-    }
-  }
-  
-  ::ng-deep .mat-expansion-panel-body {
-    padding: 0 0 8px 0;
-  }
+  margin: 1px 0;
 }
 
-.sub-nav-link {
-  padding-left: 48px !important;
-  font-size: 13px;
-}
-
-.sidebar-footer {
-  padding: 14px 16px;
-  border-top: 1px solid var(--border);
+// ── CORRECCIÓN CLAVE: sin margin lateral en el botón + box-sizing ─────
+.nav-group-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  // ↓ width + margin corregidos: el botón ocupa el ancho del contenedor menos los márgenes
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  padding: 8px 10px 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  box-sizing: border-box;
+
+  .trigger-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;            // ← gap entre ícono y texto, explícito
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &:hover {
+    background: var(--surface-2, #f4f6f2);
+    .nav-icon  { color: var(--accent, #4a9c1f); }
+    .nav-label { color: var(--text, #1a1a1a); }
+  }
+
+  &.activo {
+    .nav-icon  { color: var(--accent, #4a9c1f); }
+    .nav-label { color: var(--text, #1a1a1a); font-weight: 600; }
+  }
+}
+
+// Chevron que rota con animación suave
+.chevron {
+  font-size: 0.6rem;
+  color: var(--muted, #5a5a5a);
   flex-shrink: 0;
+  margin-left: 4px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s;
+
+  &.open {
+    transform: rotate(90deg);
+    color: var(--accent, #4a9c1f);
+  }
+}
+
+// ── Panel de hijos — grid trick para animación de altura ─────────────
+.nav-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+
+  // El slot interno necesita overflow:hidden para que el grid trick funcione
+  > div {
+    overflow: hidden;
+    // Línea decorativa izquierda del grupo expandido
+    border-left: 2px solid color-mix(in srgb, var(--accent, #4a9c1f) 20%, transparent);
+    margin: 2px 8px 2px 20px;
+    border-radius: 0 0 0 4px;
+    padding: 2px 0 4px;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 6. HIJOS DIRECTOS (nivel 2 — link)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.nav-child-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 12px;
+  margin: 1px 4px 1px 0;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 450;
+  color: var(--text-sec, #2a2a2a);
+  border-radius: 6px;
+  transition: background 0.13s ease, color 0.13s ease, padding-left 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+
+  .child-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border, #d8e4d0);
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 7%, transparent);
+    color: var(--text, #1a1a1a);
+    padding-left: 16px;
+    .child-dot { background: var(--accent, #4a9c1f); transform: scale(1.3); }
+  }
+
+  &.active-child {
+    color: var(--accent, #4a9c1f);
+    font-weight: 600;
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 10%, transparent);
+    .child-dot {
+      background: var(--accent, #4a9c1f);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #4a9c1f) 20%, transparent);
+    }
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 7. SUBGRUPO ANIDADO (nivel 2 — contenedor, ej: "Configuración")
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.nav-subgroup {
+  // wrapper sin márgenes extra (los gestiona el padre)
+}
+
+.nav-subgroup-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px 6px 12px;
+  margin: 1px 0;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sec, #2a2a2a);
+  transition: background 0.13s ease, color 0.13s ease;
+  text-align: left;
+
+  .subgroup-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .sub-chevron {
+    font-size: 0.55rem;
+    color: var(--muted, #5a5a5a);
+    flex-shrink: 0;
+    margin-left: 6px;
+    transition: transform 0.22s ease, color 0.15s;
+
+    &.open {
+      transform: rotate(90deg);
+      color: var(--accent, #4a9c1f);
+    }
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 7%, transparent);
+    color: var(--text, #1a1a1a);
+  }
+
+  &.activo {
+    color: var(--text, #1a1a1a);
+    font-weight: 600;
+  }
+}
+
+// Panel de nietos — mismo grid trick
+.nav-subchildren {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+
+  > div {
+    overflow: hidden;
+    border-left: 2px solid color-mix(in srgb, var(--accent, #4a9c1f) 12%, transparent);
+    margin-left: 8px;
+    padding: 2px 0 2px;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 8. NIETOS (nivel 3)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.nav-sub-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 14px;
+  margin: 1px 0 1px 0;
+  text-decoration: none;
+  font-size: 12.5px;
+  color: var(--muted, #5a5a5a);
+  border-radius: 5px;
+  transition: background 0.13s ease, color 0.13s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+
+  .sub-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border, #d8e4d0);
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 6%, transparent);
+    color: var(--text-sec, #2a2a2a);
+    .sub-dot { background: var(--accent, #4a9c1f); transform: scale(1.3); }
+  }
+
+  &.active-sub {
+    color: var(--accent, #4a9c1f);
+    font-weight: 600;
+    background: color-mix(in srgb, var(--accent, #4a9c1f) 8%, transparent);
+    .sub-dot { background: var(--accent, #4a9c1f); }
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 9. FOOTER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.sidebar-footer {
+  padding: 11px 14px;
+  border-top: 1px solid var(--border, #d8e4d0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--surface-2, #f4f6f2) 60%, transparent);
 }
 
 .sidebar-user-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  gap: 2px;
+  flex: 1;
+  overflow: hidden;
 }
 
 .sidebar-user {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--text);
-  font-family: var(--font-mono);
+  color: var(--text, #1a1a1a);
+  font-family: var(--font-mono, monospace);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sidebar-rol {
-  font-size: 11px;
-  color: var(--muted);
-  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent, #4a9c1f);
+  font-family: var(--font-mono, monospace);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logout-btn {
   background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
+  border: 1px solid var(--border, #d8e4d0);
+  color: var(--muted, #5a5a5a);
   cursor: pointer;
   padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.15s;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: all 0.15s ease;
   flex-shrink: 0;
-  
+
   &:hover {
     background: #FEF2F2;
-    color: var(--red);
-    border-color: #FECACA;
+    color: #dc2626;
+    border-color: #fecaca;
+    transform: translateX(1px);
   }
 }
 
-@media (max-width: 599px) {
-  .sub-nav-link {
-    padding-left: 32px !important;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 10. MODO COLAPSADO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+:host-context(.sidebar-collapsed) {
+  .nav-label,
+  .brand-panel,
+  .brand-text,
+  .sidebar-user-info,
+  .chevron,
+  .sub-chevron,
+  .child-dot,
+  .sub-dot   { display: none; }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+    margin: 2px 8px;
   }
+
+  .nav-group-trigger {
+    justify-content: center;
+    padding: 10px 0;
+    margin: 2px 8px;
+    width: calc(100% - 16px);
+
+    .trigger-left {
+      justify-content: center;
+      gap: 0;
+      flex: none;
+    }
+  }
+
+  .nav-children,
+  .nav-subchildren { display: none; }
+
+  .nav-icon {
+    margin: 0 auto;
+    font-size: 1.1rem;
+    width: auto;
+  }
+
+  .sidebar-brand {
+    padding: 18px 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .brand-container { justify-content: center; }
+
+  .sidebar-footer {
+    justify-content: center;
+    padding: 12px 0;
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 11. RESPONSIVE MÓVIL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@media (max-width: 599px) {
+  .nav-child-link  { padding-left: 10px; }
+  .nav-sub-link    { padding-left: 12px; }
 }

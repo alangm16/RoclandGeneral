@@ -1,193 +1,409 @@
-// superadmin.models.ts
-// Rocland — Módulo Super Admin
-// Interfaces alineadas con los DTOs del backend (RCD.SuperAdmin)
-
-// ── Dashboard KPIs ────────────────────────────────────────────────
-export interface SuperAdminDashboardKpis {
-  usuariosActivos:      number;
-  usuariosConectados:   number;
-  modulosTotales:       number;
-  accesosDiarios:       number;
-  alertasAbiertas:      number;
-  nuevosUsuariosMes:    number;
+// ── DASHBOARD ──────────────────────────────────────
+export interface DashboardGlobalDto {
+  totalUsuariosActivos: number;
+  totalUsuariosInactivos: number;
+  totalProyectosActivos: number;
+  proyectosProduccion: number;
+  proyectosMantenimiento: number;
+  proyectosDesarrollo: number;
+  usuariosBloqueados: number;
+  alertasCriticasNoResueltas: number;
+  graficoAccesos: GraficoAccesosDto[];
+  proyectosMasAccesos: ProyectoActividadDto[];
+  usuariosMasActividad: UsuarioActividadDto[];
+  proyectosConProblemas: ProyectoConAlertasDto[];
 }
 
-// ── Logs de acceso (espeja TBL_ROCLAND_SUPERADMIN_LOGS_ACCESO) ────
-export interface AccesoLog {
-  usuarioId:       number | null;
-  nombreCompleto:  string;
-  username:        string;
-  exitoso:         boolean;
-  ipAddress:       string;
-  plataforma:      string;
-  detalle:         string;
-  fecha:           string; // ISO
-}
-
-export interface AccesoLogPaginado {
-  items: AccesoLog[];
-  total: number;
-}
-
-// ── Módulos / Proyectos ───────────────────────────────────────────
-export interface ModuloUsage {
-  proyectoId:  number;
-  codigo:      string;
-  nombre:      string;
-  plataforma:  string;
-  iconoCss:    string; // Ej. 'bi-shield-lock'
-  version:     string; // Ej. 'v1.2.0'
-  estado:      'Produccion' | 'Mantenimiento' | 'Desarrollo';
-  usuariosActivos: number; // Cuántos lo están usando hoy
-}
-
-// Espeja ProyectoDetalleDto del backend
-export interface ProyectoDetalle {
-  id:       number;
-  codigo:   string;
-  nombre:   string;
-  plataforma: string;
-  urlBase:  string | null;
-  iconoCss: string | null;
-  orden:    number;
-  activo:   boolean;
-  vistas:   VistaDetalle[];
-}
-
-export interface VistaDetalle {
-  id:     number;
-  codigo: string;
-  nombre: string;
-  icono:  string | null;
-  orden:  number;
-  ruta:   string;
-}
-
-// ── Usuarios (directorio global) ──────────────────────────────────
-// Espeja UsuarioDto del backend
-export interface UsuarioSA {
-  id:              number;
-  nombreCompleto:  string;
-  username:        string;
-  email:           string | null;
-  activo:          boolean;
-  ultimoAcceso:    string | null; // ISO
-  roles:           string[];
-}
-
-export interface UsuariosPaginados {
-  items: UsuarioSA[];
-  total: number;
-}
-
-export interface CrearUsuarioSARequest {
-  nombreCompleto: string;
-  username:       string;
-  email?:         string;
-  password:       string;
-  rolIds:         number[];
-}
-
-export interface ActualizarUsuarioSARequest {
-  nombreCompleto: string;
-  email?:         string;
-  activo:         boolean;
-  rolIds:         number[];
-}
-
-// ── Roles ─────────────────────────────────────────────────────────
-export interface RolSA {
-  id:     number;
-  nombre: string;
-  activo: boolean;
-}
-
-// ── Permisos ──────────────────────────────────────────────────────
-// Espeja MatrizPermisosDto del backend
-export interface MatrizPermisos {
-  entidadId: number;
-  nombre:    string;
-  tipo:      'Rol' | 'Usuario';
-  proyectos: ProyectoMatriz[];
-}
-
-export interface ProyectoMatriz {
-  id:      number;
-  codigo:  string;
-  nombre:  string;
-  permiso: PermisoCrud | null;
-  vistas:  VistaMatriz[];
-}
-
-export interface VistaMatriz {
-  id:      number;
-  codigo:  string;
-  nombre:  string;
-  icono:   string | null;
-  permiso: PermisoCrud | null;
-}
-
-export interface PermisoCrud {
-  puedeLeer:   boolean;
-  puedeCrear:  boolean;
-  puedeEditar: boolean;
-  puedeBorrar: boolean;
-}
-
-export interface AsignarPermisoRequest {
-  rolId?:      number;
-  usuarioId?:  number;
-  proyectoId:  number;
-  vistaId?:    number | null;
-  puedeLeer:   boolean;
-  puedeCrear:  boolean;
-  puedeEditar: boolean;
-  puedeBorrar: boolean;
-}
-
-// ── Alertas ───────────────────────────────────────────────────────
-export interface AlertaSA {
-  id:       number;
-  tipo:     'warning' | 'error' | 'info' | 'critical';
-  titulo:   string;
-  mensaje:  string;
-  fecha:    string;
-  resuelta: boolean;
-  accionUrl?: string; // Para que el admin haga clic y vaya a resolverlo
-}
-
-// ── Gráfica accesos semana ────────────────────────────────────────
-export interface AccesosDiaSemana {
-  dia:      string;   // 'Lun', 'Mar', etc.
+export interface GraficoAccesosDto {
+  fecha: string; // yyyy-MM-dd
   exitosos: number;
   fallidos: number;
 }
 
-// ── Proyectos permitidos (post-login) ─────────────────────────────
-// Espeja ProyectoPermitidoDto del backend (ya existía)
-export interface ProyectoPermitido {
-  id:          number;
-  codigo:      string;
-  nombre:      string;
-  plataforma:  string;
-  urlBase:     string | null;
-  iconoCss:    string | null;
-  accesoTotal: boolean;
-  puedeLeer:   boolean;
-  puedeCrear:  boolean;
-  puedeEditar: boolean;
-  puedeBorrar: boolean;
-  vistas:      VistaPermitida[];
+export interface ProyectoActividadDto {
+  proyectoId: number;
+  nombreProyecto: string;
+  cantidadAccesos: number;
 }
 
-export interface VistaPermitida {
-  id:          number;
-  codigo:      string;
-  nombre:      string;
-  ruta:        string;
-  icono:       string | null;
-  puedeLeer:   boolean;
-  puedeCrear:  boolean;
-  puedeEditar: boolean;
-  puedeBorrar: boolean;
+export interface UsuarioActividadDto {
+  usuarioId: number;
+  nombreUsuario: string;
+  cantidadAccesos: number;
+}
+
+export interface ProyectoConAlertasDto {
+  proyectoId: number;
+  codigo: string;
+  nombre: string;
+  estado: string;
+  cantidadAlertasCriticas: number;
+}
+
+export interface DashboardProyectoDto {
+  proyectoId: number;
+  nombre: string;
+  codigo: string;
+  descripcion: string;
+  estado: string;
+  plataforma: string;
+  version: string | null;
+  urlBase: string | null;
+  usuariosAsignados: number;
+  rolesDefinidos: number;
+  vistasConfiguradas: number;
+  tokensActivos: number;
+  ultimosAccesos: UltimoAccesoDto[];
+  usuariosActivosHoy: number;
+  alertasAbiertas: number;
+}
+
+export interface UltimoAccesoDto {
+  username: string;
+  fecha: string; // ISO 8601
+}
+
+// ── ALERTAS ────────────────────────────────────────
+export interface AlertaDto {
+  id: number;
+  proyectoId: number | null;
+  proyectoCodigo: string | null;
+  tipo: string;        // 'critical' | 'error' | 'warning' | 'info'
+  titulo: string;
+  mensaje: string;
+  fecha: string;
+  resuelta: boolean;
+  accionUrl: string | null;
+}
+
+export interface FiltroAlertasDto {
+  proyectoId?: number;
+  tipo?: string;
+  resuelta?: boolean;
+  desde?: string;
+  hasta?: string;
+  pagina?: number;
+  tamanoPagina?: number;
+}
+
+// ── AUDITORÍA ──────────────────────────────────────
+export interface AuditoriaDto {
+  entidadAfectada: string;
+  nombreEntidad: string;
+  registroId: number | null;
+  accion: string;
+  usuarioResponsable: string;
+  fecha: string;
+}
+
+export interface FiltroAuditoriaDto {
+  usuario?: string;
+  entidad?: string;
+  accion?: string;
+  desde?: string;
+  hasta?: string;
+  pagina?: number;
+  tamanoPagina?: number;
+}
+
+// ── CONFIGURACIÓN ─────────────────────────────────
+export interface ConfiguracionSistemaDto {
+  maxIntentosFallidos: number;
+  minutosBloqueo: number;
+  expiracionRefreshTokenHoras: number;
+  expiracionAccessTokenMinutos: number;
+  requiereQRParaMobile: boolean;
+}
+
+// ── DELEGACIONES ──────────────────────────────────
+export interface DelegacionDto {
+  otorgadoPor: string;
+  otorgadoA: string;
+  proyectoCodigo: string;
+  proyectoNombre: string;
+  rol: string;
+  fechaAsignacion: string;
+}
+
+export interface FiltroDelegacionesDto {
+  proyectoId?: number;
+  pagina?: number;
+  tamanoPagina?: number;
+}
+
+// ── DISPOSITIVOS ──────────────────────────────────
+export interface DispositivoDto {
+  id: number;
+  plataforma: string;
+  deviceToken: string | null;
+  fcmToken: string | null;
+  dispositivoInfo: string | null;
+  proyectoCodigo: string;
+  activo: boolean;
+  fechaCreacion: string;
+}
+
+export interface RegistrarDispositivoRequest {
+  fcmToken?: string;
+  deviceToken?: string;
+  dispositivoInfo?: string;
+}
+
+// ── MENÚ DINÁMICO ─────────────────────────────────
+export interface VistaMenuDto {
+  id: number;
+  codigo: string;
+  nombre: string;
+  ruta: string;
+  icono: string | null;
+  orden: number;
+  esContenedor: boolean;
+  hijos: VistaMenuDto[];
+}
+
+// ── PROYECTOS ─────────────────────────────────────
+export interface ProyectoListDto {
+  id: number;
+  codigo: string;
+  nombre: string;
+  plataforma: string;
+  iconoCss: string | null;
+  estado: string;
+  version: string | null;
+  orden: number;
+  activo: boolean;
+}
+
+export interface ProyectoDetalleDto {
+  id: number;
+  codigo: string;
+  nombre: string;
+  plataforma: string;
+  iconoCss: string | null;
+  urlBase: string | null;
+  estado: string;
+  version: string | null;
+  descripcion: string | null;
+  orden: number;
+  activo: boolean;
+  roles: RolDto[];
+  vistas: VistaDto[];
+}
+
+export interface RolDto {
+  id: number;
+  nombre: string;
+  nivel: number;
+  descripcion: string | null;
+  activo: boolean;
+}
+
+export interface ActualizarRolRequest {
+  nombre: string;
+  nivel: number;
+  descripcion?: string | null;
+  activo: boolean;
+}
+
+export interface VistaDto {
+  id: number;
+  codigo: string;
+  nombre: string;
+  ruta: string;
+  icono: string | null;
+  descripcion: string | null;
+  orden: number;
+  activo: boolean;
+  vistaPadreId: number | null;
+  esContenedor: boolean;
+}
+
+export interface ActualizarVistaRequest {
+  codigo: string;
+  nombre: string;
+  ruta: string;
+  icono?: string | null;
+  descripcion?: string | null;
+  vistaPadreId?: number | null;
+  esContenedor: boolean;
+  orden: number;
+  activo: boolean;
+}
+
+// Requests
+export interface CrearProyectoRequest {
+  codigo: string;
+  nombre: string;
+  plataforma: string;
+  iconoCss?: string;
+  urlBase?: string;
+  version?: string;
+  descripcion?: string;
+  orden?: number;
+}
+
+export interface ActualizarProyectoRequest {
+  nombre: string;
+  plataforma: string;
+  iconoCss?: string;
+  urlBase?: string;
+  estado: string;
+  version?: string;
+  descripcion?: string;
+  orden: number;
+}
+
+export interface CrearRolRequest {
+  nombre: string;
+  nivel: number;
+  descripcion?: string;
+}
+
+export interface CrearVistaRequest {
+  codigo: string;
+  nombre: string;
+  ruta: string;
+  icono?: string;
+  descripcion?: string;
+  vistaPadreId?: number;
+  esContenedor?: boolean;
+  orden?: number;
+}
+
+export interface UsuarioProyectoDto {
+  usuarioId: number;
+  username: string;
+  nombreCompleto: string;
+  email: string | null;
+  rol: string;
+  nivelRol: number;
+  activo: boolean;        // Estado de la asignación (no del usuario)
+  creadoPor: string;
+  fechaAsignacion: string; // ISO DateTime
+}
+
+// ── LOGS DE ACCESO ────────────────────────────────
+export interface LogAccesoDto {
+  id: number;
+  usernameUsado: string;
+  nombreCompleto: string | null;
+  proyectoCodigo: string | null;
+  exitoso: boolean;
+  ipAddress: string | null;
+  plataforma: string | null;
+  detalle: string | null;
+  fecha: string;
+}
+
+export interface FiltroLogsDto {
+  username?: string;
+  proyectoCodigo?: string;
+  desde?: string;
+  hasta?: string;
+  plataforma?: string;
+  exitoso?: boolean;
+  pagina?: number;
+  tamanoPagina?: number;
+}
+
+// ── SESIONES ACTIVAS ──────────────────────────────
+export interface SesionActivaDto {
+  id: number;
+  username: string;
+  proyectoCodigo: string | null;
+  plataforma: string;
+  tokenReducido: string;
+  fechaExpiracion: string;
+  fechaCreacion: string;
+  ipCreacion: string | null;
+  revocado: boolean;
+}
+
+export interface FiltroSesionesDto {
+  usuarioId?: number;
+  proyectoId?: number;
+  pagina?: number;
+  tamanoPagina?: number;
+}
+
+// ── USUARIOS ──────────────────────────────────────
+export interface UsuarioListDto {
+  id: number;
+  nombreCompleto: string;
+  username: string;
+  email: string | null;
+  activo: boolean;
+  fechaCreacion: string;
+  ultimoAcceso: string | null;
+  bloqueadoHasta: string | null;
+}
+
+export interface UsuarioDetalleDto {
+  id: number;
+  nombreCompleto: string;
+  username: string;
+  email: string | null;
+  qrCode: string | null;
+  activo: boolean;
+  ultimoAcceso: string;
+  proyectos: ProyectoAsignadoDto[];
+  intentosFallidos: number;
+  bloqueadoHasta: string | null;
+  creadoPor: string | null;
+  fechaCreacion: string;
+  modificadoPor: string | null;
+  fechaModificacion: string | null;
+}
+
+export interface ProyectoAsignadoDto {
+  proyectoId: number;
+  codigoProyecto: string;
+  nombreProyecto: string;
+  rol: string;
+  nivelRol: number;
+  activo: boolean;
+}
+
+export interface CrearUsuarioRequest {
+  nombreCompleto: string;
+  username: string;
+  email?: string;
+  password: string;
+}
+
+export interface ActualizarUsuarioRequest {
+  nombreCompleto: string;
+  email?: string | null;
+  password?: string | null;
+}
+
+export interface AsignarProyectoRolRequest {
+  proyectoId: number;
+  rolId: number;
+}
+
+export interface ProyectoOrdenDto {
+  id: number;
+  orden: number;
+}
+ 
+export interface ReordenarProyectosRequest {
+  items: ProyectoOrdenDto[];
+}
+
+// ── VISIBILIDAD / ACCESO A VISTAS ─────────────────
+export interface VistaAccesoUsuarioDto {
+  vistaId: number;
+  codigo: string;
+  nombre: string;
+  ruta: string;
+  orden: number;
+  tieneAcceso: boolean;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalRegistros: number;
+  pagina: number;
+  tamanoPagina: number;
 }

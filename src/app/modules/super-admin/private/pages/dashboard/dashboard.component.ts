@@ -1,124 +1,157 @@
-import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, inject, signal,
+  ViewChild, ElementRef, effect, PLATFORM_ID
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import Chart from 'chart.js/auto';
 import { LayoutService } from '../../../../../core/services/layout.service';
-import { SuperAdminService } from '../../../services/super-admin.service';
-import { SuperAdminDashboardKpis, AccesoLog, ModuloUsage, AlertaSA, AccesosDiaSemana } from '../../../models/superadmin.models';
-import { DataTableComponent, DataTableColumn } from '../../../../../shared/components/data-table/data-table.component';
+import { SuperadminService } from '../../../services/super-admin.service';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
+import { DataTableComponent, DataTableColumn } from '../../../../../shared/components/data-table/data-table.component';
+import { Chart, ChartConfiguration } from 'chart.js/auto';
+import { computed } from '@angular/core';
+import {
+  DashboardGlobalDto,
+  ProyectoActividadDto,
+  GraficoAccesosDto,
+  ProyectoConAlertasDto,
+  AlertaDto,
+  LogAccesoDto
+} from '../../../models/superadmin.models';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-superadmin-dashboard',
   standalone: true,
-  imports: [
-    CommonModule, 
-    RouterModule, 
-    DataTableComponent, 
-    BadgeComponent
-  ],
+  imports: [CommonModule, RouterModule, BadgeComponent, DataTableComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private readonly layoutSvc  = inject(LayoutService);
-  private readonly saSvc      = inject(SuperAdminService);
+  private readonly layoutSvc = inject(LayoutService);
+  private readonly superadminSvc = inject(SuperadminService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  cargandoGlobal = signal<boolean>(true);
+  cargandoGlobal = signal(true);
+  kpis = signal<DashboardGlobalDto | null>(null);
 
-  // ── Estado de Datos ──
-  kpis            = signal<SuperAdminDashboardKpis | null>(null);
-  ultimosAccesos  = signal<AccesoLog[]>([]);
-  modulosUsage    = signal<ModuloUsage[]>([]);
-  alertas         = signal<AlertaSA[]>([]);
-  
-  // ── Configuración de la Tabla de Logs ──
-  columnasLogs: DataTableColumn[] = [
-    { key: 'usuario', label: 'USUARIO' },
-    { key: 'plataforma', label: 'PLATAFORMA' },
-    { key: 'fecha', label: 'FECHA Y HORA' },
-    { key: 'estado', label: 'ESTADO' }
+  // Secciones derivadas
+  modulosUsage = signal<ProyectoActividadDto[]>([]);
+  proyectosConProblemas = signal<ProyectoConAlertasDto[]>([]);
+  ultimosAccesos = signal<LogAccesoDto[]>([]);
+  alertas = signal<AlertaDto[]>([]);
+
+  readonly ultimosExitosos = computed(() =>
+    this.ultimosAccesos().filter(a => a.exitoso).slice(0, 5)
+  );
+
+  readonly ultimosFallidos = computed(() =>
+    this.ultimosAccesos().filter(a => !a.exitoso).slice(0, 5)
+  );
+
+  // Gráfico
+  @ViewChild('accesosChart', { static: false }) accesosChartCanvas!: ElementRef;
+  private chartAccesos: Chart | null = null;
+
+  readonly columnasActividad: DataTableColumn[] = [
+    { key: 'usuario',    label: 'Usuario',    headerClass: 'col-usuario' },
+    { key: 'plataforma', label: 'Plataforma', headerClass: 'text-center col-plataforma' },
+    { key: 'fecha',      label: 'Fecha',      headerClass: 'col-fecha' },
   ];
 
-  // ── Gráfica ──
-  @ViewChild('accesosChart', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
-  private chartInstance: Chart | null = null;
-  private timeInterval: any;
-  currentTime = signal<string>('');
+  constructor() {
+    effect(() => {
+      const _collapsed = this.layoutSvc.sidebarCollapsed();
+      setTimeout(() => this.chartAccesos?.resize(), 250);
+    });
+  }
 
   ngOnInit(): void {
     this.layoutSvc.setSubheader({ title: 'Dashboard', showSearch: false });
-    this.iniciarReloj();
-    this.cargarTodo();
+    if (isPlatformBrowser(this.platformId)) {
+      this.cargarDatos();
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.timeInterval) clearInterval(this.timeInterval);
-    if (this.chartInstance) this.chartInstance.destroy();
+    this.chartAccesos?.destroy();
+    this.layoutSvc.resetSubheader();
   }
 
-  private cargarTodo(): void {
-    this.cargandoGlobal.set(true);
-    
+  private cargarDatos(): void {
     forkJoin({
-      kpis: this.saSvc.getKpis(),
-      grafica: this.saSvc.getAccesosSemana(),
-      modulos: this.saSvc.getUsoModulos(),
-      alertas: this.saSvc.getAlertasActivas(),
-      logs: this.saSvc.getLogsRecientes(5)
+      global: this.superadminSvc.getDashboardGlobal(),
+      alertas: this.superadminSvc.getAlertas(false, undefined, 1, 10),         // todas las no resueltas
+      logs: this.superadminSvc.getLogsAcceso({}, 1, 10)
     }).subscribe({
-      next: (res) => {
-        this.kpis.set(res.kpis);
-        this.modulosUsage.set(res.modulos);
-        this.alertas.set(res.alertas);
-        this.ultimosAccesos.set(res.logs);
-        
-        if (isPlatformBrowser(this.platformId)) {
-          setTimeout(() => this.renderChart(res.grafica), 50);
-        }
+      next: ({ global, alertas, logs }) => {
+        this.kpis.set(global);
+        this.modulosUsage.set(global.proyectosMasAccesos.slice(0, 5));
+        this.proyectosConProblemas.set(global.proyectosConProblemas);   // para navegación rápida
+        this.alertas.set(alertas.items.slice(0, 10));
+        this.ultimosAccesos.set(logs.items.slice(0, 10));
         this.cargandoGlobal.set(false);
+        setTimeout(() => this.inicializarGrafico(global.graficoAccesos), 0);
       },
       error: (err) => {
-        console.error('Error cargando el dashboard:', err);
+        console.error('Error al cargar dashboard', err);
         this.cargandoGlobal.set(false);
       }
     });
   }
 
-  // ── Helpers para la UI ──
-  getAlertaIcon(tipo: string): string {
-    const iconos: { [key: string]: string } = {
-      'error': 'bi-x-circle-fill',
-      'warning': 'bi-exclamation-circle-fill',
-      'critical': 'bi-shield-fill-exclamation',
-      'info': 'bi-info-circle-fill'
-    };
-    return iconos[tipo] || 'bi-info-circle-fill';
-  }
-
-  private renderChart(datos: AccesosDiaSemana[]): void {
-    if (this.chartInstance) this.chartInstance.destroy();
-    const ctx = this.chartCanvas?.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    this.chartInstance = new Chart(ctx, {
+  private inicializarGrafico(grafico: GraficoAccesosDto[]): void {
+    if (!this.accesosChartCanvas) return;
+    const ctx = this.accesosChartCanvas.nativeElement.getContext('2d');
+    const labels = grafico.map(g => {
+      const d = new Date(g.fecha + 'T00:00:00');
+      return d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' });
+    });
+    const config: ChartConfiguration = {
       type: 'line',
       data: {
-        labels: datos.map(d => d.dia),
+        labels,
         datasets: [
-          { label: 'Exitosos', data: datos.map(d => d.exitosos), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 },
-          { label: 'Fallidos', data: datos.map(d => d.fallidos), borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4 }
-        ]
+          {
+            label: 'Exitosos',
+            data: grafico.map(g => g.exitosos),
+            borderColor: '#16a34a',
+            backgroundColor: 'rgba(22,163,74,0.08)',
+            fill: true,
+            tension: 0.3,
+          },
+          {
+            label: 'Fallidos',
+            data: grafico.map(g => g.fallidos),
+            borderColor: '#DC2626',
+            backgroundColor: 'rgba(220,38,38,0.08)',
+            fill: true,
+            tension: 0.3,
+          },
+        ],
       },
-      options: { responsive: true, maintainAspectRatio: false }
-    });
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'bottom' } },
+        scales: { y: { beginAtZero: true } },
+      },
+    };
+    this.chartAccesos = new Chart(ctx, config);
   }
 
-  private iniciarReloj(): void {
-    const tick = () => this.currentTime.set(new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }));
-    tick();
-    this.timeInterval = setInterval(tick, 60000);
+  getAlertaIcon(tipo: string): string {
+    const icons: Record<string, string> = {
+      critical: 'bi-shield-exclamation',
+      error: 'bi-exclamation-triangle-fill',
+      warning: 'bi-exclamation-triangle',
+      info: 'bi-info-circle-fill',
+    };
+    return icons[tipo] || 'bi-bell';
+  }
+
+  totalAccesosPeriodo(): number {
+    const grafico = this.kpis()?.graficoAccesos || [];
+    return grafico.reduce((sum, g) => sum + g.exitosos + g.fallidos, 0);
   }
 }

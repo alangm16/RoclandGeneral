@@ -1,8 +1,6 @@
-// http-error.interceptor.ts
-// Rocland — Interceptor HTTP global
-// Sprint 2: manejo de errores centralizado.
-// Sprint 5: aquí se agregará la inyección del Bearer token JWT.
-
+// http-error.interceptor.tsd
+import { AuthService } from '../auth/auth.service';
+import { inject } from '@angular/core';
 import {
   HttpInterceptorFn,
   HttpRequest,
@@ -17,6 +15,12 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
 ) => {
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
+      
+
+      if (err.status === 401) {
+        const auth = inject(AuthService);
+        auth.logout(); // limpia sesión y redirige
+      }
       const ignorar = err.status === 404 || err.status === 0;
       if (!ignorar) {
         console.error(`[HTTP ${err.status}] ${req.method} ${req.url}`, err);
@@ -25,18 +29,3 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
     })
   );
 };
-
-/*
- * ── Sprint 5: Auth interceptor (placeholder) ──────────────────────
- * Cuando implementemos el login, agregar aquí:
- *
- * import { inject } from '@angular/core';
- * import { AuthService } from '../modules/auth/services/auth.service';
- *
- * const token = inject(AuthService).getToken();
- * if (token) {
- *   req = req.clone({
- *     setHeaders: { Authorization: `Bearer ${token}` }
- *   });
- * }
- */

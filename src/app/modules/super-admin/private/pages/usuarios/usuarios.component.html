@@ -1,0 +1,141 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Usuarios</span>
+      <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalUsuarios() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="usuarios()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('usuario') {
+            <div class="user-cell">
+              <div class="user-avatar-sm">{{ item.nombreCompleto.charAt(0) }}</div>
+              <div>
+                <div class="user-name-md">{{ item.nombreCompleto }}</div>
+                <div class="user-sub-sm text-muted">
+                  <i class="bi bi-person me-1"></i>{{ item.username }}
+                  @if (item.email) { <span class="mx-1">·</span> {{ item.email }} }
+                </div>
+              </div>
+            </div>
+          }
+          @case ('estado') {
+            <app-badge
+              [label]="item.activo ? 'Activo' : 'Inactivo'"
+              [variant]="item.activo ? 'green' : 'red'">
+            </app-badge>
+          }
+          @case ('ultimoAcceso') {
+            <span class="text-muted text-mono" style="font-size: 13px;">
+              {{ item.ultimoAcceso ? (item.ultimoAcceso | date:'dd/MM/yyyy hh:mm a') : 'Nunca' }}
+            </span>
+          }
+          @case ('bloqueado') {
+            @if (item.bloqueadoHasta) {
+              <app-badge label="Bloqueado" variant="red"></app-badge>
+              <div class="text-muted" style="font-size: 11px;">
+                hasta {{ item.bloqueadoHasta | date:'dd/MM/yyyy hh:mm a' }}
+              </div>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          }
+          @case ('acciones') {
+          <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <mat-menu #menu="matMenu" class="custom-mat-menu">
+            <a mat-menu-item [routerLink]="['/private/super-admin/usuarios/detalle', item.id]">
+              <i class="bi bi-eye me-2"></i> Ver Detalle
+            </a>
+
+            @if (puedeAdministrar()) {
+              <button mat-menu-item (click)="abrirModalPerfil(item)">
+                <i class="bi bi-pencil me-2"></i> Editar Usuario
+              </button>
+              <button mat-menu-item (click)="toggleEstado(item)">
+                <i class="bi me-2" [ngClass]="item.activo ? 'bi-power' : 'bi-check-circle'"></i>
+                {{ item.activo ? 'Desactivar' : 'Activar' }}
+              </button>
+              @if (item.bloqueadoHasta) {
+                <button mat-menu-item (click)="resetearIntentos(item)">
+                  <i class="bi bi-arrow-counterclockwise me-2"></i> Resetear Intentos
+                </button>
+              }
+            }
+          </mat-menu>
+        }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>
+
+<!-- ── Modal para crear/editar usuario ── -->
+<app-modal [isOpen]="modalPerfilAbierto()" size="md" (closed)="cerrarModal()">
+  <ng-container header>
+    <div class="d-flex align-items-center gap-3">
+      <div class="modal-avatar">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div style="min-width:0;">
+        <h2 class="modal-title">{{ editandoId() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+        <p class="modal-subtitle">Directorio Global Rocland</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Nombre Completo <span class="req">*</span></label>
+          <input type="text" class="form-control" formControlName="nombreCompleto">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Username <span class="req">*</span></label>
+          <input type="text" class="form-control" formControlName="username">
+          @if (editandoId()) {
+            <small class="text-muted">El username no puede modificarse.</small>
+          }
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" class="form-control" formControlName="email">
+        </div>
+        <!-- Dentro del formulario, después del campo de email -->
+        @if (!editandoId()) {
+          <div class="col-12">
+            <label class="form-label">Contraseña <span class="req">*</span></label>
+            <input type="password" class="form-control" formControlName="password" autocomplete="new-password">
+          </div>
+        }
+        @if (editandoId() && puedeAdministrar()) {
+          <div class="col-12">
+            <label class="form-label">Nueva Contraseña (opcional)</label>
+            <input type="password" class="form-control" formControlName="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiar">
+            <small class="text-muted">Solo si necesita restablecer la contraseña.</small>
+          </div>
+        }
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="usuarioForm.invalid">
+          {{ editandoId() ? 'Guardar Cambios' : 'Crear Usuario' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

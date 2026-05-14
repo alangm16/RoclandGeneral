@@ -18,7 +18,7 @@ export const routes: Routes = [
 
   // ── 3. ZONA PÚBLICA (Módulos sin login, ej. Formularios) ─────
   {
-    path: 'public/acceso-control-web',
+    path: 'public/acceso-control',
     loadChildren: () => import('./modules/acceso-control/public/acceso-public.routes').then(m => m.ACCESO_PUBLIC_ROUTES)
   },
   
@@ -30,9 +30,10 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/super-admin/super-admin.routes').then(m => m.SUPER_ADMIN_ROUTES)
   },
   {
-    path: 'private/acceso-control-web',
-    canActivate: [authGuard, proyectoGuard], 
-    data: { proyectoCodigo: 'acceso-control-web' },
-    loadChildren: () => import('./modules/acceso-control/acceso-control.routes').then(m => m.ACCESO_CONTROL_ROUTES)
+    path: 'private/acceso-control',
+    canActivate: [authGuard, proyectoGuard],
+    data: { proyectoCodigo: 'acceso-control' },
+    loadChildren: () => import('./modules/acceso-control/acceso-control.routes')
+      .then(m => m.ACCESO_CONTROL_ROUTES)
   }
 ];

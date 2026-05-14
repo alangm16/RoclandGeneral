@@ -12,7 +12,7 @@
   (click)="onOverlayClick()"
   role="dialog"
   aria-modal="true"
-  [attr.aria-hidden]="!isOpen">
+  [attr.inert]="!isOpen ? '' : null">
 
   <!-- Panel principal -->
   <div

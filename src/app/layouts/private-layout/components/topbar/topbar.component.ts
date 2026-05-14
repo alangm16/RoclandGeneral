@@ -49,7 +49,9 @@ export class TopbarComponent implements OnDestroy {
   }
 
   readonly userName = computed(() => this.authService.nombreUsuario() || 'Usuario');
-  readonly projectName = computed(() => this.authService.proyectoNombre() || 'Cargando...');
+  readonly projectName = computed(() => 
+  this.authService.proyectoActivo()?.nombre ?? 'Selecciona un proyecto'
+);
 
   logout(): void {
     this.authService.logout();

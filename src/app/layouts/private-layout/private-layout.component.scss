@@ -1,16 +1,32 @@
+// private-layout.component.scss
+// ─────────────────────────────────────────────────────────────────────
+// Shell principal: sidebar + contenido.
+// Sidebar: 220px expandido, 64px colapsado (solo iconos).
+// ─────────────────────────────────────────────────────────────────────
+
 :host {
-  --sidebar-w: 220px;
-  --transition: 0.2s ease;
+  --sidebar-w:          220px;
+  --sidebar-w-collapsed: 64px;
+  --transition:         0.22s cubic-bezier(0.4, 0, 0.2, 1);
   display: block;
 }
+
+// ── Contenedor principal ─────────────────────────────────────────────
 
 .admin-shell {
   height: 100dvh;
   width: 100%;
-  background: var(--surface-2);
-  font-family: var(--font-body);
+  background: var(--surface-2, #f8f9fa);
+  font-family: var(--font-body, sans-serif);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+
+  // Angular Material overrides — evita que mat-drawer rompa el layout
+  ::ng-deep .mat-drawer-container {
+    height: 100%;
+    width: 100%;
+    background: transparent;
+  }
 
   ::ng-deep .mat-drawer-content {
     display: flex;
@@ -19,18 +35,15 @@
     min-width: 0;
     overflow-x: hidden;
   }
-
-  ::ng-deep .mat-drawer-container {
-    height: 100%;
-    width: 100%;
-  }
 }
+
+// ── Sidebar ──────────────────────────────────────────────────────────
 
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface, #fff);
+  border-right: 1px solid var(--border, #e5e7eb);
+  box-shadow: 1px 0 0 var(--border, #e5e7eb);
   transition: width var(--transition);
   overflow: hidden;
 
@@ -38,8 +51,11 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    height: 100%;
   }
 }
+
+// ── Contenido principal ──────────────────────────────────────────────
 
 .page-body {
   flex: 1;
@@ -50,97 +66,73 @@
   margin: 0 auto;
 }
 
-/* ── Sidebar colapsado (desktop) — iconos centrados ── */
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SIDEBAR COLAPSADO (desktop ≥ 1025px)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 @media (min-width: 1025px) {
   .admin-shell.sidebar-collapsed {
+
     .sidebar {
-      width: 68px;
+      width: var(--sidebar-w-collapsed);
     }
 
-    ::ng-deep {
-      /* Ocultar textos y elementos de marca */
-      .brand-sub,
+    // El sidebar usa :host-context(.sidebar-collapsed) internamente,
+    // pero si Angular Encapsulation lo bloquea, este ::ng-deep lo garantiza.
+    ::ng-deep app-sidebar {
       .nav-label,
-      .sidebar-user-info { display: none; }
+      .brand-panel,
+      .brand-text,
+      .sidebar-user-info,
+      .chevron,
+      .sub-chevron,
+      .child-dot,
+      .sub-dot,
+      .nav-children,
+      .nav-subchildren { display: none !important; }
 
-      /* Centrar logo */
-      .sidebar-brand {
-        padding: 20px 0;
-        display: flex;
+      .nav-item,
+      .nav-group-trigger {
         justify-content: center;
-        align-items: center;
+        padding-left: 0;
+        padding-right: 0;
       }
 
-      .brand-container {
-        justify-content: center;
-      }
-
-      /* Centrar cada ítem de navegación */
-      .nav-item-wrapper {
+      .nav-group-trigger .trigger-left {
         justify-content: center;
         gap: 0;
       }
 
-      /* Quitar padding lateral del list-item para centrado perfecto */
-      .mat-mdc-list-item {
-        padding: 0 !important;
-      }
+      .nav-icon { width: auto; font-size: 1.15rem; }
 
-      /* Centrar el icono dentro del list-item */
-      .nav-link {
+      .sidebar-brand {
+        padding: 18px 0;
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 10px 0;
       }
 
-      /* El icono ocupa el ancho completo centrado */
-      .bi {
-        margin: 0 auto;
-        font-size: 1.35rem;
-      }
+      .brand-container { justify-content: center; }
 
-      /* Footer: centrar el botón logout */
       .sidebar-footer {
         justify-content: center;
-        padding: 14px 0;
-      }
-
-      .logout-btn {
-        margin: 0 auto;
-      }
-
-      /* Panel de expansión colapsado — centrar header */
-      .mat-expansion-panel-header {
-        justify-content: center;
-        padding: 0 !important;
-      }
-
-      .mat-panel-title {
-        justify-content: center;
-        margin: 0;
+        padding: 12px 0;
       }
     }
   }
 }
 
-/* ── Tablet (600px – 1024px) ── */
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RESPONSIVO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 @media (max-width: 1024px) {
-  .page-body {
-    padding: 16px 20px;
-  }
+  .page-body { padding: 16px 20px; }
 }
 
-/* ── Móvil (< 600px) ── */
 @media (max-width: 599px) {
-  .page-body {
-    padding: 12px 14px;
-  }
+  .page-body { padding: 12px 14px; }
 }
 
-/* ── Ultra-wide (> 1800px) ── */
 @media (min-width: 1800px) {
-  .page-body {
-    padding: 32px 48px;
-  }
+  .page-body { padding: 32px 48px; }
 }

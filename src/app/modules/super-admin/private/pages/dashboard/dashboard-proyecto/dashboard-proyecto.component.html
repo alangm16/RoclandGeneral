@@ -1,0 +1,130 @@
+<!-- dashboard-proyecto.component.html -->
+<div class="page-content fade-in">
+  @if (cargando()) {
+    <div class="d-flex justify-content-center mt-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  } @else if (datos()) {
+    @let d = datos()!;
+
+    <!-- Encabezado con info del proyecto -->
+    <div class="project-header mb-4">
+      <div class="project-header-content">
+        <h2 class="project-title">{{ d.nombre }}</h2>
+        <div class="project-meta">
+          <span class="project-code">{{ d.codigo }}</span>
+          <span class="badge" [ngClass]="getEstadoClass(d.estado)">{{ d.estado }}</span>
+          <span class="project-platform"><i class="bi bi-layers"></i> {{ d.plataforma }}</span>
+          @if (d.version) {
+            <span class="project-version">v{{ d.version }}</span>
+          }
+        </div>
+        @if (d.descripcion) {
+          <p class="project-desc">{{ d.descripcion }}</p>
+        }
+      </div>
+      @if (d.urlBase) {
+        <a [href]="d.urlBase" target="_blank" class="project-url-btn">
+          <i class="bi bi-box-arrow-up-right"></i> Ir al proyecto
+        </a>
+      }
+    </div>
+
+    <!-- KPIs del proyecto -->
+    <div class="sa-kpi-grid mb-4">
+      <div class="sa-kpi-card blue">
+        <div class="sa-kpi-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="sa-kpi-content">
+          <div class="sa-kpi-label">Usuarios Asignados</div>
+          <div class="sa-kpi-value">{{ d.usuariosAsignados }}</div>
+        </div>
+      </div>
+      <div class="sa-kpi-card green">
+        <div class="sa-kpi-icon"><i class="bi bi-person-badge"></i></div>
+        <div class="sa-kpi-content">
+          <div class="sa-kpi-label">Roles Definidos</div>
+          <div class="sa-kpi-value">{{ d.rolesDefinidos }}</div>
+        </div>
+      </div>
+      <div class="sa-kpi-card purple">
+        <div class="sa-kpi-icon"><i class="bi bi-layout-sidebar"></i></div>
+        <div class="sa-kpi-content">
+          <div class="sa-kpi-label">Vistas Configuradas</div>
+          <div class="sa-kpi-value">{{ d.vistasConfiguradas }}</div>
+        </div>
+      </div>
+      <div class="sa-kpi-card amber">
+        <div class="sa-kpi-icon"><i class="bi bi-phone"></i></div>
+        <div class="sa-kpi-content">
+          <div class="sa-kpi-label">Tokens Activos</div>
+          <div class="sa-kpi-value">{{ d.tokensActivos }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad reciente + alertas -->
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-lg-7">
+        <div class="section-card h-100">
+          <div class="card-header">
+            <h5 class="m-0 fw-bold">Últimos Accesos</h5>
+          </div>
+          <div class="card-body p-3">
+            @if (d.ultimosAccesos.length === 0) {
+              <div class="text-center text-muted py-4">Sin accesos recientes</div>
+            } @else {
+              <div class="accesos-list">
+                @for (acceso of d.ultimosAccesos; track acceso.username + acceso.fecha) {
+                  <div class="acceso-item">
+                    <div class="acceso-user">
+                      <div class="user-avatar-xs">{{ acceso.username.charAt(0) }}</div>
+                      <span class="fw-semibold">{{ acceso.username }}</span>
+                    </div>
+                    <span class="acceso-fecha text-muted">{{ acceso.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-5">
+        <div class="section-card h-100">
+          <div class="card-header">
+            <h5 class="m-0 fw-bold">Resumen de Actividad</h5>
+          </div>
+          <div class="card-body p-3">
+            <div class="activity-summary">
+              <div class="activity-item">
+                <div class="activity-icon bg-success-light">
+                  <i class="bi bi-people-fill text-success"></i>
+                </div>
+                <div class="activity-info">
+                  <div class="activity-value">{{ d.usuariosActivosHoy }}</div>
+                  <div class="activity-label">Usuarios activos hoy</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon"
+                     [ngClass]="d.alertasAbiertas > 0 ? 'bg-danger-light' : 'bg-success-light'">
+                  <i class="bi"
+                     [ngClass]="d.alertasAbiertas > 0 ? 'bi-exclamation-triangle-fill text-danger' : 'bi-check-circle-fill text-success'"></i>
+                </div>
+                <div class="activity-info">
+                  <div class="activity-value">{{ d.alertasAbiertas }}</div>
+                  <div class="activity-label">Alertas abiertas</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  } @else {
+    <div class="text-center text-muted mt-5">
+      <i class="bi bi-exclamation-circle fs-1"></i>
+      <p>Proyecto no encontrado</p>
+    </div>
+  }
+</div>
