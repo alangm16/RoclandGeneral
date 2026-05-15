@@ -1,0 +1,65 @@
+.config-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+}
+
+.card-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-subtitle {
+  color: var(--text-muted, #6c757d);
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary, #1e293b);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--primary-color, #3b82f6);
+  display: inline-block;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.input-group-text {
+  background-color: var(--surface-alt, #f8f9fa);
+}
+
+.form-check-input {
+  cursor: pointer;
+  width: 2.5em;
+  height: 1.25em;
+}
+
+.form-check-label {
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.invalid-feedback {
+  font-size: 0.75rem;
+  margin-top: 4px;
+}

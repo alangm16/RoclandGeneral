@@ -81,58 +81,43 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./private/pages/control-accesos/vistas-usuario.component')
             .then(m => m.VistasUsuarioComponent),
       },
-
-      // // ── SuperAdmin ──────────────────────────────────────── /superadmin/*
-      // {
-      //   path: 'superadmin/roles',
-      //   loadComponent: () =>
-      //     import('./private/pages/superadmin/roles-sa/roles-sa.component')
-      //       .then(m => m.RolesSAComponent),
-      // },
-      // {
-      //   path: 'superadmin/usuarios',
-      //   loadComponent: () =>
-      //     import('./private/pages/superadmin/usuarios-sa/usuarios-sa.component')
-      //       .then(m => m.UsuariosSAComponent),
-      // },
-
       // // ── Seguridad ────────────────────────────────────────── /seguridad/*
-      // {
-      //   path: 'seguridad/logs',
-      //   loadComponent: () =>
-      //     import('./private/pages/seguridad/logs/logs.component')
-      //       .then(m => m.LogsComponent),
-      // },
-      // {
-      //   path: 'seguridad/sesiones',
-      //   loadComponent: () =>
-      //     import('./private/pages/seguridad/sesiones/sesiones.component')
-      //       .then(m => m.SesionesComponent),
-      // },
+      {
+        path: 'seguridad/logs',
+        loadComponent: () =>
+          import('./private/pages/seguridad/logs/logs-acceso.component')
+            .then(m => m.LogsAccesoComponent),
+      },
+      {
+        path: 'seguridad/sesiones',
+        loadComponent: () =>
+          import('./private/pages/seguridad/sesiones/sesiones.component')
+            .then(m => m.SesionesComponent),
+      },
 
       // // ── Alertas ──────────────────────────────────────────── /alertas
-      // {
-      //   path: 'alertas',
-      //   loadComponent: () =>
-      //     import('./private/pages/alertas/alertas.component')
-      //       .then(m => m.AlertasComponent),
-      // },
+      {
+        path: 'alertas',
+        loadComponent: () =>
+          import('./private/pages/alertas/alertas.component')
+            .then(m => m.AlertasComponent),
+      },
 
       // // ── Auditoría ─────────────────────────────────────────── /auditoria
-      // {
-      //   path: 'auditoria',
-      //   loadComponent: () =>
-      //     import('./private/pages/auditoria/auditoria.component')
-      //       .then(m => m.AuditoriaComponent),
-      // },
+      {
+        path: 'auditoria',
+        loadComponent: () =>
+          import('./private/pages/auditoria/auditoria.component')
+            .then(m => m.AuditoriaComponent),
+      },
 
       // // ── Configuración ─────────────────────────────────────── /configuracion
-      // {
-      //   path: 'configuracion',
-      //   loadComponent: () =>
-      //     import('./private/pages/configuracion/configuracion.component')
-      //       .then(m => m.ConfiguracionComponent),
-      // },
+      {
+        path: 'configuracion',
+        loadComponent: () =>
+          import('./private/pages/configuracion/configuracion.component')
+            .then(m => m.ConfiguracionComponent),
+      },
 
       // Wildcard — cualquier ruta desconocida vuelve al dashboard
       { path: '**', redirectTo: 'dashboard' },

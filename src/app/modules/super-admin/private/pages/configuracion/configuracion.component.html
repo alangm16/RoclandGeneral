@@ -1,0 +1,140 @@
+<div class="page-content fade-in">
+  <div class="config-card">
+    <div class="card-header">
+      <h3 class="card-title">Parámetros del Sistema</h3>
+      <p class="card-subtitle">Configuración de seguridad, expiración de tokens y políticas de bloqueo</p>
+    </div>
+
+    @if (cargando()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else {
+      <form [formGroup]="configuracionForm" (ngSubmit)="guardarConfiguracion()">
+        <div class="row g-4">
+          
+          <!-- Sección: Políticas de bloqueo -->
+          <div class="col-12">
+            <div class="section-title">
+              <i class="bi bi-shield-lock me-2"></i>
+              Políticas de bloqueo
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Intentos fallidos máximos</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="maxIntentosFallidos"
+                     [readonly]="!puedeEditar()">
+              <span class="input-group-text">intentos</span>
+            </div>
+            <small class="text-muted">Número de intentos fallidos antes de bloquear al usuario</small>
+            @if (configuracionForm.get('maxIntentosFallidos')?.invalid && configuracionForm.get('maxIntentosFallidos')?.touched) {
+              <div class="invalid-feedback d-block">
+                Valor entre 1 y 20
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Minutos de bloqueo</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="minutosBloqueo"
+                     [readonly]="!puedeEditar()">
+              <span class="input-group-text">minutos</span>
+            </div>
+            <small class="text-muted">Duración del bloqueo tras superar los intentos fallidos</small>
+            @if (configuracionForm.get('minutosBloqueo')?.invalid && configuracionForm.get('minutosBloqueo')?.touched) {
+              <div class="invalid-feedback d-block">
+                Valor entre 1 y 1440 (24h)
+              </div>
+            }
+          </div>
+
+          <!-- Sección: Expiración de tokens -->
+          <div class="col-12 mt-3">
+            <div class="section-title">
+              <i class="bi bi-clock-history me-2"></i>
+              Expiración de tokens
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Refresh Token (horas)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="expiracionRefreshTokenHoras"
+                     [readonly]="!puedeEditar()">
+              <span class="input-group-text">horas</span>
+            </div>
+            <small class="text-muted">Tiempo de vida del Refresh Token (recomendado 720h = 30 días)</small>
+            @if (configuracionForm.get('expiracionRefreshTokenHoras')?.invalid && configuracionForm.get('expiracionRefreshTokenHoras')?.touched) {
+              <div class="invalid-feedback d-block">
+                Valor entre 1 y 8760 (1 año)
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Access Token (minutos)</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="expiracionAccessTokenMinutos"
+                     [readonly]="!puedeEditar()">
+              <span class="input-group-text">minutos</span>
+            </div>
+            <small class="text-muted">Tiempo de vida del Access Token (recomendado 60 minutos)</small>
+            @if (configuracionForm.get('expiracionAccessTokenMinutos')?.invalid && configuracionForm.get('expiracionAccessTokenMinutos')?.touched) {
+              <div class="invalid-feedback d-block">
+                Valor entre 5 y 1440 (24h)
+              </div>
+            }
+          </div>
+
+          <!-- Sección: Parámetros de seguridad -->
+          <div class="col-12 mt-3">
+            <div class="section-title">
+              <i class="bi bi-qr-code me-2"></i>
+              Autenticación mobile
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch"
+                     formControlName="requiereQRParaMobile"
+                     [disabled]="!puedeEditar()">
+              <label class="form-check-label">
+                Requerir código QR para autenticación mobile
+              </label>
+            </div>
+            <small class="text-muted">Si está activo, los usuarios de aplicaciones móviles deberán escanear un código QR además de credenciales</small>
+          </div>
+
+        </div>
+
+        <!-- Botones de acción -->
+        @if (puedeEditar()) {
+          <div class="action-buttons mt-4 pt-3 border-top">
+            <button type="button" class="btn-rocland btn-secondary me-2" (click)="resetForm()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
+            </button>
+            <button type="submit" class="btn-rocland" [disabled]="configuracionForm.invalid || cargando()">
+              @if (cargando()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              } @else {
+                <i class="bi bi-save me-1"></i>
+              }
+              Guardar cambios
+            </button>
+          </div>
+        } @else {
+          <div class="alert alert-warning mt-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Solo los usuarios con rol <strong>SuperAdmin</strong> pueden modificar la configuración del sistema.
+          </div>
+        }
+      </form>
+    }
+  </div>
+</div>

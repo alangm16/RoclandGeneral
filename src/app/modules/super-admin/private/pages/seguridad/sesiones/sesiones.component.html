@@ -1,0 +1,71 @@
+<div class="page-content fade-in">
+  <div class="sesiones-card">
+    <div class="table-header">
+      <span class="table-title">Sesiones activas</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="sesiones()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('username') {
+            <div class="user-cell">
+              <i class="bi bi-person-circle me-2"></i>
+              {{ item.username }}
+            </div>
+          }
+          @case ('proyectoCodigo') {
+            <span class="text-mono">{{ item.proyectoCodigo || '—' }}</span>
+          }
+          @case ('plataforma') {
+            <span class="plataforma-badge">
+              <i class="bi" [ngClass]="{
+                'bi-globe': item.plataforma === 'Web',
+                'bi-phone': item.plataforma === 'Mobile',
+                'bi-cpu': item.plataforma === 'Desktop'
+              }"></i>
+              {{ item.plataforma }}
+            </span>
+          }
+          @case ('tokenReducido') {
+            <code class="token-hash">{{ item.tokenReducido }}</code>
+          }
+          @case ('fechaCreacion') {
+            <span class="text-mono">{{ formatDateTime(item.fechaCreacion) }}</span>
+          }
+          @case ('fechaExpiracion') {
+            <span class="text-mono">{{ formatDateTime(item.fechaExpiracion) }}</span>
+          }
+          @case ('ipCreacion') {
+            <span class="text-mono">{{ item.ipCreacion || '—' }}</span>
+          }
+          @case ('acciones') {
+            <div class="actions-cell">
+              @if (revocando() === item.id) {
+                <div class="spinner-border spinner-border-sm text-danger" role="status">
+                  <span class="visually-hidden">Revocando...</span>
+                </div>
+              } @else {
+                <button class="btn-ghost btn-sm text-danger" 
+                        (click)="revocarSesion(item)"
+                        title="Revocar sesión">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              }
+            </div>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

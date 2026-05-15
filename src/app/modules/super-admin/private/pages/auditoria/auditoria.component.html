@@ -1,0 +1,48 @@
+<div class="page-content fade-in">
+  <div class="auditoria-card">
+    <div class="table-header">
+      <span class="table-title">Registro de cambios</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="registros()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('fecha') {
+            <span class="text-mono">{{ formatDateTime(item.fecha) }}</span>
+          }
+          @case ('usuarioResponsable') {
+            <span class="fw-semibold">{{ item.usuarioResponsable }}</span>
+          }
+          @case ('accion') {
+            <app-badge
+              [label]="item.accion"
+              [variant]="getAccionVariant(item.accion)">
+            </app-badge>
+          }
+          @case ('nombreEntidad') {
+            <span class="entidad-badge">
+              {{ item.nombreEntidad }}
+            </span>
+          }
+          @case ('entidadAfectada') {
+            <span class="text-muted">{{ item.entidadAfectada }}</span>
+          }
+          @case ('registroId') {
+            <code class="registro-id">{{ item.registroId ?? '—' }}</code>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

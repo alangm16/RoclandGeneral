@@ -1,0 +1,35 @@
+.auditoria-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.entidad-badge {
+  background: var(--surface-alt, #f3f4f6);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: monospace;
+}
+
+.registro-id {
+  background: #f1f3f5;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+}
+
+.text-mono {
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 12px;
+}

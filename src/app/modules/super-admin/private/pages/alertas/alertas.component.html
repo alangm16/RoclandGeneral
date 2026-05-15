@@ -1,0 +1,73 @@
+<div class="page-content fade-in">
+  <div class="alertas-card">
+    <div class="table-header">
+      <span class="table-title">Registro de alertas</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="alertas()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('tipo') {
+            <app-badge
+              [label]="getTipoLabel(item.tipo)"
+              [variant]="getTipoVariant(item.tipo)">
+            </app-badge>
+          }
+          @case ('titulo') {
+            <span class="fw-semibold">{{ item.titulo }}</span>
+          }
+          @case ('mensaje') {
+            <span class="text-muted">{{ item.mensaje }}</span>
+          }
+          @case ('proyectoCodigo') {
+            <span class="text-mono">{{ item.proyectoCodigo || '—' }}</span>
+          }
+          @case ('fecha') {
+            <span class="text-mono">{{ formatDateTime(item.fecha) }}</span>
+          }
+          @case ('resuelta') {
+            <app-badge
+              [label]="item.resuelta ? 'Resuelta' : 'Pendiente'"
+              [variant]="item.resuelta ? 'green' : 'amber'">
+            </app-badge>
+          }
+          @case ('acciones') {
+            <div class="actions-cell">
+              @if (!item.resuelta && puedeResolver()) {
+                @if (resolviendo() === item.id) {
+                  <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Resolviendo...</span>
+                  </div>
+                } @else {
+                  <button class="btn-ghost btn-sm text-success" 
+                          (click)="marcarResuelta(item)"
+                          title="Marcar como resuelta">
+                    <i class="bi bi-check-circle"></i>
+                  </button>
+                }
+              }
+              @if (item.accionUrl) {
+                <button class="btn-ghost btn-sm" 
+                        (click)="irAccion(item)"
+                        title="Ir a la acción">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </button>
+              }
+            </div>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

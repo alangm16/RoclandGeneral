@@ -6,14 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { AdminService } from '../../../services/admin.service';
 import { DataTableColumn, DataTableComponent } from '../../../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
-import { GuardiaResumen, GuardiaUpdateDto } from '../../../models/admin.models';
+import { GuardiaResumen, GuardiaUpdateDto, UsuarioSinPerfil, CrearPerfilRequest } from '../../../models/admin.models';
 
 @Component({
   selector: 'app-guardias',
@@ -23,7 +23,7 @@ import { GuardiaResumen, GuardiaUpdateDto } from '../../../models/admin.models';
     MatDividerModule, ModalComponent, DataTableComponent, BadgeComponent
   ],
   templateUrl: './usuarios.component.html',
-  styleUrls: [],
+  styleUrls: ['./usuarios.component.scss'],
 })
 export class GuardiasComponent implements OnInit, OnDestroy {
   public readonly layoutSvc = inject(LayoutService);
@@ -41,10 +41,16 @@ export class GuardiasComponent implements OnInit, OnDestroy {
 
   guardiaSeleccionado = signal<GuardiaResumen | null>(null);
 
+  mostrarModalImportar = signal(false);
+  usuariosCandidatos = signal<UsuarioSinPerfil[]>([]);
+  usuarioSeleccionado = signal<UsuarioSinPerfil | null>(null);
+  importando = signal(false);
+  formImportar = { numeroEmpleado: '', turno: '', activo: true };
+
   // ── Modal: Editar datos operativos ──
   mostrarModalEditar = signal(false);
   guardandoEditar = signal(false);
-  formEditar = { numeroEmpleado: '', turno: '' };
+  formEditar = { numeroEmpleado: '', turno: '', activo: true };
 
   // ── Columnas ──
   readonly tableColumns: DataTableColumn[] = [
@@ -66,16 +72,18 @@ export class GuardiasComponent implements OnInit, OnDestroy {
   );
 
   ngOnInit(): void {
-    this.layoutSvc.setSubheader({
+      this.layoutSvc.setSubheader({
       title: 'Usuarios',
       showSearch: true,
       searchPlaceholder: 'Buscar por nombre o rol...',
-      showAddButton: false,
+      showAddButton: true,
+      addButtonLabel: 'Importar usuario',
+      addHandler: () => this.abrirModalImportar(),
       actions: [
         {
           label: 'Limpiar',
           icon: 'bi-arrow-counterclockwise',
-          variant: 'stroked' as const,
+          variant: 'stroked',
           handler: () => this.layoutSvc.onSearchInput('')
         },
       ],
@@ -127,6 +135,7 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     this.guardiaSeleccionado.set(guardia);
     this.formEditar.numeroEmpleado = guardia.usuario === 'N/A' ? '' : guardia.usuario;
     this.formEditar.turno = guardia.rol === 'Sin turno' ? '' : guardia.rol;
+    this.formEditar.activo = guardia.activo; 
     this.mostrarModalEditar.set(true);
   }
 
@@ -139,21 +148,66 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     const guardia = this.guardiaSeleccionado();
     if (!guardia) return;
     this.guardandoEditar.set(true);
-
     const dto: GuardiaUpdateDto = {
       numeroEmpleado: this.formEditar.numeroEmpleado || null,
       turno: this.formEditar.turno || null,
     };
+    // Primero actualizar datos operativos
+    this.adminSvc.actualizarGuardia(guardia.id, dto).pipe(
+      switchMap(() => this.adminSvc.cambiarEstadoGuardia(guardia.id, this.formEditar.activo)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.cerrarModalEditar();
+        this.cargarGuardias();
+      },
+      error: () => this.guardandoEditar.set(false),
+    });
+  }
 
-    this.adminSvc.actualizarGuardia(guardia.id, dto)
+  abrirModalImportar(): void {
+    this.usuariosCandidatos.set([]);
+    this.usuarioSeleccionado.set(null);
+    this.formImportar = { numeroEmpleado: '', turno: '', activo: true };
+    this.mostrarModalImportar.set(true);
+    this.cargarCandidatos();
+  }
+
+  cargarCandidatos(): void {
+    this.adminSvc.obtenerUsuariosSinPerfil()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lista => this.usuariosCandidatos.set(lista));
+  }
+
+  onUsuarioSeleccionado(event: any): void {
+    const id = +event.target.value;
+    const usuario = this.usuariosCandidatos().find(u => u.superAdminUsuarioId === id);
+    this.usuarioSeleccionado.set(usuario || null);
+  }
+
+  crearPerfil(): void {
+    const usuario = this.usuarioSeleccionado();
+    if (!usuario) return;
+    this.importando.set(true);
+    const request: CrearPerfilRequest = {
+      superAdminUsuarioId: usuario.superAdminUsuarioId,
+      numeroEmpleado: this.formImportar.numeroEmpleado || null,
+      turno: this.formImportar.turno || null,
+      activo: this.formImportar.activo
+    };
+    this.adminSvc.crearPerfil(request)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.cerrarModalEditar();
+          this.cerrarModalImportar();
           this.cargarGuardias();
-          this.guardandoEditar.set(false);
         },
-        error: () => this.guardandoEditar.set(false),
+        error: () => this.importando.set(false)
       });
+  }
+
+  cerrarModalImportar(): void {
+    this.mostrarModalImportar.set(false);
+    this.usuarioSeleccionado.set(null);
   }
 }

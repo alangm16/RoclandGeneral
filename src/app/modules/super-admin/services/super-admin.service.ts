@@ -219,9 +219,12 @@ export class SuperadminService {
     return this.http.put<void>(`${this.base}/proyectos/${proyectoId}/roles/${rolId}/activar`, {});
   }
 
-  // Vistas del proyecto
-  getVistasProyecto(proyectoId: number): Observable<VistaDto[]> {
-    return this.http.get<VistaDto[]>(`${this.base}/proyectos/${proyectoId}/vistas`);
+  getVistasProyecto(proyectoId: number, incluirInactivas: boolean = false): Observable<VistaDto[]> {
+      let params = new HttpParams();
+      if (incluirInactivas) {
+          params = params.set('incluirInactivas', 'true');
+      }
+      return this.http.get<VistaDto[]>(`${this.base}/proyectos/${proyectoId}/vistas`, { params });
   }
 
   crearVistaProyecto(proyectoId: number, dto: CrearVistaRequest): Observable<VistaDto> {

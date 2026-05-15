@@ -106,6 +106,8 @@ export class ConfiguracionProyectoComponent implements OnInit, OnDestroy {
   modalContextoPadre = signal<VistaTreeNode | null>(null);
   vistaForm: FormGroup;
 
+  mostrarInactivas = signal(false);
+  
   /** Nivel resultante de la vista que se va a crear (1-based para UI). */
   modalNivelResultante = computed(() => {
     const padre = this.modalContextoPadre();
@@ -290,18 +292,28 @@ export class ConfiguracionProyectoComponent implements OnInit, OnDestroy {
   // ── VISTAS (ÁRBOL JERÁRQUICO) ────────────────────────────────────
 
   cargarVistas(): void {
-    this.saSvc.getVistasProyecto(this.proyectoId()!)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (vistas) => {
-          this.vistas.set(vistas);
-          const tree = this.buildVistaTree(vistas);
-          // Expandir todos los nodos por defecto
-          this.expandAll(tree);
-          this.vistaTree.set(tree);
-        },
-        error: () => this.alert.error('No se pudieron cargar las vistas'),
-      });
+      this.cargando.set(true);
+      const incluirInactivas = this.mostrarInactivas(); // ← leer el signal
+      this.saSvc.getVistasProyecto(this.proyectoId()!, incluirInactivas)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (vistas) => {
+            this.vistas.set(vistas);
+            const tree = this.buildVistaTree(vistas);
+            this.expandAll(tree);
+            this.vistaTree.set(tree);
+            this.cargando.set(false);
+          },
+          error: () => {
+            this.cargando.set(false);
+            this.alert.error('No se pudieron cargar las vistas');
+          }
+        });
+  }
+
+  toggleMostrarInactivas(): void {
+      this.mostrarInactivas.update(v => !v);
+      this.cargarVistas();
   }
 
   private buildVistaTree(vistas: VistaDto[]): VistaTreeNode[] {

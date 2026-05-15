@@ -1,0 +1,39 @@
+.checkbox-group {
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--rocland-dark);
+      
+      input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+        accent-color: var(--rocland-green);
+      }
+
+      span {
+        font-size: 0.9rem;
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+
+      button {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    /* Ajuste adicional para el footer del modal (si usas footer, sino usa modal-actions) */
+    ::ng-deep [footer] .modal-actions {
+      margin-top: 0;
+    }

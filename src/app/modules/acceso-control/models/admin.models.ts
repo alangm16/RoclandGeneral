@@ -114,3 +114,19 @@ export interface HistorialPaginado {
   pagina: number;
   porPagina: number;
 }
+
+// Agregar
+export interface UsuarioSinPerfil {
+  superAdminUsuarioId: number;
+  nombreCompleto: string;
+  username: string;
+  rolEnProyecto: string;
+  nivelRol: number;
+}
+
+export interface CrearPerfilRequest {
+  superAdminUsuarioId: number;
+  numeroEmpleado: string | null;
+  turno: string | null;
+  activo: boolean;
+}

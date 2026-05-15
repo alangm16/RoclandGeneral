@@ -1,0 +1,59 @@
+<div class="page-content fade-in">
+  <div class="logs-card">
+    <div class="table-header">
+      <span class="table-title">Registro de accesos</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="logs()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('fecha') {
+            <span class="text-mono">{{ formatDateTime(item.fecha) }}</span>
+          }
+          @case ('usernameUsado') {
+            <span class="fw-semibold">{{ item.usernameUsado }}</span>
+          }
+          @case ('nombreCompleto') {
+            <span class="text-muted">{{ item.nombreCompleto || '—' }}</span>
+          }
+          @case ('proyectoCodigo') {
+            <span class="text-mono">{{ item.proyectoCodigo || '—' }}</span>
+          }
+          @case ('plataforma') {
+            <span class="plataforma-badge">
+              <i class="bi" [ngClass]="{
+                'bi-globe': item.plataforma === 'Web',
+                'bi-phone': item.plataforma === 'Mobile',
+                'bi-cpu': item.plataforma === 'Desktop'
+              }"></i>
+              {{ item.plataforma || '—' }}
+            </span>
+          }
+          @case ('exitoso') {
+            <app-badge
+              [label]="item.exitoso ? 'Exitoso' : 'Fallido'"
+              [variant]="getResultadoVariant(item.exitoso)">
+            </app-badge>
+          }
+          @case ('ipAddress') {
+            <span class="text-mono">{{ item.ipAddress || '—' }}</span>
+          }
+          @case ('detalle') {
+            <span class="text-muted">{{ item.detalle || '—' }}</span>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

@@ -16,7 +16,9 @@ import {
   GuardiasPaginados,
   GuardiaUpdateDto,
   CatalogoItem,
-  CatalogoCreateDto
+  CatalogoCreateDto,
+  UsuarioSinPerfil,
+  CrearPerfilRequest
 } from '../models/admin.models';
 
 @Injectable({ providedIn: 'root' })
@@ -114,5 +116,17 @@ export class AdminService {
 
   exportarPdf(): Observable<Blob> {
     return this.http.get(`${this.base}/admin/exportar/pdf`, { responseType: 'blob' });
+  }
+
+  obtenerUsuariosSinPerfil(): Observable<UsuarioSinPerfil[]> {
+    return this.http.get<UsuarioSinPerfil[]>(`${this.base}/admin/usuarios/sinperfil`);
+  }
+
+  crearPerfil(data: CrearPerfilRequest): Observable<void> {
+    return this.http.post<void>(`${this.base}/admin/usuarios/crearperfil`, data);
+  }
+
+  cambiarEstadoGuardia(id: number, activo: boolean): Observable<void> {
+    return this.http.put<void>(`${this.base}/admin/guardias/${id}/estado`, activo);
   }
 }

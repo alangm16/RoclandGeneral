@@ -86,7 +86,8 @@
       <label class="field-label">Número de Empleado</label>
       <input type="text" class="form-control" [(ngModel)]="formEditar.numeroEmpleado" placeholder="Ej. 12345" />
     </div>
-    <div class="form-group mt-3">
+
+    <div class="form-group">
       <label class="field-label">Turno</label>
       <select class="form-select" [(ngModel)]="formEditar.turno">
         <option value="">Sin turno</option>
@@ -97,9 +98,16 @@
       </select>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 24px;">
-      <button class="btn-rocland btn-secondary" (click)="cerrarModalEditar()" style="flex:1;">Cancelar</button>
-      <button class="btn-rocland" [disabled]="guardandoEditar()" (click)="guardarEdicion()" style="flex:2;">
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="formEditar.activo" />
+        <span>Activo en Acceso Control</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
+      <button class="btn-rocland" [disabled]="guardandoEditar()" (click)="guardarEdicion()">
         @if (guardandoEditar()) {
           <span class="btn-spinner active"></span> Guardando...
         } @else {
@@ -109,4 +117,61 @@
     </div>
   </ng-container>
 
+</app-modal>
+
+<!-- Modal de importación -->
+<app-modal
+  [isOpen]="mostrarModalImportar()"
+  [maxWidth]="'500px'"
+  (closed)="cerrarModalImportar()">
+  <ng-container header>
+    <div class="modal-avatar" style="background: rgba(59,130,246,0.1); border-color: #3B82F6; color: #3B82F6;">
+      <i class="bi bi-person-plus"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Importar usuario desde SuperAdmin</h2>
+      <p class="modal-subtitle">Selecciona un usuario con acceso al proyecto</p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <div class="form-group">
+      <label class="field-label">Usuario a importar</label>
+      <select class="form-select" (change)="onUsuarioSeleccionado($event)">
+        <option value="">-- Seleccione --</option>
+        <option *ngFor="let u of usuariosCandidatos()" [value]="u.superAdminUsuarioId">
+          {{ u.nombreCompleto }} ({{ u.username }}) - {{ u.rolEnProyecto }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="usuarioSeleccionado()">
+      <label class="field-label">Número de Empleado</label>
+      <input type="text" class="form-control" [(ngModel)]="formImportar.numeroEmpleado" />
+    </div>
+
+    <div class="form-group" *ngIf="usuarioSeleccionado()">
+      <label class="field-label">Turno</label>
+      <select class="form-select" [(ngModel)]="formImportar.turno">
+        <option value="">Sin turno</option>
+        <option value="Matutino">Matutino</option>
+        <option value="Vespertino">Vespertino</option>
+        <option value="Nocturno">Nocturno</option>
+        <option value="Mixto">Mixto</option>
+      </select>
+    </div>
+
+    <div class="form-group checkbox-group" *ngIf="usuarioSeleccionado()">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="formImportar.activo" />
+        <span>Activo en Acceso Control</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalImportar()">Cancelar</button>
+      <button class="btn-rocland" [disabled]="!usuarioSeleccionado() || importando()" (click)="crearPerfil()">
+        @if (importando()) { <span class="btn-spinner active"></span> Creando... } @else { <i class="bi bi-check-lg"></i> Crear perfil }
+      </button>
+    </div>
+  </ng-container>
 </app-modal>
