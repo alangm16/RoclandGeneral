@@ -78,7 +78,7 @@ export class AdminService {
   }
 
   actualizarGuardia(id: number, dto: GuardiaUpdateDto): Observable<void> {
-    return this.http.put<void>(`${this.base}/admin/guardias/${id}`, dto);
+    return this.http.put<void>(`${this.base}/admin/guardias/${id}/datos`, dto);
   }
 
   // ── Historial ─────────────────────────────────────────────────────
