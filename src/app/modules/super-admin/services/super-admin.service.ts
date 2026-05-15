@@ -240,10 +240,11 @@ export class SuperadminService {
     return this.http.put<void>(`${this.base}/proyectos/${proyectoId}/vistas/${vistaId}/activar`, {});
   }
 
-  getUsuariosPorProyecto(proyectoId: number, pagina: number = 1, tamanoPagina: number = 20): Observable<PagedResult<UsuarioProyectoDto>> {
+  getUsuariosPorProyecto(proyectoId: number, pagina: number = 1, tamanoPagina: number = 20, busqueda?: string): Observable<PagedResult<UsuarioProyectoDto>> {
     let params = new HttpParams()
       .set('pagina', pagina.toString())
       .set('tamanoPagina', tamanoPagina.toString());
+    if (busqueda) params = params.set('busqueda', busqueda);
     return this.http.get<PagedResult<UsuarioProyectoDto>>(`${this.base}/proyectos/${proyectoId}/usuarios`, { params });
   }
 

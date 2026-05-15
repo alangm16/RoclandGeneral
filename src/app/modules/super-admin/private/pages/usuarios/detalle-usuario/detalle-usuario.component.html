@@ -56,7 +56,7 @@
             </div>
             <div class="du-field">
               <label class="du-label">Proyectos asignados</label>
-              <span class="du-value du-count">{{ usuario()!.proyectos?.length || 0 }}</span>
+              <span class="du-value du-count">{{ usuario()!.proyectos.length || 0 }}</span>
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@
         <div class="du-section-header">
           <div class="du-section-title">
             <i class="bi bi-folder-fill"></i> Proyectos Asignados
-            <span class="du-count-badge">{{ usuario()!.proyectos?.length || 0 }}</span>
+            <span class="du-count-badge">{{ usuario()!.proyectos.length || 0 }}</span>
           </div>
           @if (puedeAdministrar()) {
             <button #btnAsignar class="btn-rocland du-btn-action" (click)="abrirModalAsignar()">

@@ -31,7 +31,7 @@
     @if (modoReorden()) {
       <div class="reorder-banner">
         <i class="bi bi-info-circle-fill me-2"></i>
-        Arrastra las filas para cambiar el orden. Pulsa  <strong> Guardar orden </strong>  para confirmar.
+        Arrastra las filas para cambiar el orden. Pulsa <strong> Guardar orden </strong> para confirmar.
       </div>
     }
 
@@ -94,19 +94,16 @@
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
               <mat-menu #menu="matMenu" class="custom-mat-menu">
-                @if (puedeAdministrar()) {
-                  <button mat-menu-item (click)="abrirModalProyecto(item)">
-                    <i class="bi bi-pencil me-2"></i> Editar App
-                  </button>
-                }
-                <button mat-menu-item (click)="abrirModalVistas(item)">
-                  <i class="bi bi-diagram-3 me-2"></i> Gestionar Vistas
-                </button>
+                <!-- Configuración: editar info, roles y vistas (conf-proyectos) -->
                 @if (puedeAdministrar()) {
                   <button mat-menu-item [routerLink]="['/private/super-admin/proyectos/configuracion', item.id]">
                     <i class="bi bi-gear me-2"></i> Configuración
                   </button>
                 }
+                <button mat-menu-item [routerLink]="['/private/super-admin/proyectos/usuarios', item.id]">
+                  <i class="bi bi-people me-2"></i> Usuarios del proyecto
+                </button>
+                <!-- Activar / Desactivar -->
                 @if (puedeAdministrar()) {
                   <button mat-menu-item (click)="toggleEstadoProyecto(item)">
                     <i class="bi me-2" [ngClass]="item.activo ? 'bi-power' : 'bi-play-circle'"></i>
@@ -193,20 +190,24 @@
         </table>
       </div>
     }
-
   </div>
 </div>
 
-<!-- ── Modal crear / editar proyecto ── -->
-<app-modal [isOpen]="modalProyectoAbierto()" size="md" (closed)="cerrarModalProyecto()">
+<!-- ── Modal crear proyecto ── -->
+<app-modal
+  [isOpen]="modalProyectoAbierto()"
+  [title]="'Nueva Aplicación'"
+  size="lg"
+  (closed)="cerrarModalProyecto()">
+
   <ng-container header>
     <div class="d-flex align-items-center gap-3">
       <div class="modal-avatar">
-        <i class="bi bi-box-fill"></i>
+        <i class="bi bi-plus-circle-fill"></i>
       </div>
-      <div style="min-width:0;">
-        <h2 class="modal-title">{{ editandoProyectoId() ? 'Editar Aplicación' : 'Nueva Aplicación' }}</h2>
-        <p class="modal-subtitle">Ecosistema Rocland</p>
+      <div>
+        <h2 class="modal-title">Nueva Aplicación</h2>
+        <p class="modal-subtitle">Completa los datos para registrar una nueva app en el catálogo.</p>
       </div>
     </div>
   </ng-container>
@@ -233,9 +234,6 @@
         <div class="col-md-6">
           <label class="form-label">Código interno <span class="req">*</span></label>
           <input type="text" class="form-control text-mono" formControlName="codigo" placeholder="acceso-control-web">
-          @if (editandoProyectoId()) {
-            <small class="text-muted">El código no puede modificarse.</small>
-          }
         </div>
 
         <div class="col-md-6">
@@ -283,122 +281,9 @@
       <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalProyecto()">Cancelar</button>
         <button type="submit" class="btn-rocland" [disabled]="proyectoForm.invalid">
-          {{ editandoProyectoId() ? 'Guardar Cambios' : 'Crear Aplicación' }}
+          Crear Aplicación
         </button>
       </div>
     </form>
-  </ng-container>
-</app-modal>
-
-<!-- ── Modal gestor de vistas ── -->
-<app-modal [isOpen]="modalVistasAbierto()" size="lg" (closed)="modalVistasAbierto.set(false)">
-  <ng-container header>
-    <div class="d-flex align-items-center gap-3">
-      <div class="modal-avatar">
-        <i class="bi bi-diagram-3-fill"></i>
-      </div>
-      <div style="min-width:0;">
-        @if (proyectoSeleccionado(); as app) {
-          <h2 class="modal-title">{{ app.nombre }}</h2>
-          <p class="modal-subtitle">
-            <i class="bi bi-code-slash me-1"></i>{{ app.codigo }}
-            <span class="mx-1">·</span>{{ app.plataforma }}
-            <span class="mx-1">·</span>{{ app.vistas.length }} vista(s)
-          </p>
-        }
-      </div>
-    </div>
-  </ng-container>
-
-  <ng-container body>
-    @if (proyectoSeleccionado(); as app) {
-
-      @if (puedeAdministrar()) {
-        <form [formGroup]="vistaForm" (ngSubmit)="agregarVista()" class="vista-form mb-4">
-          <div class="vista-form__title">
-            <i class="bi bi-plus-circle-fill me-2"></i>Registrar nueva vista
-          </div>
-          <div class="row g-2 align-items-end">
-            <div class="col-md-3">
-              <label class="form-label small">Código <span class="req">*</span></label>
-              <input type="text" class="form-control form-control-sm text-mono" formControlName="codigo" placeholder="reportes">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small">Nombre <span class="req">*</span></label>
-              <input type="text" class="form-control form-control-sm" formControlName="nombre" placeholder="Reportes">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small">Ruta (URL) <span class="req">*</span></label>
-              <input type="text" class="form-control form-control-sm text-mono" formControlName="ruta" placeholder="reportes">
-            </div>
-            <div class="col-md-1">
-              <label class="form-label small">Ícono</label>
-              <input type="text" class="form-control form-control-sm" formControlName="icono" placeholder="bi-graph-up">
-            </div>
-            <div class="col-md-1">
-              <label class="form-label small">Orden</label>
-              <input type="number" class="form-control form-control-sm text-center" formControlName="orden">
-            </div>
-            <div class="col-md-1 d-grid">
-              <button type="submit" class="btn-rocland btn-sm" [disabled]="vistaForm.invalid">
-                <i class="bi bi-plus-lg"></i>
-              </button>
-            </div>
-          </div>
-        </form>
-      }
-
-      <div class="vistas-table-wrap">
-        <table class="m-table w-100">
-          <thead>
-            <tr>
-              <th style="width:50px" class="text-center">Ord.</th>
-              <th>Nombre</th>
-              <th>Código</th>
-              <th>Ruta</th>
-              <th style="width:70px" class="text-center">Estado</th>
-              @if (puedeAdministrar()) {
-                <th style="width:60px" class="text-center">Acción</th>
-              }
-            </tr>
-          </thead>
-          <tbody>
-            @if (app.vistas.length === 0) {
-              <tr>
-                <td [attr.colspan]="puedeAdministrar() ? 6 : 5" class="text-center text-muted py-4">
-                  No hay vistas registradas en esta aplicación.
-                </td>
-              </tr>
-            }
-            @for (vista of app.vistas; track vista.id) {
-              <tr>
-                <td class="text-center fw-bold text-muted">{{ vista.orden }}</td>
-                <td class="fw-semibold">
-                  <i class="bi {{ vista.icono || 'bi-file-earmark' }} text-primary me-2"></i>
-                  {{ vista.nombre }}
-                </td>
-                <td class="text-mono text-muted" style="font-size:12px;">{{ vista.codigo }}</td>
-                <td class="text-mono text-muted" style="font-size:12px;">/{{ vista.ruta }}</td>
-                <td class="text-center">
-                  <app-badge
-                    [label]="vista.activo ? 'Activa' : 'Inactiva'"
-                    [variant]="vista.activo ? 'green' : 'red'">
-                  </app-badge>
-                </td>
-                @if (puedeAdministrar()) {
-                  <td class="text-center">
-                    <button class="btn-ghost btn-sm text-danger" title="Eliminar vista"
-                            (click)="eliminarVista(vista.id)">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </td>
-                }
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-    }
   </ng-container>
 </app-modal>

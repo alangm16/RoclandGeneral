@@ -1,0 +1,40 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Registro de delegaciones</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="delegaciones()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('otorgadoPor') {
+            <span class="fw-semibold">{{ item.otorgadoPor }}</span>
+          }
+          @case ('otorgadoA') {
+            {{ item.otorgadoA }}
+          }
+          @case ('proyectoCodigo') {
+            <span class="text-mono">{{ item.proyectoCodigo }}<br><small class="text-muted">{{ item.proyectoNombre }}</small></span>
+          }
+          @case ('rol') {
+            <span class="rol-badge">{{ item.rol }}</span>
+          }
+          @case ('fechaAsignacion') {
+            <span class="text-mono">{{ formatFecha(item.fechaAsignacion) }}</span>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

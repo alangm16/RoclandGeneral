@@ -1,6 +1,5 @@
 <div class="page-content fade-in">
   <div class="usuarios-card">
-    <!-- Contenido principal -->
     <div class="table-header">
       <span class="table-title">
         Usuarios asignados
@@ -23,7 +22,11 @@
     <app-data-table
       [columns]="columnas"
       [data]="usuariosAsignados()"
-      [loading]="cargando()">
+      [loading]="cargando()"
+      [currentPage]="paginacion().pagina"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+      
       <ng-template #cellTemplate let-item let-col="column">
         @switch (col.key) {
           @case ('nombreCompleto') {
@@ -56,39 +59,27 @@
           @case ('acciones') {
             @if (puedeAdministrar()) {
               <div class="actions-cell">
-                <button class="btn-ghost btn-sm" (click)="abrirModalCambiarRol(item)">
-                  <i class="bi bi-arrow-repeat"></i>
+                <button mat-icon-button [matMenuTriggerFor]="menuAcciones" class="btn-ghost btn-sm">
+                  <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <button class="btn-ghost btn-sm text-danger" (click)="revocarAcceso(item)">
-                  <i class="bi bi-person-x"></i>
-                </button>
+                <mat-menu #menuAcciones="matMenu" class="custom-mat-menu">
+                  <button mat-menu-item (click)="abrirModalCambiarRol(item)">
+                    <i class="bi bi-arrow-repeat me-2"></i> Cambiar rol
+                  </button>
+                  <button mat-menu-item (click)="revocarAcceso(item)" class="text-danger">
+                    <i class="bi bi-person-x me-2"></i> Revocar acceso
+                  </button>
+                </mat-menu>
               </div>
             }
           }
         }
       </ng-template>
     </app-data-table>
-
-    <!-- Paginador simple -->
-    @if (paginacion().totalRegistros > paginacion().tamanoPagina) {
-      <div class="pagination-container">
-        <button class="btn-rocland btn-sm btn-secondary"
-                [disabled]="paginacion().pagina === 1"
-                (click)="cambiarPagina(paginacion().pagina - 1)">
-          <i class="bi bi-chevron-left"></i> Anterior
-        </button>
-        <span class="mx-2">Página {{ paginacion().pagina }} de {{ totalPaginas() }}</span>
-        <button class="btn-rocland btn-sm btn-secondary"
-                [disabled]="paginacion().pagina === totalPaginas()"
-                (click)="cambiarPagina(paginacion().pagina + 1)">
-          Siguiente <i class="bi bi-chevron-right"></i>
-        </button>
-      </div>
-    }
   </div>
 </div>
 
-<!-- Modal asignar usuario -->
+<!-- Modal asignar usuario (igual) -->
 <app-modal [isOpen]="modalAsignarAbierto()" size="md" (closed)="cerrarModalAsignar()">
   <ng-container header>
     <div class="modal-avatar">
@@ -135,12 +126,12 @@
   <ng-container body>
     <div class="mb-3">
       <label class="form-label">Nuevo rol *</label>
-      <!-- <select class="form-select" [(ngModel)]="nuevoRolId">
+      <select class="form-select" [value]="nuevoRolId()" (change)="nuevoRolId.set(+$any($event.target).value)">
         <option [value]="null">Seleccione un rol...</option>
         @for (r of rolesDisponibles(); track r.id) {
           <option [value]="r.id">{{ r.nombre }} (Nivel {{ r.nivel }})</option>
         }
-      </select> -->
+      </select>
     </div>
     <div class="d-flex justify-content-end gap-2">
       <button class="btn-rocland btn-secondary" (click)="cerrarModalCambiarRol()">Cancelar</button>

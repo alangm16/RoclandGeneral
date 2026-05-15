@@ -62,19 +62,25 @@ export const SUPER_ADMIN_ROUTES: Routes = [
       },
       {
         // Usuarios del Proyecto → /proyectos/usuarios
-        path: 'proyectos/usuarios',
+        path: 'proyectos/usuarios/:id',
         loadComponent: () =>
           import('./private/pages/proyectos/usuarios/usuarios-proyecto.component')
             .then(m => m.UsuariosProyectoComponent),
       },
+      {
+        path: 'proyectos/delegaciones',
+        loadComponent: () => 
+          import ('./private/pages/proyectos/delegaciones/delegaciones.component')
+            .then(m => m.DelegacionesComponent),
+      },
 
       // // ── Control de Accesos ──────────────────── /control-accesos/vistas-usuario
-      // {
-      //   path: 'control-accesos/vistas-usuario',
-      //   loadComponent: () =>
-      //     import('./private/pages/control-accesos/vistas-usuario.component')
-      //       .then(m => m.VistasUsuarioComponent),
-      // },
+      {
+        path: 'control-accesos/vistas-usuario',
+        loadComponent: () =>
+          import('./private/pages/control-accesos/vistas-usuario.component')
+            .then(m => m.VistasUsuarioComponent),
+      },
 
       // // ── SuperAdmin ──────────────────────────────────────── /superadmin/*
       // {

@@ -31,7 +31,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">Plataforma <span class="req">*</span></label>
-                <select class="form-select" formControlName="plataforma" [disabled]="!puedeAdministrar()">
+                <select class="form-select" formControlName="plataforma" [attr.disabled]="!puedeAdministrar() ? '' : null">
                   <option value="Web">Web</option>
                   <option value="Mobile">Mobile</option>
                   <option value="Desktop">Desktop</option>
@@ -41,13 +41,13 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Versión <span class="req">*</span></label>
+                <label class="form-label">Versión</label>
                 <input type="text" class="form-control text-center text-mono" formControlName="version"
                        [readonly]="!puedeAdministrar()">
               </div>
               <div class="col-md-5">
                 <label class="form-label">Estado <span class="req">*</span></label>
-                <select class="form-select" formControlName="estado" [disabled]="!puedeAdministrar()">
+                <select class="form-select" formControlName="estado" [attr.disabled]="!puedeAdministrar() ? '' : null">
                   <option value="Produccion">Producción</option>
                   <option value="Desarrollo">Desarrollo</option>
                   <option value="Mantenimiento">Mantenimiento</option>
@@ -86,184 +86,194 @@
       <mat-tab label="Roles del Proyecto">
         <div class="tab-content">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4>Catálogo de Roles</h4>
+            <h4 class="titulo-seccion mb-0">Catálogo de Roles</h4>
             @if (puedeAdministrar()) {
-              <button class="btn-rocland btn-sm" (click)="abrirModalRol()">
+              <button class="btn-rocland btn-sm btn-derecha" (click)="abrirModalRol()">
                 <i class="bi bi-plus-lg me-1"></i> Crear rol
               </button>
             }
           </div>
-
-          <app-data-table
-            [columns]="columnasRoles"
-            [data]="roles()"
-            [loading]="cargando()">
-            <ng-template #cellTemplate let-item let-col="column">
-              @switch (col.key) {
-                @case ('nombre') {
-                  {{ item.nombre }}
+          <div class="roles-table-container">
+            <app-data-table
+              [columns]="columnasRoles"
+              [data]="roles()"
+              [loading]="cargando()">
+              <ng-template #cellTemplate let-item let-col="column">
+                @switch (col.key) {
+                  @case ('nombre') {
+                    {{ item.nombre }}
+                  }
+                  @case ('nivel') {
+                    <span class="badge-level">{{ item.nivel }}</span>
+                  }
+                  @case ('descripcion') {
+                    {{ item.descripcion || '—' }}
+                  }
+                  @case ('activo') {
+                    <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'"
+                              [variant]="badgeActivo(item.activo)"></app-badge>
+                  }
+                  @case ('acciones') {
+                    <div class="actions-cell">
+                      @if (puedeAdministrar()) {
+                        <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+                          <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <mat-menu #menu="matMenu" class="custom-mat-menu">
+                          <button mat-menu-item (click)="abrirModalRol(item)">
+                            <i class="bi bi-pencil me-2"></i> Editar
+                          </button>
+                          <button mat-menu-item (click)="toggleActivoRol(item)">
+                            <i class="bi" [ngClass]="item.activo ? 'bi-power' : 'bi-play-circle'"></i>
+                            {{ item.activo ? 'Desactivar' : 'Activar' }}
+                          </button>
+                        </mat-menu>
+                      }
+                    </div>
+                  }
                 }
-                @case ('nivel') {
-                  <span class="badge-level">{{ item.nivel }}</span>
-                }
-                @case ('descripcion') {
-                  {{ item.descripcion || '—' }}
-                }
-                @case ('activo') {
-                  <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'"
-                             [variant]="badgeActivo(item.activo)"></app-badge>
-                }
-                @case ('acciones') {
-                  <div class="actions-cell">
-                    @if (puedeAdministrar()) {
-                      <button class="btn-ghost btn-sm" (click)="abrirModalRol(item)">
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button class="btn-ghost btn-sm" (click)="toggleActivoRol(item)">
-                        <i class="bi" [ngClass]="item.activo ? 'bi-power' : 'bi-play-circle'"></i>
-                      </button>
-                    }
-                  </div>
-                }
-              }
-            </ng-template>
-          </app-data-table>
+              </ng-template>
+            </app-data-table>
+          </div>
         </div>
       </mat-tab>
 
-      <!-- PESTAÑA 3 – VISTAS DEL PROYECTO (TREE + FORMULARIO) -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 3 – VISTAS DEL PROYECTO (ÁRBOL RECURSIVO)           -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
       <mat-tab label="Vistas del Proyecto">
         <div class="tab-content">
-          <!-- FORMULARIO RÁPIDO (CORREGIDO: dentro de <form>) -->
-          @if (puedeAdministrar()) {
-            <form [formGroup]="vistaForm" (ngSubmit)="guardarVista()" class="vista-form mb-4">
-              <div class="vista-form__title">
-                <i class="bi bi-plus-circle-fill me-2"></i>Registrar nueva vista
-              </div>
-              <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                  <label class="form-label small">Código *</label>
-                  <input type="text" class="form-control form-control-sm text-mono" formControlName="codigo">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small">Nombre *</label>
-                  <input type="text" class="form-control form-control-sm" formControlName="nombre">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small">Ruta *</label>
-                  <input type="text" class="form-control form-control-sm text-mono" formControlName="ruta"
-                        [disabled]="vistaForm.get('esContenedor')?.value">
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small">Ícono</label>
-                  <input type="text" class="form-control form-control-sm" formControlName="icono">
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small">Orden</label>
-                  <input type="number" class="form-control form-control-sm text-center" formControlName="orden">
-                </div>
-                <div class="col-md-1 d-grid">
-                  <button type="submit" class="btn-rocland btn-sm" [disabled]="vistaForm.invalid">
-                    <i class="bi bi-plus-lg"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" formControlName="esContenedor"
-                          id="esContenedorFast" (change)="onEsContenedorChange($event)">
-                    <label class="form-check-label" for="esContenedorFast">
-                      Es contenedor (puede tener subvistas)
-                    </label>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <select class="form-select form-select-sm" formControlName="vistaPadreId">
-                    <option [value]="null">— Ninguna (raíz) —</option>
-                    @for (cand of getParentCandidates(); track cand.id) {
-                      <option [value]="cand.id">{{ cand.nombre }} ({{ cand.codigo }})</option>
-                    }
-                  </select>
-                </div>
-              </div>
-            </form>
+
+          <!-- HEADER: título + botón agregar raíz -->
+          <div class="vistas-header">
+            <div>
+              <h4 class="titulo-seccion mb-0">Estructura de Vistas</h4>
+              <small class="text-muted">Máximo 3 niveles de profundidad...</small>
+            </div>
+            @if (puedeAdministrar()) {
+              <button class="btn-rocland btn-sm btn-derecha" (click)="abrirModalVista()">
+                <i class="bi bi-plus-lg me-1"></i> Nueva vista raíz
+              </button>
+            }
+          </div>
+
+          <!-- LEYENDA DE NIVELES -->
+          <div class="nivel-legend">
+            <span class="nivel-chip nivel-0"><i class="bi bi-folder2"></i> Nivel 1 — Sección</span>
+            <span class="nivel-chip nivel-1"><i class="bi bi-diagram-2"></i> Nivel 2 — Módulo</span>
+            <span class="nivel-chip nivel-2"><i class="bi bi-file-earmark"></i> Nivel 3 — Vista</span>
+          </div>
+
+          <!-- ÁRBOL RECURSIVO -->
+          @if (cargando()) {
+            <div class="tree-loading">
+              <i class="bi bi-arrow-repeat spin me-2"></i> Cargando vistas...
+            </div>
+          } @else if (vistaTree().length === 0) {
+            <div class="tree-empty">
+              <i class="bi bi-layout-sidebar fs-2 mb-2 d-block text-muted"></i>
+              <p class="text-muted mb-2">No hay vistas configuradas para este proyecto.</p>
+              @if (puedeAdministrar()) {
+                <button class="btn-rocland btn-sm" (click)="abrirModalVista()">
+                  <i class="bi bi-plus-lg me-1"></i> Agregar primera vista
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="vistas-tree-container">
+              <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: vistaTree(), nivel: 0 }"></ng-container>
+            </div>
           }
 
-          <!-- ÁRBOL DE VISTAS -->
-          <div class="vistas-tree-container">
-            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-              <!-- Nodo hoja (sin hijos) -->
-              <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-                <button mat-icon-button disabled></button>
-                <div class="vista-node">
-                  <i class="bi" [ngClass]="node.esContenedor ? 'bi-folder-fill' : (node.icono || 'bi-file-earmark')"></i>
-                  <span class="vista-name">{{ node.nombre }}</span>
-                  <span class="vista-code text-muted">({{ node.codigo }})</span>
-                  <span class="vista-ruta text-muted">/{{ node.ruta }}</span>
-                  <span class="vista-order">Ord: {{ node.orden }}</span>
-                  <app-badge [label]="node.activo ? 'Activa' : 'Inactiva'"
-                            [variant]="node.activo ? 'green' : 'red'" class="ms-2"></app-badge>
-                  @if (puedeAdministrar()) {
-                    <button class="btn-ghost btn-sm ms-auto" [matMenuTriggerFor]="vistaMenu">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <mat-menu #vistaMenu="matMenu">
-                      <button mat-menu-item (click)="abrirModalVista(node)">
-                        <i class="bi bi-pencil me-2"></i> Editar
-                      </button>
-                      <button mat-menu-item (click)="toggleActivoVista(node)">
-                        <i class="bi" [ngClass]="node.activo ? 'bi-eye-slash' : 'bi-eye'"></i>
-                        {{ node.activo ? 'Desactivar' : 'Activar' }}
-                      </button>
-                      <button mat-menu-item (click)="eliminarVista(node.id)">
-                        <i class="bi bi-trash3 me-2 text-danger"></i> Eliminar
-                      </button>
-                    </mat-menu>
-                  }
-                </div>
-              </mat-tree-node>
+          <!-- TEMPLATE RECURSIVO DEL ÁRBOL -->
+          <ng-template #treeNodeTemplate let-nodes let-nivel="nivel">
+            @for (node of nodes; track node.id) {
+              <div class="tree-node-wrap" [class.tree-node-root]="nivel === 0">
 
-              <!-- Nodo con hijos (contenedor) -->
-              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                <button mat-icon-button matTreeNodeToggle>
-                  <i class="bi" [ngClass]="treeControl.isExpanded(node) ? 'bi-folder2-open' : 'bi-folder2'"></i>
-                </button>
-                <div class="vista-node">
-                  <i class="bi bi-folder-fill"></i>
-                  <span class="vista-name">{{ node.nombre }}</span>
-                  <span class="vista-code text-muted">({{ node.codigo }})</span>
-                  <span class="vista-ruta text-muted">/{{ node.ruta }}</span>
-                  <span class="vista-order">Ord: {{ node.orden }}</span>
-                  <app-badge [label]="node.activo ? 'Activa' : 'Inactiva'"
-                            [variant]="node.activo ? 'green' : 'red'" class="ms-2"></app-badge>
-                  @if (puedeAdministrar()) {
-                    <button class="btn-ghost btn-sm ms-auto" [matMenuTriggerFor]="vistaMenuContainer">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <mat-menu #vistaMenuContainer="matMenu">
-                      <!-- Botón especial para añadir subvista solo si nivel < 2 -->
-                      @if (node.nivel < 2) {
-                        <button mat-menu-item (click)="abrirModalVista(undefined, node.id)">
-                          <i class="bi bi-plus-square me-2"></i> Agregar subvista
-                        </button>
-                      }
-                      <button mat-menu-item (click)="abrirModalVista(node)">
-                        <i class="bi bi-pencil me-2"></i> Editar
-                      </button>
-                      <button mat-menu-item (click)="toggleActivoVista(node)">
-                        <i class="bi" [ngClass]="node.activo ? 'bi-eye-slash' : 'bi-eye'"></i>
-                        {{ node.activo ? 'Desactivar' : 'Activar' }}
-                      </button>
-                      <button mat-menu-item (click)="eliminarVista(node.id)">
-                        <i class="bi bi-trash3 me-2 text-danger"></i> Eliminar
-                      </button>
-                    </mat-menu>
+                <!-- FILA DEL NODO -->
+                <div class="tree-node" [class]="'tree-node--nivel-' + nivel"
+                     [class.tree-node--inactivo]="!node.activo">
+
+                  <!-- Indentación visual -->
+                  @for (i of getIndentArray(nivel); track i) {
+                    <span class="tree-indent"></span>
                   }
+
+                  <!-- Toggle expand (solo si tiene hijos o es contenedor) -->
+                  @if (node.hijos.length > 0) {
+                    <button class="btn-tree-toggle" (click)="toggleNodo(node.id)">
+                      <i class="bi" [ngClass]="expandedNodes.has(node.id) ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                    </button>
+                  } @else {
+                    <span class="tree-toggle-placeholder"></span>
+                  }
+
+                  <!-- Ícono del nodo -->
+                  <span class="tree-node-icon" [class.tree-node-icon--container]="node.esContenedor">
+                    @if (node.esContenedor) {
+                      <i class="bi" [ngClass]="expandedNodes.has(node.id) ? 'bi-folder2-open' : 'bi-folder2'"></i>
+                    } @else {
+                      <i class="bi" [ngClass]="node.icono || 'bi-file-earmark'"></i>
+                    }
+                  </span>
+
+                  <!-- Info del nodo -->
+                  <div class="tree-node-info">
+                    <span class="tree-node-name">{{ node.nombre }}</span>
+                    <span class="tree-node-meta">
+                      <code>{{ node.codigo }}</code>
+                      @if (!node.esContenedor && node.ruta) {
+                        <span class="tree-node-ruta">{{ node.ruta }}</span>
+                      }
+                      @if (node.esContenedor) {
+                        <span class="badge-container-tag">contenedor</span>
+                      }
+                    </span>
+                  </div>
+
+                  <!-- Orden + Estado -->
+                  <div class="tree-node-right">
+                    <span class="tree-order-badge">#{{ node.orden }}</span>
+                    <app-badge [label]="node.activo ? 'Activa' : 'Inactiva'"
+                               [variant]="node.activo ? 'green' : 'red'"></app-badge>
+
+                    <!-- Acciones rápidas inline (solo admin) -->
+                    @if (puedeAdministrar()) {
+                      <button mat-icon-button [matMenuTriggerFor]="menuVista" class="btn-ghost btn-sm">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      <mat-menu #menuVista="matMenu" class="custom-mat-menu">
+                        @if (nivel < 2) {
+                          <button mat-menu-item (click)="abrirModalVista(undefined, node)">
+                            <i class="bi bi-plus-circle me-2"></i> Agregar sub-vista
+                          </button>
+                        }
+                        <button mat-menu-item (click)="abrirModalVista(node)">
+                          <i class="bi bi-pencil me-2"></i> Editar
+                        </button>
+                        <button mat-menu-item (click)="toggleActivoVista(node)">
+                          <i class="bi" [ngClass]="node.activo ? 'bi-eye-slash' : 'bi-eye'"></i>
+                          {{ node.activo ? 'Desactivar' : 'Activar' }}
+                        </button>
+                        <button mat-menu-item (click)="eliminarVista(node.id)" class="text-danger">
+                          <i class="bi bi-trash3 me-2"></i> Eliminar
+                        </button>
+                      </mat-menu>
+                    }
+                  </div>
                 </div>
-              </mat-tree-node>
-            </mat-tree>
-          </div>
+
+                <!-- HIJOS (renderizado recursivo) -->
+                @if (node.hijos.length > 0 && expandedNodes.has(node.id)) {
+                  <div class="tree-children">
+                    <ng-container *ngTemplateOutlet="treeNodeTemplate; context: { $implicit: node.hijos, nivel: nivel + 1 }"></ng-container>
+                  </div>
+                }
+
+              </div>
+            }
+          </ng-template>
+
         </div>
       </mat-tab>
     </mat-tab-group>
@@ -319,54 +329,93 @@
     <div class="modal-avatar">
       <i class="bi bi-layout-sidebar-fill"></i>
     </div>
-    <h2 class="modal-title">{{ editandoVistaId() ? 'Editar vista' : 'Nueva vista' }}</h2>
+    <div>
+      <h2 class="modal-title">{{ editandoVistaId() ? 'Editar vista' : 'Nueva vista' }}</h2>
+      <!-- Breadcrumb de contexto: dónde se está creando esta vista -->
+      @if (modalContextoPadre()) {
+        <p class="modal-subtitle">
+          <i class="bi bi-folder2 me-1"></i>
+          Dentro de: <strong>{{ modalContextoPadre()!.nombre }}</strong>
+          <span class="text-muted ms-1">({{ modalContextoPadre()!.codigo }})</span>
+          <span class="badge-nivel-tag ms-2">Nivel {{ modalNivelResultante() }}</span>
+        </p>
+      } @else if (!editandoVistaId()) {
+        <p class="modal-subtitle text-muted">
+          <i class="bi bi-diagram-3 me-1"></i>
+          Vista raíz (Nivel 1)
+        </p>
+      }
+    </div>
   </ng-container>
   <ng-container body>
     <form [formGroup]="vistaForm" (ngSubmit)="guardarVista()">
       <div class="row g-3">
+
+        <!-- Tipo de vista: contenedor o ruta final -->
+        <div class="col-12">
+          <label class="form-label fw-semibold mb-2">Tipo de vista</label>
+          <div class="vista-tipo-selector">
+            <label class="vista-tipo-option" [class.selected]="!vistaForm.get('esContenedor')?.value">
+              <input type="radio" [value]="false" formControlName="esContenedor"
+                     (change)="onEsContenedorChange(false)">
+              <i class="bi bi-file-earmark-text fs-4"></i>
+              <span class="fw-semibold">Vista final</span>
+              <small class="text-muted">Tiene ruta propia, aparece en el sidebar</small>
+            </label>
+            @if (modalNivelResultante() < 3) {
+              <label class="vista-tipo-option" [class.selected]="vistaForm.get('esContenedor')?.value">
+                <input type="radio" [value]="true" formControlName="esContenedor"
+                       (change)="onEsContenedorChange(true)">
+                <i class="bi bi-folder2 fs-4"></i>
+                <span class="fw-semibold">Contenedor</span>
+                <small class="text-muted">Agrupa sub-vistas, no tiene ruta directa</small>
+              </label>
+            }
+          </div>
+        </div>
+
         <div class="col-md-6">
-          <label class="form-label">Código *</label>
-          <input type="text" class="form-control text-mono" formControlName="codigo">
+          <label class="form-label">Código <span class="req">*</span></label>
+          <input type="text" class="form-control text-mono" formControlName="codigo"
+                 placeholder="ej: DASHBOARD, USUARIOS">
         </div>
         <div class="col-md-6">
-          <label class="form-label">Nombre *</label>
-          <input type="text" class="form-control" formControlName="nombre">
+          <label class="form-label">Nombre <span class="req">*</span></label>
+          <input type="text" class="form-control" formControlName="nombre"
+                 placeholder="ej: Dashboard, Gestión de Usuarios">
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Ruta *</label>
-          <input type="text" class="form-control text-mono" formControlName="ruta" placeholder="ej: /dashboard">
-        </div>
-        <div class="col-md-6">
+
+        @if (!vistaForm.get('esContenedor')?.value) {
+          <div class="col-md-8">
+            <label class="form-label">Ruta <span class="req">*</span></label>
+            <input type="text" class="form-control text-mono" formControlName="ruta"
+                   placeholder="ej: /dashboard, /usuarios/listado">
+          </div>
+        }
+
+        <div class="col-md-4">
           <label class="form-label">Ícono CSS</label>
-          <input type="text" class="form-control" formControlName="icono" placeholder="bi-speedometer2">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi {{ vistaForm.get('icono')?.value || 'bi-file-earmark' }}"></i>
+            </span>
+            <input type="text" class="form-control" formControlName="icono" placeholder="bi-speedometer2">
+          </div>
         </div>
+
         <div class="col-md-4">
           <label class="form-label">Orden</label>
           <input type="number" class="form-control" formControlName="orden" min="1">
         </div>
-        <div class="col-md-4">
-          <label class="form-label">Vista padre (opcional)</label>
-          <select class="form-select" formControlName="vistaPadreId">
-            <option [value]="null">— Ninguna (raíz) —</option>
-            @for (v of vistas(); track v.id) {
-              <option [value]="v.id">{{ v.nombre }} ({{ v.codigo }})</option>
-            }
-          </select>
-        </div>
-        <div class="col-md-4">
-          <div class="form-check mt-4">
-            <input class="form-check-input" type="checkbox" formControlName="esContenedor" id="esContenedor">
-            <label class="form-check-label" for="esContenedor">
-              Es contenedor (agrupa sub-vistas)
-            </label>
-          </div>
-        </div>
-        <div class="col-md-12">
+
+        <div class="col-12">
           <label class="form-label">Descripción</label>
-          <textarea class="form-control" formControlName="descripcion" rows="2"></textarea>
+          <textarea class="form-control" formControlName="descripcion" rows="2"
+                    placeholder="Descripción opcional de esta vista..."></textarea>
         </div>
+
         @if (editandoVistaId()) {
-          <div class="col-md-12">
+          <div class="col-12">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" formControlName="activo" id="activoVista">
               <label class="form-check-label" for="activoVista">Vista activa</label>
@@ -374,6 +423,7 @@
           </div>
         }
       </div>
+
       <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalVista()">Cancelar</button>
         <button type="submit" class="btn-rocland" [disabled]="vistaForm.invalid">

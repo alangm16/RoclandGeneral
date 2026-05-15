@@ -1,0 +1,56 @@
+.vistas-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.selection-area {
+  background: var(--surface-alt, #f8f9fa);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.selection-group {
+  max-width: 400px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.table-vistas {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th, td {
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--border-color, #e9ecef);
+    vertical-align: middle;
+  }
+  
+  th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted, #6c757d);
+  }
+  
+  code {
+    background: var(--code-bg, #f1f3f5);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+  }
+}
+
+.form-switch .form-check-input {
+  width: 2.5em;
+  height: 1.25em;
+  cursor: pointer;
+}

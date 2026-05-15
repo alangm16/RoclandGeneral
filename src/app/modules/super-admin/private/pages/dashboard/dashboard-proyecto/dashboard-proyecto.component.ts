@@ -16,7 +16,7 @@ import {
 @Component({
   selector: 'app-dashboard-proyecto',
   standalone: true,
-  imports: [CommonModule, RouterModule, BadgeComponent, DataTableComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard-proyecto.component.html',
   styleUrls: ['./dashboard-proyecto.component.scss'],
 })
