@@ -88,7 +88,7 @@ export class UsuariosProyectoComponent implements OnInit, OnDestroy {
     { key: 'username', label: 'USUERNAME' },
     { key: 'rol', label: 'ROL' },
     { key: 'nivelRol', label: 'NIVEL', cellClass: 'text-center' },
-    { key: 'activo', label: 'ESTADO', cellClass: 'text-center' },
+    { key: 'activo', label: 'ASIGNACION', cellClass: 'text-center' },
     { key: 'creadoPor', label: 'CREADO POR' },
     { key: 'fechaAsignacion', label: 'FECHA ASIGNACIÓN' },
     { key: 'acciones', label: '', cellClass: 'text-end' }
