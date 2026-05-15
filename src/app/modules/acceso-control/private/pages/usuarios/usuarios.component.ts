@@ -148,16 +148,19 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     const guardia = this.guardiaSeleccionado();
     if (!guardia) return;
     this.guardandoEditar.set(true);
+    
     const dto: GuardiaUpdateDto = {
       numeroEmpleado: this.formEditar.numeroEmpleado || null,
       turno: this.formEditar.turno || null,
     };
+    
     // Primero actualizar datos operativos
     this.adminSvc.actualizarGuardia(guardia.id, dto).pipe(
       switchMap(() => this.adminSvc.cambiarEstadoGuardia(guardia.id, this.formEditar.activo)),
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.guardandoEditar.set(false); // 
         this.cerrarModalEditar();
         this.cargarGuardias();
       },
@@ -189,16 +192,19 @@ export class GuardiasComponent implements OnInit, OnDestroy {
     const usuario = this.usuarioSeleccionado();
     if (!usuario) return;
     this.importando.set(true);
+    
     const request: CrearPerfilRequest = {
       superAdminUsuarioId: usuario.superAdminUsuarioId,
       numeroEmpleado: this.formImportar.numeroEmpleado || null,
       turno: this.formImportar.turno || null,
       activo: this.formImportar.activo
     };
+    
     this.adminSvc.crearPerfil(request)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
+          this.importando.set(false); // 
           this.cerrarModalImportar();
           this.cargarGuardias();
         },
@@ -209,5 +215,7 @@ export class GuardiasComponent implements OnInit, OnDestroy {
   cerrarModalImportar(): void {
     this.mostrarModalImportar.set(false);
     this.usuarioSeleccionado.set(null);
+    this.guardandoEditar.set(false);
+    this.importando.set(false);
   }
 }

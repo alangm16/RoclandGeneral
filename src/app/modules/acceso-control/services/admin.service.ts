@@ -127,6 +127,6 @@ export class AdminService {
   }
 
   cambiarEstadoGuardia(id: number, activo: boolean): Observable<void> {
-    return this.http.put<void>(`${this.base}/admin/guardias/${id}/estado`, activo);
+    return this.http.put<void>(`${this.base}/admin/guardias/${id}/toggle-estado`, activo);
   }
 }
