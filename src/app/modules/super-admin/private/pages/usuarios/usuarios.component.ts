@@ -71,6 +71,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       username: ['', Validators.required],
       email: [''],
       password: [''],
+      qrcode: ['']
     });
   }
 
@@ -213,7 +214,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
     const request: ActualizarUsuarioRequest = {
       nombreCompleto: formValue.nombreCompleto,
       email: formValue.email ?? null,
-      password: formValue.password || null 
+      password: formValue.password || null,
+      qrcode: formValue.qrcode || null 
     };
 
     const accion$: Observable<void> = esEdicion
@@ -223,6 +225,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
           username: formValue.username,
           email: formValue.email ?? null,
           password: formValue.password,
+          qrcode: formValue.qrcode ?? null
         }).pipe(map(() => undefined));
 
     accion$.pipe(takeUntil(this.destroy$)).subscribe({

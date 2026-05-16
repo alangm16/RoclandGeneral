@@ -114,11 +114,16 @@
           <label class="form-label">Correo Electrónico</label>
           <input type="email" class="form-control" formControlName="email">
         </div>
-        <!-- Dentro del formulario, después del campo de email -->
-        @if (!editandoId()) {
+        @if (!editandoId() && puedeAdministrar()) {
           <div class="col-12">
             <label class="form-label">Contraseña <span class="req">*</span></label>
             <input type="password" class="form-control" formControlName="password" autocomplete="new-password">
+          </div>
+        }
+        @if (!editandoId() && puedeAdministrar()) {
+          <div class="col-12">
+            <label class="form-label">QRCode</label>
+            <input type="password" class="form-control" formControlName="qrcode" autocomplete="new-password">
           </div>
         }
         @if (editandoId() && puedeAdministrar()) {
@@ -126,6 +131,13 @@
             <label class="form-label">Nueva Contraseña (opcional)</label>
             <input type="password" class="form-control" formControlName="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiar">
             <small class="text-muted">Solo si necesita restablecer la contraseña.</small>
+          </div>
+        }
+        @if (editandoId() && puedeAdministrar()) {
+          <div class="col-12">
+            <label class="form-label">Nuevo QRCode (opcional)</label>
+            <input type="password" class="form-control" formControlName="qrcode" autocomplete="new-password" placeholder="Dejar vacío para no cambiar">
+            <small class="text-muted">Solo si necesita restablecer el qrcode</small>
           </div>
         }
       </div>

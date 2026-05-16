@@ -369,12 +369,14 @@ export interface CrearUsuarioRequest {
   username: string;
   email?: string;
   password: string;
+  qrcode?: string;
 }
 
 export interface ActualizarUsuarioRequest {
   nombreCompleto: string;
   email?: string | null;
   password?: string | null;
+  qrcode?: string | null;
 }
 
 export interface AsignarProyectoRolRequest {
