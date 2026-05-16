@@ -225,7 +225,7 @@ export class VisitanteFormComponent implements OnInit, OnDestroy {
           }),
         };
         sessionStorage.setItem('rocland_confirm', JSON.stringify(confirmacion));
-        this.router.navigate(['/public/acceso-control-web/confirmacion']);
+        this.router.navigate(['/public/acceso-control/confirmacion']);
       },
       error: (err: Error) => {
         this.errorMsg = err.message;
