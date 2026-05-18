@@ -44,7 +44,7 @@
           }
 
           @case ('ultimaVisita') {
-            {{ (item.fechaUltimaVisita | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro previo' }}
+            {{ (item.fechaUltimaVisita | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Sin registro previo' }}
           }
 
           @case ('acciones') {
@@ -139,10 +139,10 @@
                 </td>
                 <td>{{ h.motivo }}</td>
                 <td class="text-mono text-muted">
-                  {{ (h.fechaEntrada | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Sin registro' }}
+                  {{ (h.fechaEntrada | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Sin registro' }}
                 </td>
                 <td class="text-mono text-muted">
-                  {{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'-0600') || 'Aún adentro' }}
+                  {{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Aún adentro' }}
                 </td>
                 <td>
                   <app-badge [label]="h.estadoAcceso" />

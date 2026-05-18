@@ -316,8 +316,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  fmtHora(iso: string): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  fmtHora(fechaIso: string): string {
+    if (!fechaIso) return 'Sin registro';
+
+    const fechaSinZ = fechaIso.replace('Z', '');
+
+    const fecha = new Date(fechaSinZ);
+    
+    return fecha.toLocaleTimeString('es-MX', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true 
+    });
   }
 }

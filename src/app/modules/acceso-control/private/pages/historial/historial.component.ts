@@ -197,7 +197,8 @@ export class HistorialComponent implements OnInit, OnDestroy {
   // ── Helpers de formateo ────────────────────────────────────────
   formatDateTime(iso: string): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleString('es-MX', {
+    const isoLocal = iso.replace('Z', '');
+    return new Date(isoLocal).toLocaleString('es-MX', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
