@@ -1,0 +1,72 @@
+<div class="page-content fade-in">
+  <!-- Mensaje de ayuda -->
+  <div class="info-message">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>Selecciona un rango de fechas para ver el resumen de relevos. Los KPIs (total relevos, completados e incidencias) se calculan sobre todo el período. Puedes exportar los datos a CSV.</span>
+  </div>
+
+  <!-- Tarjetas de KPIs -->
+  <div class="dashboard-kpi-grid mb-4">
+    <div class="dashboard-kpi-card blue">
+      <div class="dashboard-kpi-icon"><i class="bi bi-calendar-week"></i></div>
+      <div class="dashboard-kpi-content">
+        <div class="dashboard-kpi-label">Total relevos</div>
+        <div class="dashboard-kpi-value">{{ totalRelevos() }}</div>
+        <div class="dashboard-kpi-sub">en el período</div>
+      </div>
+    </div>
+    <div class="dashboard-kpi-card green">
+      <div class="dashboard-kpi-icon"><i class="bi bi-check-circle"></i></div>
+      <div class="dashboard-kpi-content">
+        <div class="dashboard-kpi-label">Completados</div>
+        <div class="dashboard-kpi-value">{{ completados() }}</div>
+        <div class="dashboard-kpi-sub">turnos finalizados</div>
+      </div>
+    </div>
+    <div class="dashboard-kpi-card red">
+      <div class="dashboard-kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
+      <div class="dashboard-kpi-content">
+        <div class="dashboard-kpi-label">Incidencias</div>
+        <div class="dashboard-kpi-value">{{ totalIncidencias() }}</div>
+        <div class="dashboard-kpi-sub">registradas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de relevos (paginada) -->
+  <div class="section-card">
+    <div class="card-header">
+      <span class="fw-bold">Listado de relevos</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+    <div class="card-body p-0">
+      <app-data-table
+        [columns]="columnas"
+        [data]="relevos()"
+        [loading]="cargando()"
+        [currentPage]="paginaActual()"
+        [totalPages]="totalPaginas()"
+        (pageChange)="cambiarPagina($event)">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('fecha') {
+              <span class="text-mono">{{ formatFecha(item.fecha) }}</span>
+            }
+            @case ('estado') {
+              <app-badge [label]="item.estado" [variant]="getEstadoVariant(item.estado)"></app-badge>
+            }
+            @case ('totalIncidenciasAbiertas') {
+              <span [class.text-danger]="item.totalIncidenciasAbiertas > 0">{{ item.totalIncidenciasAbiertas }}</span>
+            }
+            @case ('totalIncidenciasResueltas') {
+              <span>{{ item.totalIncidenciasResueltas }}</span>
+            }
+            @default {
+              {{ item[col.key] ?? '—' }}
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+  </div>
+</div>

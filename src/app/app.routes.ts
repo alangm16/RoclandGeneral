@@ -35,5 +35,12 @@ export const routes: Routes = [
     data: { proyectoCodigo: 'acceso-control' },
     loadChildren: () => import('./modules/acceso-control/acceso-control.routes')
       .then(m => m.ACCESO_CONTROL_ROUTES)
+  },
+  {
+    path: 'private/guardia-relevo',
+    canActivate: [authGuard, proyectoGuard],
+    data: { proyectoCodigo : 'guardia-relevo' },
+    loadChildren: () => import('./modules/guardia-relevo/guardia-relevo.routes')
+      .then(m => m.GUARDIA_RELEVO_ROUTES)
   }
 ];

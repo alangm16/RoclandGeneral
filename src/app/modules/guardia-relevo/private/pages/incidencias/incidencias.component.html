@@ -1,0 +1,116 @@
+<div class="page-content fade-in">
+  <div class="section-card">
+    <div class="card-header">
+      <span class="fw-bold">Listado de incidencias</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+    <div class="card-body p-0">
+      <app-data-table
+        [columns]="columnas"
+        [data]="incidencias()"
+        [loading]="cargando()"
+        [currentPage]="paginaActual()"
+        [totalPages]="totalPaginas()"
+        (pageChange)="cambiarPagina($event)">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('fechaRelevo') {
+              <span class="text-mono">{{ formatFecha(item.fechaRelevo) }}</span>
+            }
+            @case ('tipoOrigen') {
+              <app-badge [label]="item.tipoOrigen" [variant]="getTipoVariant(item.tipoOrigen)"></app-badge>
+            }
+            @case ('estado') {
+              <app-badge [label]="item.estado" [variant]="getEstadoVariant(item.estado)"></app-badge>
+            }
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="verDetalle(item.id)">
+                  <i class="bi bi-eye me-2"></i> Ver detalle
+                </button>
+                @if (item.estado === 'Abierta') {
+                  <button mat-menu-item (click)="abrirModalResolver(item.id)">
+                    <i class="bi bi-check-circle me-2"></i> Resolver
+                  </button>
+                }
+              </mat-menu>
+            }
+            @default {
+              {{ item[col.key] ?? '—' }}
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de detalle de incidencia -->
+<app-modal [isOpen]="modalDetalleAbierto()" size="lg" (closed)="cerrarModalDetalle()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Detalle de incidencia</h2>
+      <p class="modal-subtitle">{{ incidenciaDetalle()?.nombrePunto }} - {{ incidenciaDetalle()?.tipoOrigen }}</p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    @if (cargandoDetalle()) {
+      <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+    } @else if (incidenciaDetalle(); as inc) {
+      <div class="row g-3">
+        <div class="col-12">
+          <p><strong>Descripción:</strong> {{ inc.descripcion || 'Sin descripción' }}</p>
+        </div>
+        @if (inc.fotoBase64) {
+          <div class="col-12">
+            <strong>Foto:</strong>
+            <img [src]="'data:' + inc.mimeType + ';base64,' + inc.fotoBase64" class="img-fluid border mt-1" style="max-width: 300px;">
+          </div>
+        }
+        @if (inc.estado === 'Resuelta') {
+          <div class="col-12">
+            <hr>
+            <p><strong>Resuelta por:</strong> {{ inc.resueltaPorNombre }}</p>
+            <p><strong>Nota de resolución:</strong> {{ inc.notaResolucion }}</p>
+            <p><strong>Fecha resolución:</strong> {{ inc.fechaResolucion | date:'short' }}</p>
+          </div>
+        }
+      </div>
+    }
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="cerrarModalDetalle()">Cerrar</button>
+  </ng-container>
+</app-modal>
+
+<!-- Modal para resolver incidencia -->
+<app-modal [isOpen]="modalResolverAbierto()" size="sm" (closed)="modalResolverAbierto.set(false)">
+  <ng-container header>
+    <h2 class="modal-title">Resolver incidencia</h2>
+  </ng-container>
+  <ng-container body>
+    <div class="mb-3">
+      <label class="form-label">Responsable</label>
+      <select class="form-select" [(ngModel)]="resolverPorId">
+        <option [ngValue]="null">Selecciona un guardia...</option>
+        @for (p of perfilesDisponibles(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Nota de resolución</label>
+      <textarea class="form-control" rows="3" [(ngModel)]="resolverNota" placeholder="Explica cómo se resolvió..."></textarea>
+    </div>
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="modalResolverAbierto.set(false)">Cancelar</button>
+    <button class="btn-rocland" (click)="confirmarResolver()">Resolver</button>
+  </ng-container>
+</app-modal>

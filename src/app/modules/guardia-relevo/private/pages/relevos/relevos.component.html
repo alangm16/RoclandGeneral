@@ -1,0 +1,403 @@
+<div class="page-content fade-in">
+  <!-- Mensaje de ayuda -->
+  <div class="info-message">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>Aquí puedes ver los relevos del día actual y el historial completo. Usa los filtros para buscar por fecha, turno o estado. Los supervisores y gerentes pueden cambiar el estado de los relevos y asignar guardias manualmente.</span>
+  </div>
+
+  <!-- Selector de fecha rápida y tarjetas de relevos del día -->
+  <div class="section-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h5 class="m-0 fw-bold">Relevos del día</h5>
+      <div class="d-flex gap-2 align-items-center">
+        <div class="btn-group btn-group-sm">
+          <button class="btn-rocland btn-sm" (click)="setFechaRapida('hoy')">Hoy</button>
+          <button class="btn-rocland btn-sm" (click)="setFechaRapida('ayer')">Ayer</button>
+          <button class="btn-rocland btn-sm" (click)="setFechaRapida('semana')">Esta semana</button>
+        </div>
+        <label class="form-label mb-0">Fecha:</label>
+        <input type="date" class="form-control w-auto" [value]="fechaSeleccionada()" (change)="cambiarFecha($event)">
+        @if (puedeAdministrar()) {
+          <button class="btn-rocland btn-sm" (click)="abrirModalCrearRelevo()">
+            <i class="bi bi-plus-lg me-1"></i> Crear relevo
+          </button>
+        }
+      </div>
+    </div>
+    <div class="card-body p-3">
+      @if (cargandoTarjetas()) {
+        <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+      } @else {
+        <div class="row g-3">
+          <!-- Turno Diurno -->
+          <div class="col-md-6">
+            <div class="card-relevo">
+              <div class="card-relevo-header">
+                <span class="fw-bold">Turno Diurno</span>
+                @if (relevoDiurno(); as rel) {
+                  <app-badge [label]="rel.estado" [variant]="getEstadoVariant(rel.estado)"></app-badge>
+                } @else {
+                  <app-badge label="Sin relevo" variant="gray"></app-badge>
+                }
+              </div>
+              @if (relevoDiurno(); as rel) {
+                <div class="card-relevo-body">
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="text-muted small">Saliente</div>
+                      <div class="fw-semibold">{{ rel.saliente?.nombreGuardia || '—' }}</div>
+                      <div class="small">{{ rel.saliente?.estado || 'Pendiente' }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">Entrante</div>
+                      <div class="fw-semibold">{{ rel.entrante?.nombreGuardia || '—' }}</div>
+                      <div class="small">{{ rel.entrante?.estado || 'Pendiente' }}</div>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar bg-success" role="progressbar" [style.width.%]="((rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0))"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1 small">
+                      <span>OK: {{ (rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0) }}</span>
+                      <span>No OK: {{ (rel.saliente?.totalNoOk ?? 0) + (rel.entrante?.totalNoOk ?? 0) }}</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 text-center">
+                    <button class="btn-rocland btn-sm" (click)="verDetalle(rel.relevoId)">
+                      <i class="bi bi-eye me-1"></i> Ver detalle
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="card-relevo-body text-center text-muted py-3">No hay relevo programado para esta fecha</div>
+              }
+            </div>
+          </div>
+          <!-- Turno Nocturno -->
+          <div class="col-md-6">
+            <div class="card-relevo">
+              <div class="card-relevo-header">
+                <span class="fw-bold">Turno Nocturno</span>
+                @if (relevoNocturno(); as rel) {
+                  <app-badge [label]="rel.estado" [variant]="getEstadoVariant(rel.estado)"></app-badge>
+                } @else {
+                  <app-badge label="Sin relevo" variant="gray"></app-badge>
+                }
+              </div>
+              @if (relevoNocturno(); as rel) {
+                <div class="card-relevo-body">
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="text-muted small">Saliente</div>
+                      <div class="fw-semibold">{{ rel.saliente?.nombreGuardia || '—' }}</div>
+                      <div class="small">{{ rel.saliente?.estado || 'Pendiente' }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted small">Entrante</div>
+                      <div class="fw-semibold">{{ rel.entrante?.nombreGuardia || '—' }}</div>
+                      <div class="small">{{ rel.entrante?.estado || 'Pendiente' }}</div>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar bg-success" role="progressbar" [style.width.%]="((rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0))"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1 small">
+                      <span>OK: {{ (rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0) }}</span>
+                      <span>No OK: {{ (rel.saliente?.totalNoOk ?? 0) + (rel.entrante?.totalNoOk ?? 0) }}</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 text-center">
+                    <button class="btn-rocland btn-sm" (click)="verDetalle(rel.relevoId)">
+                      <i class="bi bi-eye me-1"></i> Ver detalle
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="card-relevo-body text-center text-muted py-3">No hay relevo programado para esta fecha</div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Tabla de historial de relevos -->
+  <div class="section-card">
+    <div class="card-header">
+      <span class="fw-bold">Historial de relevos</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+    <div class="card-body p-0">
+      <app-data-table
+        [columns]="columnas"
+        [data]="relevos()"
+        [loading]="cargandoTabla()"
+        [currentPage]="paginaActual()"
+        [totalPages]="totalPaginas()"
+        (pageChange)="cambiarPagina($event)">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('fecha') {
+              <span class="text-mono">{{ formatFecha(item.fecha) }}</span>
+            }
+            @case ('estado') {
+              <app-badge [label]="item.estado" [variant]="getEstadoVariant(item.estado)"></app-badge>
+            }
+            @case ('totalIncidenciasAbiertas') {
+              <span [class.text-danger]="item.totalIncidenciasAbiertas > 0">{{ item.totalIncidenciasAbiertas }}</span>
+            }
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="verDetalle(item.id)">
+                  <i class="bi bi-eye me-2"></i> Ver detalle
+                </button>
+                @if (puedeAdministrar()) {
+                  <button mat-menu-item (click)="abrirModalEstado(item.id, item.estado)">
+                    <i class="bi bi-pencil-square me-2"></i> Cambiar estado
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="abrirModalAsignacion(item.id, 'Saliente')" [disabled]="!!item.nombreSaliente">
+                    <i class="bi bi-person-up me-2"></i> Asignar saliente
+                  </button>
+                  <button mat-menu-item (click)="abrirModalAsignacion(item.id, 'Entrante')" [disabled]="!!item.nombreEntrante">
+                    <i class="bi bi-person-down me-2"></i> Asignar entrante
+                  </button>
+                }
+              </mat-menu>
+            }
+            @default {
+              {{ item[col.key] ?? '—' }}
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DETALLE DEL RELEVO (con pestañas) -->
+<app-modal [isOpen]="modalAbierto()" size="lg" (closed)="cerrarModal()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-calendar-check-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Detalle del relevo</h2>
+      <p class="modal-subtitle">
+        {{ relevoDetalle()?.nombreTurno }} - {{ formatFecha(relevoDetalle()?.fecha || '') }}
+      </p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    @if (cargandoDetalle()) {
+      <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+    } @else if (relevoDetalle(); as detalle) {
+      <mat-tab-group>
+        <mat-tab label="Participantes">
+          <div class="row g-3 p-3">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">Guardia saliente</div>
+                <div class="card-body">
+                  <div><strong>{{ detalle.saliente?.nombreGuardia || 'No asignado' }}</strong></div>
+                  <div class="text-muted small">Estado: {{ detalle.saliente?.estado || '—' }}</div>
+                  <div>Inicio: {{ detalle.saliente?.fechaInicio | date:'short' }}</div>
+                  <div>Fin: {{ detalle.saliente?.fechaFin | date:'short' }}</div>
+                  @if (detalle.saliente?.observaciones) {
+                    <div class="mt-2"><strong>Observaciones:</strong> {{ detalle.saliente?.observaciones }}</div>
+                  }
+                  @if (detalle.saliente?.firmaBase64) {
+                    <div class="mt-2"><strong>Firma:</strong><br>
+                      <img [src]="'data:image/png;base64,' + detalle.saliente!.firmaBase64!" width="150" class="border mt-1">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">Guardia entrante</div>
+                <div class="card-body">
+                  <div><strong>{{ detalle.entrante?.nombreGuardia || 'No asignado' }}</strong></div>
+                  <div class="text-muted small">Estado: {{ detalle.entrante?.estado || '—' }}</div>
+                  <div>Inicio: {{ detalle.entrante?.fechaInicio | date:'short' }}</div>
+                  <div>Fin: {{ detalle.entrante?.fechaFin | date:'short' }}</div>
+                  @if (detalle.entrante?.observaciones) {
+                    <div class="mt-2"><strong>Observaciones:</strong> {{ detalle.entrante?.observaciones }}</div>
+                  }
+                  @if (detalle.entrante?.firmaBase64) {
+                    <div class="mt-2"><strong>Firma:</strong><br>
+                      <img [src]="'data:image/png;base64,' + detalle.entrante!.firmaBase64!" width="150" class="border mt-1">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Checklist">
+          <div class="p-3">
+            @if ((detalle.saliente?.respuestas?.length || detalle.entrante?.respuestas?.length)) {
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Punto</th>
+                      <th>Saliente</th>
+                      <th>Entrante</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (punto of detalle.saliente?.respuestas || []; track punto.puntoId) {
+                      <tr>
+                        <td>{{ punto.nombrePunto }}</td>
+                        <td>
+                          <span [class.text-success]="punto.respuesta" [class.text-danger]="!punto.respuesta">
+                            {{ punto.respuesta ? 'OK' : 'No OK' }}
+                          </span>
+                          @if (punto.comentario) { <br><small>{{ punto.comentario }}</small> }
+                        </td>
+                        <td>
+                          @if (detalle.entrante?.respuestas?.find(r => r.puntoId === punto.puntoId); as ent) {
+                            <span [class.text-success]="ent.respuesta" [class.text-danger]="!ent.respuesta">
+                              {{ ent.respuesta ? 'OK' : 'No OK' }}
+                            </span>
+                            @if (ent.comentario) { <br><small>{{ ent.comentario }}</small> }
+                          } @else { — }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="text-muted text-center py-3">No hay respuestas de checklist registradas.</div>
+            }
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Incidencias">
+          <div class="p-3">
+            @if (detalle.incidencias.length) {
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Punto</th>
+                      <th>Tipo</th>
+                      <th>Descripción</th>
+                      <th>Estado</th>
+                      <th>Resolución</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (inc of detalle.incidencias; track inc.id) {
+                      <tr>
+                        <td>{{ inc.nombrePunto }}</td>
+                        <td>{{ inc.tipoOrigen }}</td>
+                        <td>{{ inc.descripcion }}</td>
+                        <td>
+                          <app-badge [label]="inc.estado" [variant]="inc.estado === 'Resuelta' ? 'green' : 'red'"></app-badge>
+                        </td>
+                        <td>
+                          @if (inc.estado === 'Resuelta') {
+                            <div><small>{{ inc.notaResolucion }}</small></div>
+                            <div><small>Por: {{ inc.resueltaPorNombre }} - {{ inc.fechaResolucion | date:'short' }}</small></div>
+                          } @else { — }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="text-muted text-center py-3">No hay incidencias asociadas a este relevo.</div>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    }
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="cerrarModal()">Cerrar</button>
+  </ng-container>
+</app-modal>
+
+<!-- MODAL CAMBIAR ESTADO -->
+<app-modal [isOpen]="modalEstadoAbierto()" size="sm" (closed)="modalEstadoAbierto.set(false)">
+  <ng-container header>
+    <h2 class="modal-title">Cambiar estado del relevo</h2>
+  </ng-container>
+  <ng-container body>
+    <div class="mb-3">
+      <label class="form-label">Nuevo estado</label>
+      <select class="form-select" [(ngModel)]="estadoSeleccionado">
+        <option value="Pendiente">Pendiente</option>
+        <option value="EnCurso">En curso</option>
+        <option value="Completado">Completado</option>
+        <option value="Incompleto">Incompleto</option>
+      </select>
+    </div>
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="modalEstadoAbierto.set(false)">Cancelar</button>
+    <button class="btn-rocland" (click)="confirmarCambioEstado()">Guardar</button>
+  </ng-container>
+</app-modal>
+
+<!-- MODAL ASIGNAR GUARDIA -->
+<app-modal [isOpen]="modalAsignacionAbierto()" size="sm" (closed)="modalAsignacionAbierto.set(false)">
+  <ng-container header>
+    <h2 class="modal-title">Asignar guardia como {{ asignacionRol() }}</h2>
+  </ng-container>
+  <ng-container body>
+    <div class="mb-3">
+      <label class="form-label">Guardia</label>
+      <select class="form-select" [(ngModel)]="asignacionPerfilId">
+        <option [ngValue]="null">Selecciona...</option>
+        @for (p of perfilesDisponibles(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nombre }}</option>
+        }
+      </select>
+    </div>
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="modalAsignacionAbierto.set(false)">Cancelar</button>
+    <button class="btn-rocland" (click)="guardarAsignacion()">Asignar</button>
+  </ng-container>
+</app-modal>
+
+<!-- MODAL CREAR RELEVO MANUAL -->
+<app-modal [isOpen]="modalCrearRelevoAbierto()" size="sm" (closed)="cerrarModalCrearRelevo()">
+  <ng-container header>
+    <h2 class="modal-title">Crear nuevo relevo</h2>
+  </ng-container>
+  <ng-container body>
+    <form (ngSubmit)="crearRelevo()">
+      <div class="mb-3">
+        <label class="form-label">Turno</label>
+        <select class="form-select" [(ngModel)]="nuevoRelevoTurnoId" name="turno">
+          <option [ngValue]="null">Selecciona un turno...</option>
+          @for (t of turnosOptions(); track t.value) {
+            <option [ngValue]="+t.value">{{ t.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Fecha</label>
+        <input type="date" class="form-control" [(ngModel)]="nuevoRelevoFecha" name="fecha">
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalCrearRelevo()">Cancelar</button>
+        <button type="submit" class="btn-rocland">Crear</button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

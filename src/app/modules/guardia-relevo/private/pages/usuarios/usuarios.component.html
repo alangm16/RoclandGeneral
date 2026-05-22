@@ -1,0 +1,194 @@
+<div class="page-content fade-in">
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Usuarios del sistema</span>
+      <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="perfiles()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('nombreCompleto') {
+            <div class="user-cell">
+              <div class="user-avatar-sm">{{ item.nombreCompleto.charAt(0) }}</div>
+              <div class="fw-semibold">{{ item.nombreCompleto }}</div>
+            </div>
+          }
+          @case ('numeroEmpleado') {
+            <span class="text-mono">{{ item.numeroEmpleado || '—' }}</span>
+          }
+          @case ('turno') {
+            {{ formatTurno(item.turno) }}
+          }
+          @case ('activo') {
+            <app-badge
+              [label]="item.activo ? 'Activo' : 'Inactivo'"
+              [variant]="getEstadoVariant(item.activo)">
+            </app-badge>
+          }
+          @case ('acciones') {
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="btn-ghost btn-sm">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="editarPerfil(item)">
+                <i class="bi bi-pencil me-2"></i> Editar datos operativos
+              </button>
+            </mat-menu>
+          }
+          @default { {{ item[col.key] ?? '—' }} }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>
+
+<!-- Modal para editar perfil -->
+<app-modal
+  [isOpen]="mostrarModalEditar()"
+  size="sm"
+  (closed)="cerrarModalEditar()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-pencil"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Editar datos operativos</h2>
+      <p class="modal-subtitle">{{ perfilSeleccionado()?.nombreCompleto }}</p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <div class="form-group">
+      <label class="field-label">Número de empleado</label>
+      <input type="text" class="form-control" [(ngModel)]="formEditar.numeroEmpleado" placeholder="Ej. 12345">
+    </div>
+    <div class="form-group">
+      <label class="field-label">Turno base</label>
+      <select class="form-select" [(ngModel)]="formEditar.turno">
+        <option value="">Sin asignar</option>
+        <option value="Diurno">Diurno</option>
+        <option value="Nocturno">Nocturno</option>
+        <option value="Mixto">Mixto</option>
+      </select>
+    </div>
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="formEditar.activo">
+        <span>Activo en el sistema</span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
+      <button class="btn-rocland" [disabled]="guardandoEditar()" (click)="guardarEdicion()">
+        @if (guardandoEditar()) { <span class="btn-spinner active"></span> Guardando... }
+        @else { <i class="bi bi-check-lg"></i> Guardar cambios }
+      </button>
+    </div>
+  </ng-container>
+</app-modal>
+
+<!-- Modal para importar usuario desde SuperAdmin -->
+<app-modal
+  [isOpen]="mostrarModalImportar()"
+  size="sm"
+  (closed)="cerrarModalImportar()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-person-plus"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Importar usuario</h2>
+      <p class="modal-subtitle">Desde el directorio SuperAdmin</p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <div class="form-group">
+      <label class="field-label">Usuario</label>
+      <select class="form-select" (change)="onUsuarioSeleccionado($event)">
+        <option value="">-- Selecciona --</option>
+        @for (u of usuariosCandidatos(); track u.superAdminUsuarioId) {
+          <option [value]="u.superAdminUsuarioId">{{ u.nombreCompleto }} ({{ u.rolProyecto }})</option>
+        }
+      </select>
+    </div>
+    @if (usuarioSeleccionado()) {
+      <div class="form-group">
+        <label class="field-label">Número de empleado</label>
+        <input type="text" class="form-control" [(ngModel)]="formImportar.numeroEmpleado">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Turno base</label>
+        <select class="form-select" [(ngModel)]="formImportar.turno">
+          <option value="">Sin asignar</option>
+          <option value="Diurno">Diurno</option>
+          <option value="Nocturno">Nocturno</option>
+          <option value="Mixto">Mixto</option>
+        </select>
+      </div>
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="formImportar.activo">
+          <span>Activo en el sistema</span>
+        </label>
+      </div>
+    }
+    <div class="modal-actions">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalImportar()">Cancelar</button>
+      <button class="btn-rocland" [disabled]="!usuarioSeleccionado() || importando()" (click)="crearPerfil()">
+        @if (importando()) { <span class="btn-spinner active"></span> Creando... }
+        @else { <i class="bi bi-check-lg"></i> Crear perfil }
+      </button>
+    </div>
+  </ng-container>
+</app-modal>
+
+<!-- Modal para asignar guardias fijos A y B -->
+<app-modal
+  [isOpen]="mostrarModalGuardiasFijos()"
+  size="sm"
+  (closed)="cerrarModalGuardiasFijos()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-star-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Guardias fijos</h2>
+      <p class="modal-subtitle">Asigna los guardias A (nocturno) y B (diurno)</p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <div class="form-group">
+      <label class="field-label">Guardia A (nocturno 7pm-7am)</label>
+      <select class="form-select" [(ngModel)]="guardiaASeleccionado">
+        <option [ngValue]="null">Sin asignar</option>
+        @for (p of perfilesOptions(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="field-label">Guardia B (diurno 7am-7pm)</label>
+      <select class="form-select" [(ngModel)]="guardiaBSeleccionado">
+        <option [ngValue]="null">Sin asignar</option>
+        @for (p of perfilesOptions(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nombre }}</option>
+        }
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-rocland btn-secondary" (click)="cerrarModalGuardiasFijos()">Cancelar</button>
+      <button class="btn-rocland" [disabled]="guardandoGuardiasFijos()" (click)="guardarGuardiasFijos()">
+        @if (guardandoGuardiasFijos()) { <span class="btn-spinner active"></span> Guardando... }
+        @else { <i class="bi bi-check-lg"></i> Guardar asignación }
+      </button>
+    </div>
+  </ng-container>
+</app-modal>

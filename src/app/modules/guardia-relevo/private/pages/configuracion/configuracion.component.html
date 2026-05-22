@@ -1,0 +1,329 @@
+<div class="page-content fade-in">
+  <div class="config-card">
+    <!-- Instrucciones generales -->
+    <div class="config-header-info">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>Aquí puedes configurar todo lo necesario para el correcto funcionamiento del módulo de relevo de guardias. Cada pestaña agrupa opciones relacionadas.</span>
+    </div>
+
+    <mat-tab-group [dynamicHeight]="true">
+      
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 1 – TURNOS (solo Diurno y Nocturno)                -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Turnos">
+        <div class="tab-content">
+          <div class="info-message">
+            <i class="bi bi-clock-history"></i>
+            <span>Los turnos definen las ventanas horarias en que los guardias pueden realizar su rondín. Las horas <strong>reales</strong> se usan en modo Producción; las horas de <strong>prueba</strong> se usan cuando el modo está en Prueba (útil para simular).</span>
+          </div>
+          <div class="turnos-grid">
+            <!-- Turno Diurno -->
+            <div class="turno-card">
+              <div class="turno-header">
+                <h4>Turno Diurno</h4>
+                <app-badge [label]="(turnoDiurno()?.activo ? 'Activo' : 'Inactivo')" [variant]="turnoDiurno()?.activo ? 'green' : 'red'"></app-badge>
+              </div>
+              <div class="turno-body">
+                <form [formGroup]="turnoForm" (ngSubmit)="guardarTurno()">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="small">Saliente inicio (real)</label>
+                      <input type="time" class="form-control" formControlName="horaInicioSaliente">
+                    </div>
+                    <div class="col-6">
+                      <label class="small">Saliente fin (real)</label>
+                      <input type="time" class="form-control" formControlName="horaFinSaliente">
+                    </div>
+                    <div class="col-6">
+                      <label class="small">Entrante inicio (real)</label>
+                      <input type="time" class="form-control" formControlName="horaInicioEntrante">
+                    </div>
+                    <div class="col-6">
+                      <label class="small">Entrante fin (real)</label>
+                      <input type="time" class="form-control" formControlName="horaFinEntrante">
+                    </div>
+                    <div class="col-6">
+                      <label class="small text-muted">Saliente inicio (prueba)</label>
+                      <input type="time" class="form-control" formControlName="horaInicioSalientePrueba">
+                    </div>
+                    <div class="col-6">
+                      <label class="small text-muted">Saliente fin (prueba)</label>
+                      <input type="time" class="form-control" formControlName="horaFinSalientePrueba">
+                    </div>
+                    <div class="col-6">
+                      <label class="small text-muted">Entrante inicio (prueba)</label>
+                      <input type="time" class="form-control" formControlName="horaInicioEntrantePrueba">
+                    </div>
+                    <div class="col-6">
+                      <label class="small text-muted">Entrante fin (prueba)</label>
+                      <input type="time" class="form-control" formControlName="horaFinEntrantePrueba">
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn-rocland btn-sm" [disabled]="!turnoDiurno()">Guardar cambios</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!-- Turno Nocturno -->
+            <div class="turno-card">
+              <div class="turno-header">
+                <h4>Turno Nocturno</h4>
+                <app-badge [label]="(turnoNocturno()?.activo ? 'Activo' : 'Inactivo')" [variant]="turnoNocturno()?.activo ? 'green' : 'red'"></app-badge>
+              </div>
+              <div class="turno-body">
+                <!-- Igual que diurno pero con datos del nocturno -->
+                <!-- Nota: el formulario es el mismo, pero al guardar se usará el turno seleccionado (Diurno o Nocturno) -->
+                <!-- Para simplificar, se podría duplicar el formulario o usar un formulario reactivo por turno. En esta implementación, al editar se carga el turno correspondiente en el formulario y se guarda. -->
+                <!-- Aquí mostramos solo la edición del diurno como ejemplo, pero puedes hacer dos formularios separados. Por brevedad, usaremos un solo formulario que se carga con los datos del turno a editar y un botón "Editar" aparte. -->
+                <button class="btn-rocland btn-sm" (click)="editarTurno(turnoNocturno()!)">Editar turno nocturno</button>
+                <!-- El contenido editado se mostrará en el formulario común, que se puede ubicar fuera de las tarjetas. -->
+              </div>
+            </div>
+          </div>
+          <!-- Formulario común para edición (se muestra al editar cualquier turno) -->
+          @if (editandoTurno()) {
+            <div class="turno-edit-panel">
+              <h5>Editando: {{ editandoTurno()?.nombre }}</h5>
+              <form [formGroup]="turnoForm" (ngSubmit)="guardarTurno()">
+                <!-- mismos campos que arriba -->
+                <div class="row g-2">
+                  <div class="col-6"><label>Saliente inicio real</label><input type="time" class="form-control" formControlName="horaInicioSaliente"></div>
+                  <div class="col-6"><label>Saliente fin real</label><input type="time" class="form-control" formControlName="horaFinSaliente"></div>
+                  <div class="col-6"><label>Entrante inicio real</label><input type="time" class="form-control" formControlName="horaInicioEntrante"></div>
+                  <div class="col-6"><label>Entrante fin real</label><input type="time" class="form-control" formControlName="horaFinEntrante"></div>
+                  <div class="col-6"><label class="text-muted">Saliente inicio prueba</label><input type="time" class="form-control" formControlName="horaInicioSalientePrueba"></div>
+                  <div class="col-6"><label class="text-muted">Saliente fin prueba</label><input type="time" class="form-control" formControlName="horaFinSalientePrueba"></div>
+                  <div class="col-6"><label class="text-muted">Entrante inicio prueba</label><input type="time" class="form-control" formControlName="horaInicioEntrantePrueba"></div>
+                  <div class="col-6"><label class="text-muted">Entrante fin prueba</label><input type="time" class="form-control" formControlName="horaFinEntrantePrueba"></div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                  <button type="button" class="btn-rocland btn-secondary" (click)="editandoTurno.set(null)">Cancelar</button>
+                  <button type="submit" class="btn-rocland">Guardar turno</button>
+                </div>
+              </form>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 2 – CHECKLIST                                       -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Checklist">
+        <div class="tab-content">
+          <div class="info-message">
+            <i class="bi bi-check2-square"></i>
+            <span>Define los puntos que los guardias deben verificar durante el relevo. Puedes arrastrar y soltar para cambiar el orden, y desactivar puntos que ya no se usen.</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="titulo-seccion mb-0">Puntos del checklist</h4>
+            <button class="btn-rocland btn-sm" (click)="abrirModalPunto()">
+              <i class="bi bi-plus-lg me-1"></i> Nuevo punto
+            </button>
+          </div>
+          <div cdkDropList (cdkDropListDropped)="dropPunto($event)">
+            @for (punto of puntos(); track punto.id) {
+              <div class="checklist-item" cdkDrag>
+                <div class="drag-handle" cdkDragHandle><i class="bi bi-grip-vertical"></i></div>
+                <div class="item-content">
+                  <div class="item-title"><strong>{{ punto.categoria }}</strong> - {{ punto.nombre }}</div>
+                  <div class="item-desc">{{ punto.descripcion || 'Sin descripción' }}</div>
+                </div>
+                <div class="item-actions">
+                  <app-badge [label]="punto.activo ? 'Activo' : 'Inactivo'" [variant]="getEstadoVariant(punto.activo)"></app-badge>
+                  <button mat-icon-button [matMenuTriggerFor]="menuPunto" class="btn-ghost btn-sm">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuPunto="matMenu">
+                    <button mat-menu-item (click)="abrirModalPunto(punto)"><i class="bi bi-pencil me-2"></i>Editar</button>
+                    <button mat-menu-item (click)="desactivarPunto(punto)"><i class="bi bi-trash3 me-2"></i>Desactivar</button>
+                  </mat-menu>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 3 – ASIGNACIONES BASE                               -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Asignaciones">
+        <div class="tab-content">
+          <div class="info-message">
+            <i class="bi bi-person-lines-fill"></i>
+            <span>Define qué guardia cumple el rol de Saliente o Entrante en cada turno, con fechas de vigencia. Las asignaciones activas se utilizan para determinar automáticamente quién debe hacer qué en cada relevo.</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="titulo-seccion mb-0">Asignaciones vigentes</h4>
+            <button class="btn-rocland btn-sm" (click)="abrirModalAsignacion()">
+              <i class="bi bi-plus-lg me-1"></i> Nueva asignación
+            </button>
+          </div>
+          <app-data-table [columns]="columnasAsignaciones" [data]="asignaciones()" [loading]="cargando()">
+            <ng-template #cellTemplate let-item let-col="column">
+              @switch (col.key) {
+                @case ('fechaVigenciaDesde') { {{ item.fechaVigenciaDesde }} }
+                @case ('fechaVigenciaHasta') { {{ item.fechaVigenciaHasta || '—' }} }
+                @case ('activo') { <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'" [variant]="getEstadoVariant(item.activo)"></app-badge> }
+                @case ('acciones') {
+                  <button mat-icon-button [matMenuTriggerFor]="menuAsig" class="btn-ghost btn-sm">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuAsig="matMenu">
+                    <button mat-menu-item (click)="abrirModalAsignacion(item)"><i class="bi bi-pencil me-2"></i>Editar</button>
+                    <button mat-menu-item (click)="desactivarAsignacion(item)"><i class="bi bi-trash3 me-2"></i>Desactivar</button>
+                  </mat-menu>
+                }
+                @default { {{ item[col.key] }} }
+              }
+            </ng-template>
+          </app-data-table>
+        </div>
+      </mat-tab>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PESTAÑA 4 – CONFIGURACIÓN GENERAL                           -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <mat-tab label="Configuración general">
+        <div class="tab-content">
+          <div class="info-message">
+            <i class="bi bi-sliders2"></i>
+            <span>Aquí defines el comportamiento global del sistema: modo de operación (producción o pruebas), días hábiles y los guardias fijos A y B.</span>
+          </div>
+          <form [formGroup]="configForm" (ngSubmit)="guardarConfiguracionApp()" class="config-form">
+            <div class="form-group">
+              <label class="form-label">Modo de operación</label>
+              <select class="form-select" formControlName="modoActivo">
+                <option value="Produccion">Producción (usa horas reales, solo lunes a viernes)</option>
+                <option value="Prueba">Prueba (usa horas de prueba si están definidas)</option>
+              </select>
+              <small class="text-muted">En modo prueba, el sistema respetará las horas configuradas en cada turno como "prueba".</small>
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="soloLunesViernes">
+                <span>Solo operar de lunes a viernes</span>
+              </label>
+              <small class="text-muted">Si está activo, los fines de semana no se generarán relevos automáticos.</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Guardia A (turno nocturno, de 7pm a 7am)</label>
+              <select class="form-select" formControlName="guardiaA_PerfilId">
+                <option [ngValue]="null">-- Selecciona un guardia --</option>
+                @for (p of perfilesActivos(); track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombreCompleto }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Guardia B (turno diurno, de 7am a 7pm)</label>
+              <select class="form-select" formControlName="guardiaB_PerfilId">
+                <option [ngValue]="null">-- Selecciona un guardia --</option>
+                @for (p of perfilesActivos(); track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombreCompleto }}</option>
+                }
+              </select>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn-rocland">Guardar configuración</button>
+            </div>
+          </form>
+
+          <!-- Diagnóstico rápido (InfoModo) -->
+          <div class="diagnostico-section">
+            <div class="diagnostico-header" (click)="mostrarDiagnostico.set(!mostrarDiagnostico())">
+              <i class="bi bi-stethoscope"></i>
+              <span>Diagnóstico del sistema</span>
+              <i class="bi bi-chevron-down" [class.rotated]="mostrarDiagnostico()"></i>
+            </div>
+            @if (mostrarDiagnostico()) {
+              <div class="diagnostico-body">
+                @if (infoModo(); as info) {
+                  <div class="row">
+                    <div class="col-6"><strong>Hora UTC:</strong> {{ info.horaUTC | date:'short' }}</div>
+                    <div class="col-6"><strong>Hora Torreón:</strong> {{ info.horaLocalTorreon | date:'short' }}</div>
+                    <div class="col-6"><strong>Offset UTC:</strong> {{ info.offsetUTCMinutos }} min</div>
+                    <div class="col-6"><strong>Modo activo:</strong> {{ info.modoActivo }}</div>
+                    <div class="col-12 mt-2"><strong>Guardias fijos:</strong> A: {{ info.guardiaA_Nombre || '—' }} | B: {{ info.guardiaB_Nombre || '—' }}</div>
+                    <div class="col-12 mt-2">
+                      <strong>Ventanas horarias activas:</strong>
+                      <ul>
+                        @for (turno of info.turnos; track turno.nombre) {
+                          <li>{{ turno.nombre }}:
+                            Saliente: {{ turno.prodSalInicio }} - {{ turno.prodSalFin }}
+                            (prueba: {{ turno.pruebaSalInicio || '—' }} - {{ turno.pruebaSalFin || '—' }})
+                            Entrante: {{ turno.prodEntInicio }} - {{ turno.prodEntFin }}
+                            (prueba: {{ turno.pruebaEntInicio || '—' }} - {{ turno.pruebaEntFin || '—' }})
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="text-muted">Cargando diagnóstico...</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<!-- Modal para Punto de Checklist -->
+<app-modal [isOpen]="modalPuntoAbierto()" size="md" (closed)="modalPuntoAbierto.set(false)">
+  <ng-container header><h2 class="modal-title">{{ editandoPuntoId() ? 'Editar punto' : 'Nuevo punto' }}</h2></ng-container>
+  <ng-container body>
+    <form [formGroup]="puntoForm" (ngSubmit)="guardarPunto()">
+      <div class="mb-3"><label>Categoría *</label><input type="text" class="form-control" formControlName="categoria"></div>
+      <div class="mb-3"><label>Nombre *</label><input type="text" class="form-control" formControlName="nombre"></div>
+      <div class="mb-3"><label>Descripción</label><textarea class="form-control" formControlName="descripcion" rows="2"></textarea></div>
+      <div class="mb-3"><label>Orden *</label><input type="number" class="form-control" formControlName="orden" min="0"></div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn-rocland btn-secondary" (click)="modalPuntoAbierto.set(false)">Cancelar</button>
+        <button type="submit" class="btn-rocland">Guardar</button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>
+
+<!-- Modal para Asignación Base -->
+<app-modal [isOpen]="modalAsignacionAbierto()" size="md" (closed)="modalAsignacionAbierto.set(false)">
+  <ng-container header><h2 class="modal-title">{{ editandoAsignacionId() ? 'Editar asignación' : 'Nueva asignación' }}</h2></ng-container>
+  <ng-container body>
+    <form [formGroup]="asignacionForm" (ngSubmit)="guardarAsignacion()">
+      <div class="mb-3"><label>Turno *</label>
+        <select class="form-select" formControlName="configTurnoId">
+          <option [ngValue]="null">Selecciona...</option>
+          @for (t of turnosOptions(); track t.value) {
+            <option [ngValue]="t.value">{{ t.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3"><label>Rol *</label>
+        <select class="form-select" formControlName="rol">
+          <option value="Saliente">Saliente</option>
+          <option value="Entrante">Entrante</option>
+        </select>
+      </div>
+      <div class="mb-3"><label>Guardia *</label>
+        <select class="form-select" formControlName="perfilId">
+          <option [ngValue]="null">Selecciona...</option>
+          @for (p of perfilesOptions(); track p.value) {
+            <option [ngValue]="p.value">{{ p.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3"><label>Vigencia desde *</label><input type="date" class="form-control" formControlName="fechaVigenciaDesde"></div>
+      <div class="mb-3"><label>Vigencia hasta (opcional)</label><input type="date" class="form-control" formControlName="fechaVigenciaHasta"></div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn-rocland btn-secondary" (click)="modalAsignacionAbierto.set(false)">Cancelar</button>
+        <button type="submit" class="btn-rocland">Guardar</button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>
