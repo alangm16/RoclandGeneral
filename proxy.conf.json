@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://localhost:7244",
+    "target": "https://app.rocland.mx/",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

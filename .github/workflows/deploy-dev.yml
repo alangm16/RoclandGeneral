@@ -1,0 +1,33 @@
+name: Rocland Frontend DEV Deploy
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: 1. Descargar el código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' 
+
+      - name: 3. Instalar dependencias
+        run: npm install
+
+      - name: 4. Compilar Angular para Desarrollo
+        run: npm run build -- --configuration development
+
+      - name: 5. Desplegar en carpeta estable
+        run: |
+          $source = "dist\rocland-general\browser\*"
+          $destination = "C:\WebApps\RoclandFrontend\dev"
+          if (!(Test-Path -Path $destination)) { New-Item -ItemType Directory -Path $destination -Force }
+          Copy-Item -Path $source -Destination $destination -Recurse -Force

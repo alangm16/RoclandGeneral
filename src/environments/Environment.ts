@@ -1,6 +1,5 @@
-// environment.ts  (desarrollo local)
 export const environment = {
-  production: false,
-  apiUrl: 'https://localhost:7244',   // ← Cambia al puerto de tu RoclandApi local
+  production: true,
+  apiUrl: 'https://app.rocland.mx',
   version: '1.0.0'
 };

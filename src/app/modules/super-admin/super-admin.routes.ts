@@ -24,7 +24,7 @@ export const SUPER_ADMIN_ROUTES: Routes = [
             .then(m => m.DashboardComponent),
       },
 
-      // ── Dashboard por Proyecto ─────────────────── /dashboard/proyecto/:id
+      // ── Dashboard por Proyecto ─────────────────── /dashboard/proyecto/:id NO SIDEBAR
       {
         path: 'dashboard/proyecto/:id',
         loadComponent: () =>
@@ -40,7 +40,7 @@ export const SUPER_ADMIN_ROUTES: Routes = [
             .then(m => m.UsuariosComponent),
       },
       {
-        path: 'usuarios/detalle/:id',
+        path: 'usuarios/detalle/:id', // NO SIDEVAR
         loadComponent: () =>
           import('./private/pages/usuarios/detalle-usuario/detalle-usuario.component')
             .then(m => m.DetalleUsuarioComponent),
@@ -54,7 +54,7 @@ export const SUPER_ADMIN_ROUTES: Routes = [
             .then(m => m.ProyectosComponent),
       },
       {
-        // Configuración
+        // Configuración NO SIDEBAR
         path: 'proyectos/configuracion/:id',
         loadComponent: () =>
           import('./private/pages/proyectos/configuracion/conf-proyectos.component')
