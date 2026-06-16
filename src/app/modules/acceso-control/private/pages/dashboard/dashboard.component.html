@@ -58,12 +58,12 @@
     <div class="section-actions">
       <div class="connection-indicator">
         <span class="status-dot" [ngClass]="{
-          'connected': conexionStatus === 'connected',
+          'connected':    conexionStatus === 'connected',
           'reconnecting': conexionStatus === 'reconnecting',
           'disconnected': conexionStatus !== 'connected' && conexionStatus !== 'reconnecting'
         }"></span>
         <span class="status-text">
-          {{ conexionStatus === 'connected' ? 'En vivo' : 
+          {{ conexionStatus === 'connected' ? 'En vivo' :
              (conexionStatus === 'reconnecting' ? 'Reconectando...' : 'Desconectado') }}
         </span>
       </div>
@@ -73,6 +73,7 @@
     </div>
   </div>
 
+  <!-- Visitantes -->
   <div class="subsection">
     <div class="subsection-header">
       <span class="subsection-title">Visitantes</span>
@@ -87,13 +88,30 @@
         <div class="person-info">
           <div class="person-name">{{ v.nombrePersona }}</div>
           <div class="person-detail">{{ v.empresa || 'Particular' }} · {{ v.area || '—' }}</div>
-          <div class="person-time">Entrada: {{ fmtHora(v.fechaEntrada) }}</div>
+          <div class="person-time">{{ fmtHora(v.fechaEntrada) }}</div>
         </div>
-        <div class="person-badge">#{{ v.numeroGafete || '—' }}</div>
+        <div class="person-card-actions">
+          <div class="person-badge">#{{ v.numeroGafete || '—' }}</div>
+          <button class="btn-ine" (click)="toggleFotoCard(v.registroId, $event)"
+                  [class.loading]="fotoLoadingId === v.registroId"
+                  title="Ver INE">
+            <i class="bi" [ngClass]="fotoLoadingId === v.registroId ? 'bi-hourglass-split' : 'bi-card-image'"></i>
+          </button>
+        </div>
+
+        <div class="person-popup">
+          <div class="pp-name">{{ v.nombrePersona }}</div>
+          <div class="pp-divider"></div>
+          <div class="pp-row"><i class="bi bi-building"></i><span>{{ v.empresa || 'Particular' }}</span></div>
+          <div class="pp-row"><i class="bi bi-pin-map"></i><span>{{ v.area || 'Sin área' }}</span></div>
+          <div class="pp-row"><i class="bi bi-clock-fill"></i><span>Entrada: <span class="pp-highlight">{{ fmtHora(v.fechaEntrada) }}</span></span></div>
+          <div class="pp-row"><i class="bi bi-tag-fill"></i><span>Gafete: <span class="pp-highlight">#{{ v.numeroGafete || '—' }}</span></span></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Proveedores -->
   <div class="subsection">
     <div class="subsection-header">
       <span class="subsection-title">Proveedores</span>
@@ -108,12 +126,66 @@
         <div class="person-info">
           <div class="person-name">{{ p.nombrePersona }}</div>
           <div class="person-detail">{{ p.empresa || 'Independiente' }}</div>
-          <div class="person-time">Entrada: {{ fmtHora(p.fechaEntrada) }}</div>
+          <div class="person-time">{{ fmtHora(p.fechaEntrada) }}</div>
         </div>
-        <div class="person-badge provider">#{{ p.numeroGafete || '—' }}</div>
+        <div class="person-card-actions">
+          <div class="person-badge">#{{ p.numeroGafete || '—' }}</div>
+          <button class="btn-ine" (click)="toggleFotoCard(p.registroId, $event)"
+                  [class.loading]="fotoLoadingId === p.registroId"
+                  title="Ver INE">
+            <i class="bi" [ngClass]="fotoLoadingId === p.registroId ? 'bi-hourglass-split' : 'bi-card-image'"></i>
+          </button>
+        </div>
+
+        <div class="person-popup">
+          <div class="pp-name">{{ p.nombrePersona }}</div>
+          <div class="pp-divider"></div>
+          <div class="pp-row"><i class="bi bi-truck"></i><span>{{ p.empresa || 'Independiente' }}</span></div>
+          <div class="pp-row"><i class="bi bi-clock-fill"></i><span>Entrada: <span class="pp-highlight">{{ fmtHora(p.fechaEntrada) }}</span></span></div>
+          <div class="pp-row"><i class="bi bi-tag-fill"></i><span>Gafete: <span class="pp-highlight">#{{ p.numeroGafete || '—' }}</span></span></div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Internos -->
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">Internos</span>
+      <span class="badge badge-blue">{{ internosDentro.length }}</span>
+    </div>
+    <div class="cards-grid">
+      <div *ngIf="internosDentro.length === 0" class="empty-state">
+        Sin personal interno dentro actualmente.
+      </div>
+      <div class="person-card internal-card" *ngFor="let i of internosDentro">
+        <div class="person-avatar avatar-blue">{{ i.nombrePersona.charAt(0) || '?' }}</div>
+        <div class="person-info">
+          <div class="person-name">{{ i.nombrePersona }}</div>
+          <div class="person-detail">{{ i.categoriaVisual | titlecase }} · {{ i.area || '—' }}</div>
+          <div class="person-time">{{ fmtHora(i.fechaEntrada) }}</div>
+        </div>
+        <div class="person-card-actions">
+          <div class="person-badge">#{{ i.numeroGafete || '—' }}</div>
+          <button class="btn-ine" (click)="toggleFotoCard(i.registroId, $event)"
+                  [class.loading]="fotoLoadingId === i.registroId"
+                  title="Ver INE">
+            <i class="bi" [ngClass]="fotoLoadingId === i.registroId ? 'bi-hourglass-split' : 'bi-card-image'"></i>
+          </button>
+        </div>
+
+        <div class="person-popup">
+          <div class="pp-name">{{ i.nombrePersona }}</div>
+          <div class="pp-divider"></div>
+          <div class="pp-row"><i class="bi bi-person-badge-fill"></i><span>{{ i.categoriaVisual | titlecase }}</span></div>
+          <div class="pp-row"><i class="bi bi-pin-map"></i><span>{{ i.area || 'Sin área' }}</span></div>
+          <div class="pp-row"><i class="bi bi-clock-fill"></i><span>Entrada: <span class="pp-highlight">{{ fmtHora(i.fechaEntrada) }}</span></span></div>
+          <div class="pp-row"><i class="bi bi-tag-fill"></i><span>Gafete: <span class="pp-highlight">#{{ i.numeroGafete || '—' }}</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="charts-row">
@@ -149,5 +221,15 @@
   </div>
   <div class="chart-container large">
     <canvas #canvasMes></canvas>
+  </div>
+</div>
+
+<!-- ── INE Lightbox ── -->
+<div class="ine-overlay" *ngIf="fotoActivaUrl" (click)="cerrarFotoCard()">
+  <div class="ine-lightbox" (click)="$event.stopPropagation()">
+    <button class="ine-close" (click)="cerrarFotoCard()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <img [src]="fotoActivaUrl" alt="Identificación" class="ine-img" />
   </div>
 </div>

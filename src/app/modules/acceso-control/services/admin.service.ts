@@ -68,6 +68,11 @@ export class AdminService {
     return this.http.get<HistorialAccesoItemDto[]>(`${this.base}/admin/personas/${id}/historial`);
   }
 
+  getFotoPersona(id: number): Observable<Blob> {
+    const url = `${this.base}/Personas/personas/${id}/foto`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   // ── Guardias ───────────────────────────────────────────────────────
   getGuardias(page: number, pageSize: number, busqueda?: string): Observable<GuardiasPaginados> {
     let params = new HttpParams()

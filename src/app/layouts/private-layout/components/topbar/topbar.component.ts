@@ -1,10 +1,20 @@
-import { Component, EventEmitter, Output, inject, signal, OnDestroy, computed } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  inject,
+  signal,
+  OnDestroy,
+  computed
+} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UpperCasePipe } from '@angular/common';
+import { ProjectSwitcherDialogComponent } from './components/project-switcher-dialog/project-switcher-dialog.component';
 
 @Component({
   selector: 'app-topbar',
@@ -14,6 +24,7 @@ import { UpperCasePipe } from '@angular/common';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
+    MatDialogModule,
     UpperCasePipe
   ],
   templateUrl: './topbar.component.html',
@@ -25,7 +36,8 @@ export class TopbarComponent implements OnDestroy {
   currentTime = signal('');
   private clockInterval?: ReturnType<typeof setInterval>;
 
-  readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  readonly authService    = inject(AuthService);
 
   constructor() {
     this.updateClock();
@@ -48,10 +60,24 @@ export class TopbarComponent implements OnDestroy {
     clearInterval(this.clockInterval);
   }
 
-  readonly userName = computed(() => this.authService.nombreUsuario() || 'Usuario');
-  readonly projectName = computed(() => 
-  this.authService.proyectoActivo()?.nombre ?? 'Selecciona un proyecto'
-);
+  readonly userName       = computed(() => this.authService.nombreUsuario() || 'Usuario');
+  readonly proyectoActivo = computed(() => this.authService.proyectoActivo());
+  readonly projectName    = computed(() => this.proyectoActivo()?.nombre ?? '');
+
+  /** Muestra el botón de cambio sólo cuando hay más de un proyecto accesible. */
+  readonly hasMultipleProjects = computed(
+    () => this.authService.proyectosAccesibles().length > 1
+  );
+
+  abrirSelectorProyecto(): void {
+    this.dialog.open(ProjectSwitcherDialogComponent, {
+      panelClass:   'project-switcher-overlay',
+      maxWidth:     '460px',
+      width:        '100%',
+      disableClose: false,
+      autoFocus:    '#proyectoSelect'
+    });
+  }
 
   logout(): void {
     this.authService.logout();

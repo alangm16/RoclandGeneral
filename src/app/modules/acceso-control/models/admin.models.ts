@@ -15,6 +15,7 @@ export interface DashboardKpis {
 export interface AccesoActivoResponse {
   registroId: number;
   tipoRegistro: string;
+  categoriaVisual: string;
   nombrePersona: string;
   empresa?: string;
   numeroGafete: string;
@@ -52,6 +53,11 @@ export interface PersonaPerfilDto {
   totalVisitas: number;
   fechaRegistro: string;
   fechaUltimaVisita?: string;
+}
+
+export interface FotoPersona {
+  blob: Blob;
+  url: string; // URL creada con URL.createObjectURL
 }
 
 export interface PersonasPaginadas {

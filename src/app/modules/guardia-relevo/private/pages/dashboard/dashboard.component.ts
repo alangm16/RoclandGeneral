@@ -14,16 +14,15 @@ import { GuardiaRelevoService } from '../../../services/guardia-relevo.service';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
 import { DataTableComponent, DataTableColumn } from '../../../../../shared/components/data-table/data-table.component';
 import {
-  RelevoHoyResponse,
-  IncidenciaListResponse,
-  PagedResult,
-  RelevoListResponse
+  DashboardResumenDto,
+  IncidenciaDto,
+  ChecklistResumenDto
 } from '../../../models/guardia-relevo.models';
 
 @Component({
   selector: 'app-guardia-relevo-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, BadgeComponent, DataTableComponent],
+  imports: [CommonModule, RouterModule, DataTableComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -36,23 +35,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cargando = signal(true);
 
   // KPIs
-  totalRelevosHoy = signal(0);
-  relevosCompletadosHoy = signal(0);
-  incidenciasAbiertas = signal(0);
-  cumplimientoChecklist = signal(0); // % de incidencias resueltas última semana
+  totalRondinesHoy = signal(0);
+  totalIncidenciasAbiertas = signal(0);
+  totalIncidenciasResueltas = signal(0);
+  porcentajeIncidenciasResueltas = signal(0);
+  totalChecklistsSalientes = signal(0);
+  totalChecklistsEntrantes = signal(0);
 
-  // Relevos del día
-  relevoDiurno = signal<RelevoHoyResponse | null>(null);
-  relevoNocturno = signal<RelevoHoyResponse | null>(null);
+  // Checklists recientes (últimos 5)
+  rondinesRecientes = signal<ChecklistResumenDto[]>([]);
 
-  // Incidencias recientes
-  incidenciasRecientes = signal<IncidenciaListResponse[]>([]);
+  // Incidencias recientes (últimas 5)
+  incidenciasRecientes = signal<IncidenciaDto[]>([]);
 
-  columnasIncidencias = [
-    { key: 'fechaRelevo', label: 'Fecha', headerClass: 'col-fecha' },
-    { key: 'nombrePunto', label: 'Punto', headerClass: 'col-punto' },
-    { key: 'tipoOrigen', label: 'Tipo', headerClass: 'col-tipo' },
-    { key: 'estado', label: 'Estado', headerClass: 'col-estado' },
+  // Datos para gráficos (checklists por día, incidencias por día)
+  checklistsPorDia = signal<{ fecha: string; cantidad: number }[]>([]);
+  incidenciasPorDia = signal<{ fecha: string; creadas: number; resueltas: number }[]>([]);
+
+  columnasIncidencias: DataTableColumn[] = [
+    { key: 'fechaDeteccionLocal', label: 'Fecha', headerClass: 'col-fecha' },
+    { key: 'punto', label: 'Punto', headerClass: 'col-punto' },
+    { key: 'categoria', label: 'Categoría', headerClass: 'col-categoria' },
+    { key: 'resuelta', label: 'Estado', headerClass: 'col-estado' },
   ];
 
   @ViewChild('actividadChart', { static: false }) actividadChartCanvas!: ElementRef;
@@ -80,67 +84,57 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private cargarDatos(): void {
-    const hoy = new Date().toISOString().split('T')[0];
-    const haceSemana = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    // Resumen del dashboard
+    const resumen$ = this.grService.getDashboardResumen().pipe(catchError(() => of(null)));
 
-    // Helper para fallback de PagedResult
-    const emptyPaged = <T>(): PagedResult<T> => ({
-      items: [],
-      totalCount: 0,
-      page: 1,
-      pageSize: 10,
-      totalPages: 0,
-      hasNext: false,
-      hasPrev: false,
-    });
+    // Checklists por día (últimos 7 días)
+    const checklistsPorDia$ = this.grService.getChecklistsPorDia(7).pipe(catchError(() => of([])));
 
-    // 1. Relevos de hoy
-    const relevosHoy$ = this.grService.getRelevosPaginados({ fechaDesde: hoy, fechaHasta: hoy, page: 1, pageSize: 100 })
-      .pipe(catchError(() => of(emptyPaged<RelevoListResponse>())));
+    // Incidencias por día (últimos 30 días)
+    const incidenciasPorDia$ = this.grService.getIncidenciasPorDia(30).pipe(catchError(() => of([])));
 
-    // 2. Incidencias abiertas (solo contar)
-    const incidenciasAbiertas$ = this.grService.getIncidenciasPaginadas({ estado: 'Abierta', page: 1, pageSize: 1 })
-      .pipe(catchError(() => of(emptyPaged<IncidenciaListResponse>())));
+    // Rondines recientes (últimos 5)
+    const rondinesRecientes$ = this.grService.getHistorial(undefined, undefined, undefined).pipe(
+      catchError(() => of([]))
+    );
 
-    // 3. Incidencias de la última semana (para calcular cumplimiento = resueltas/totales)
-    const incidenciasSemana$ = this.grService.getIncidenciasPaginadas({ fechaDesde: haceSemana, fechaHasta: hoy, page: 1, pageSize: 1000 })
-      .pipe(catchError(() => of(emptyPaged<IncidenciaListResponse>())));
-
-    // 4. Relevos de hoy por turno
-    const relevoDiurno$ = this.grService.getRelevoHoy(1).pipe(catchError(() => of(null)));
-    const relevoNocturno$ = this.grService.getRelevoHoy(2).pipe(catchError(() => of(null)));
-
-    // 5. Incidencias recientes (últimas 5)
-    const incidenciasRecientes$ = this.grService.getIncidenciasPaginadas({ page: 1, pageSize: 5 })
-      .pipe(catchError(() => of(emptyPaged<IncidenciaListResponse>())));
+    // Incidencias recientes (últimas 5, abiertas primero)
+    const incidenciasRecientes$ = this.grService.getIncidencias(null).pipe(
+      catchError(() => of([]))
+    );
 
     forkJoin({
-      relevosHoy: relevosHoy$,
-      incidenciasAbiertas: incidenciasAbiertas$,
-      incidenciasSemana: incidenciasSemana$,
-      relevoDiurno: relevoDiurno$,
-      relevoNocturno: relevoNocturno$,
+      resumen: resumen$,
+      checklistsPorDia: checklistsPorDia$,
+      incidenciasPorDia: incidenciasPorDia$,
+      rondinesRecientes: rondinesRecientes$,
       incidenciasRecientes: incidenciasRecientes$
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (results) => {
-        // KPIs básicos
-        this.totalRelevosHoy.set(results.relevosHoy.totalCount);
-        const completados = (results.relevosHoy.items ?? []).filter(r => r.estado === 'Completado').length;
-        this.relevosCompletadosHoy.set(completados);
-        this.incidenciasAbiertas.set(results.incidenciasAbiertas.totalCount);
+        // Resumen
+        if (results.resumen) {
+          this.totalRondinesHoy.set(results.resumen.totalChecklistsHoy);
+          this.totalIncidenciasAbiertas.set(results.resumen.totalIncidenciasAbiertas);
+          this.totalIncidenciasResueltas.set(results.resumen.totalIncidenciasResueltas);
+          this.porcentajeIncidenciasResueltas.set(results.resumen.porcentajeIncidenciasResueltas);
+          this.totalChecklistsSalientes.set(results.resumen.totalChecklistsSalientes);
+          this.totalChecklistsEntrantes.set(results.resumen.totalChecklistsEntrantes);
+        }
 
-        // Cumplimiento = % incidencias resueltas en la última semana
-        const totalIncidenciasSemana = results.incidenciasSemana.totalCount;
-        const resueltasSemana = (results.incidenciasSemana.items ?? []).filter(i => i.estado === 'Resuelta').length;
-        const cumplimiento = totalIncidenciasSemana > 0 ? Math.round((resueltasSemana / totalIncidenciasSemana) * 100) : 100;
-        this.cumplimientoChecklist.set(cumplimiento);
+        // Checklists por día
+        this.checklistsPorDia.set(results.checklistsPorDia);
 
-        // Relevos del día
-        this.relevoDiurno.set(results.relevoDiurno);
-        this.relevoNocturno.set(results.relevoNocturno);
+        // Incidencias por día
+        this.incidenciasPorDia.set(results.incidenciasPorDia);
 
-        // Incidencias recientes
-        this.incidenciasRecientes.set(results.incidenciasRecientes.items.slice(0, 5));
+        // Rondines recientes (tomar primeros 5)
+        this.rondinesRecientes.set(results.rondinesRecientes.slice(0, 5));
+
+        // Incidencias recientes (tomar primeras 5, ordenar por fecha descendente)
+        const incs = results.incidenciasRecientes
+          .sort((a, b) => new Date(b.fechaDeteccionLocal).getTime() - new Date(a.fechaDeteccionLocal).getTime())
+          .slice(0, 5);
+        this.incidenciasRecientes.set(incs);
 
         this.cargando.set(false);
         setTimeout(() => this.inicializarGrafico(), 0);
@@ -153,30 +147,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private inicializarGrafico(): void {
-    if (!this.actividadChartCanvas) return;
-    // Datos mock (podrías reemplazar con endpoint real)
-    const labels = ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'];
-    const data = [2, 5, 8, 12, 10, 7, 6, 9, 11, 13, 10, 8, 6, 4];
-    const config: ChartConfiguration = {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Actividad (accesos)',
-          data,
-          borderColor: '#4CAF50',
-          backgroundColor: 'rgba(76,175,80,0.08)',
-          fill: true,
-          tension: 0.3,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
-      }
-    };
-    this.chart = new Chart(this.actividadChartCanvas.nativeElement, config);
-  }
+  if (!this.actividadChartCanvas) return;
+
+  const datos = this.checklistsPorDia();
+  if (!datos.length) return;
+
+  // Formatear fechas a DD/MM
+  const labels = datos.map(item => {
+  const date = new Date(item.fecha);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  return `${day}/${month}`;
+});
+  const values = datos.map(item => item.cantidad);
+
+  const config: ChartConfiguration = {
+    type: 'line', // o 'bar', según prefieras
+    data: {
+      labels,
+      datasets: [{
+        label: 'Rondines completados',
+        data: values,
+        borderColor: '#4CAF50',
+        backgroundColor: 'rgba(76,175,80,0.08)',
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  };
+  this.chart = new Chart(this.actividadChartCanvas.nativeElement, config);
+}
+
+  columnasRondines: DataTableColumn[] = [
+    { key: 'fechaHoraLocal', label: 'Fecha', headerClass: 'col-fecha' },
+    { key: 'tipoRondin', label: 'Tipo', headerClass: 'col-tipo' },
+    { key: 'guardia', label: 'Guardia', headerClass: 'col-guardia' },
+    { key: 'todoOk', label: 'Resultado', headerClass: 'col-resultado' },
+  ];
 }

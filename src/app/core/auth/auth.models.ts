@@ -68,3 +68,8 @@ export interface VistaMenu {
   esContenedor: boolean;
   hijos: VistaMenu[];
 }
+
+export interface CambiarProyectoRequest {
+  codigoProyecto: string;
+  plataforma: string;
+}

@@ -1,0 +1,73 @@
+<!-- project-switcher-dialog.component.html -->
+<div class="switcher-shell">
+
+  <!-- ── Cabecera con datos del usuario autenticado ── -->
+  <div class="switcher-header">
+    <div class="user-avatar-lg">
+      {{ userName().charAt(0).toUpperCase() }}
+    </div>
+    <div class="user-meta">
+      <div class="login-tag">
+        <i class="bi bi-grid"></i> Cambiar Módulo
+      </div>
+      <h1 class="login-title">{{ userName() }}</h1>
+      <p class="login-subtitle">Selecciona el módulo al que deseas acceder</p>
+    </div>
+  </div>
+
+  <!-- ── Error global ── -->
+  <div class="login-error" [class.show]="errorMsg()" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ errorMsg() }}</span>
+  </div>
+
+  <!-- ── Selector de módulo ── -->
+  <div class="field-group" [class.show-errors]="submitted">
+    <label class="field-label" for="proyectoSelect">Módulo</label>
+    <div class="field-wrap">
+      <i class="bi bi-grid field-icon"></i>
+      <select
+        id="proyectoSelect"
+        [(ngModel)]="selectedCodigo"
+        class="field-input field-select"
+        [class.is-invalid]="submitted && !selectedCodigo"
+        [disabled]="loading()"
+      >
+        <option [ngValue]="null" disabled>Selecciona un módulo...</option>
+        @for (p of proyectos(); track p.id) {
+          <option [ngValue]="p.codigo">
+            {{ p.nombre }}
+            @if (p.codigo === proyectoActivo()?.codigo) { (actual) }
+          </option>
+        }
+      </select>
+    </div>
+    @if (submitted && !selectedCodigo) {
+      <span class="field-error">Selecciona un módulo.</span>
+    }
+  </div>
+
+  <!-- ── Botón de acción ── -->
+  <button
+    type="button"
+    class="btn-login"
+    [disabled]="botonDeshabilitado"
+    (click)="confirmar()"
+  >
+    <div class="btn-login-spinner" [class.active]="loading()"></div>
+    <i class="bi bi-box-arrow-in-right" [class.d-none]="loading()"></i>
+    <span>{{ loading() ? 'Cambiando módulo...' : mismoProyecto ? 'Continuar en este módulo' : 'Cambiar módulo' }}</span>
+  </button>
+
+  <!-- ── Cancelar ── -->
+  <button type="button" class="btn-cancel" (click)="cancelar()">
+    <i class="bi bi-x-lg"></i>
+    Cancelar
+  </button>
+
+  <p class="login-form-footer">
+    <i class="bi bi-shield-check"></i>
+    Tu sesión se mantiene activa al cambiar de módulo
+  </p>
+
+</div>

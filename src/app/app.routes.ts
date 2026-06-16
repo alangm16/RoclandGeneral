@@ -42,5 +42,12 @@ export const routes: Routes = [
     data: { proyectoCodigo : 'guardia-relevo' },
     loadChildren: () => import('./modules/guardia-relevo/guardia-relevo.routes')
       .then(m => m.GUARDIA_RELEVO_ROUTES)
+  },
+  {
+    path: 'private/truck-check',
+    canActivate: [authGuard, proyectoGuard],
+    data: { proyectoCodigo : 'truck-check' },
+    loadChildren: () => import('./modules/truck-check/truck-check.routes')
+      .then(m => m.TRUCK_CHECK_ROUTES)
   }
 ];

@@ -1,0 +1,296 @@
+/* project-switcher-dialog.component.scss
+   Usa los mismos patrones de clase que login.component.scss
+   para que el selector se sienta exactamente igual. */
+
+/* ── Contenedor raíz del dialog ─────────────────────────────────── */
+.switcher-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px 36px 28px;
+  min-width: 380px;
+  max-width: 440px;
+  box-sizing: border-box;
+}
+
+/* ── Cabecera: avatar + datos de sesión ─────────────────────────── */
+.switcher-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 4px;
+}
+
+.user-avatar-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2a5a0e, #4a9c1f);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(42, 90, 14, 0.35);
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Tag "Cambiar Módulo" — igual al .login-tag ─────────────────── */
+.login-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 4px;
+
+  i { font-size: 11px; }
+}
+
+/* ── Título y subtítulo — igual al login ────────────────────────── */
+.login-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── Mensaje de error — idéntico al login ───────────────────────── */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #dc2626;
+  font-size: 13.5px;
+  font-weight: 500;
+
+  /* Oculto por defecto */
+  opacity: 0;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  transition: opacity 0.25s, max-height 0.25s, padding 0.25s;
+
+  i { font-size: 15px; flex-shrink: 0; }
+
+  &.show {
+    opacity: 1;
+    max-height: 80px;
+    padding: 12px 16px;
+  }
+}
+
+/* ── Grupos de campo — idénticos al login ───────────────────────── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.2px;
+}
+
+.field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  color: #9ca3af;
+  font-size: 15px;
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.2s;
+}
+
+.field-input {
+  width: 100%;
+  height: 48px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 16px 0 42px;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &:focus {
+    border-color: #4a9c1f;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(74, 156, 31, 0.12);
+
+    ~ .field-icon { color: #4a9c1f; }
+  }
+
+  &.is-invalid {
+    border-color: #f87171;
+    background: #fff7f7;
+  }
+
+  &:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+}
+
+.field-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Botón principal — idéntico al login ────────────────────────── */
+.btn-login {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2a5a0e 0%, #4a9c1f 65%, #5db82e 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(42, 90, 14, 0.35);
+  margin-top: 4px;
+
+  i { font-size: 17px; }
+  .d-none { display: none !important; }
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(42, 90, 14, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* Spinner dentro del botón */
+.btn-login-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: none;
+  flex-shrink: 0;
+
+  &.active {
+    display: block;
+    animation: spin 0.75s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Botón cancelar ─────────────────────────────────────────────── */
+.btn-cancel {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+
+  i { font-size: 13px; }
+
+  &:hover {
+    border-color: #d1d5db;
+    color: #374151;
+    background: #f9fafb;
+  }
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.login-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+
+  i { font-size: 13px; color: #86efac; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .switcher-shell {
+    min-width: unset;
+    padding: 24px 20px 20px;
+  }
+}

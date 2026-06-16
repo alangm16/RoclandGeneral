@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   kpis: DashboardKpis | null = null;
   visitantesDentro: AccesoActivoResponse[] = [];
   proveedoresDentro: AccesoActivoResponse[] = [];
+  internosDentro: AccesoActivoResponse[] = [];
   
   anioActual: number = new Date().getFullYear();
   mesActual:  number = new Date().getMonth() + 1;
@@ -55,6 +56,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentTime: string = '';
   private clockInterval: any;
   private resizeObservers: ResizeObserver[] = [];
+
+  // ── INE inline ────────────────────────────────────────────────────────────
+  fotoActivaUrl: string | null = null;
+  fotoLoadingId: number | null = null;
+  private fotoCache = new Map<number, string>(); // caché para no re-pedir la misma foto
 
   constructor() {
     effect(() => {
@@ -96,6 +102,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.resizeObservers.forEach(o => o.disconnect());
     this.resizeObservers = [];
     this.layoutService.resetSubheader();
+    this.fotoCache.forEach(url => URL.revokeObjectURL(url));
+    this.fotoCache.clear();
   }
 
   private configurarSignalR(): void {
@@ -134,8 +142,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cargarActivos(): void {
     this.adminService.getActivosZona().subscribe({
       next: d => {
-        this.visitantesDentro  = d.filter(a => a.tipoRegistro === 'Visitante');
-        this.proveedoresDentro = d.filter(a => a.tipoRegistro === 'Proveedor');
+
+        this.visitantesDentro = d.filter(
+          a => a.categoriaVisual === 'externo' &&
+              a.tipoRegistro === 'Visitante'
+        );
+
+        this.proveedoresDentro = d.filter(
+          a => a.categoriaVisual === 'externo' &&
+              a.tipoRegistro === 'Proveedor'
+        );
+
+        this.internosDentro = d.filter(
+          a => a.categoriaVisual !== 'externo'
+        );
       },
       error: e => console.error('Error cargando activos', e)
     });
@@ -328,5 +348,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
       minute: '2-digit', 
       hour12: true 
     });
+  }
+
+  toggleFotoCard(registroId: number, event: MouseEvent): void {
+    event.stopPropagation(); // evitar que dispare el popup hover
+
+    // Si ya está abierta la misma, la cierra
+    if (this.fotoActivaUrl && this.fotoLoadingId === null) {
+      this.cerrarFotoCard();
+      return;
+    }
+
+    // Buscar la persona en los activos para obtener su id de persona
+    const persona = [
+      ...this.visitantesDentro,
+      ...this.proveedoresDentro,
+      ...this.internosDentro
+    ].find(a => a.registroId === registroId);
+
+    if (!persona) return;
+
+    // Necesitamos el personaId — lo obtenemos del perfil de la persona
+    // Primero revisamos caché
+    const cached = this.fotoCache.get(registroId);
+    if (cached) {
+      this.fotoActivaUrl = cached;
+      return;
+    }
+
+    this.fotoLoadingId = registroId;
+
+    // Buscamos el personaId via el historial o el perfil usando el número de identificación
+    // AccesoActivoResponse no trae personaId directamente, así que usamos la búsqueda por nombre
+    this.adminService.getPersonas(1, 1, persona.nombrePersona).subscribe({
+      next: (res) => {
+        const match = res.items[0];
+        if (!match) {
+          this.fotoLoadingId = null;
+          return;
+        }
+        this.adminService.getFotoPersona(match.id).subscribe({
+          next: (blob) => {
+            const url = URL.createObjectURL(blob);
+            this.fotoCache.set(registroId, url);
+            this.fotoActivaUrl = url;
+            this.fotoLoadingId = null;
+          },
+          error: () => { this.fotoLoadingId = null; }
+        });
+      },
+      error: () => { this.fotoLoadingId = null; }
+    });
+  }
+
+  cerrarFotoCard(): void {
+    this.fotoActivaUrl = null;
   }
 }

@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  // Ruta relativa: Caddy interceptará esto y lo enviará al backend
-  apiUrl: '/api/web/accesocontrol', 
-  // Ruta relativa para WebSockets
+  // Al dejarlo vacío, el servicio construirá la ruta '/api/web/accesocontrol' correctamente
+  apiUrl: '', 
   hubUrl: '/accesohub',
-  nombreEmpresa: 'Rocland'
+  nombreEmpresa: 'Rocland',
+  version: '1.0.0'
 };

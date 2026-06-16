@@ -25,19 +25,19 @@ export const GUARDIA_RELEVO_ROUTES: Routes = [
       },
 
       // ── Usuarios
-      {
-        path: 'usuarios',
-        loadComponent: () =>
-          import('./private/pages/usuarios/usuarios.component')
-            .then(m => m.UsuariosComponent),
-      },
+      // {
+      //   path: 'usuarios',
+      //   loadComponent: () =>
+      //     import('./private/pages/usuarios/usuarios.component')
+      //       .then(m => m.UsuariosComponent),
+      // },
 
       // ── Relevos
       {
-        path: 'relevos',
+        path: 'checklist',
         loadComponent: () =>
-          import('./private/pages/relevos/relevos.component')
-            .then(m => m.RelevosComponent),
+          import('./private/pages/checklist/checklist.component')
+            .then(m => m.ChecklistComponent),
       },
 
       // ── Incidencias
@@ -47,20 +47,20 @@ export const GUARDIA_RELEVO_ROUTES: Routes = [
           import('./private/pages/incidencias/incidencias.component')
             .then(m => m.IncidenciasComponent),
       },
-      {
-        // Configuración
-        path: 'configuracion',
-        loadComponent: () =>
-          import('./private/pages/configuracion/configuracion.component')
-            .then(m => m.ConfiguracionComponent),
-      },
-      {
-        // Reportes
-        path: 'reportes',
-        loadComponent: () =>
-          import('./private/pages/reportes/reportes.component')
-            .then(m => m.ReportesComponent),
-      },
+      // {
+      //   // Configuración
+      //   path: 'configuracion',
+      //   loadComponent: () =>
+      //     import('./private/pages/configuracion/configuracion.component')
+      //       .then(m => m.ConfiguracionComponent),
+      // },
+      // {
+      //   // Reportes
+      //   path: 'reportes',
+      //   loadComponent: () =>
+      //     import('./private/pages/reportes/reportes.component')
+      //       .then(m => m.ReportesComponent),
+      // },
 
       // Wildcard — cualquier ruta desconocida vuelve al dashboard
       { path: '**', redirectTo: 'dashboard' },

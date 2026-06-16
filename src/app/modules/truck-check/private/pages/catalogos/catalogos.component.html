@@ -1,0 +1,189 @@
+<!-- catalogos.component.html -->
+<div class="page-content fade-in">
+  <div class="catalogos-grid">
+
+    <!-- ══════════════════════ VEHÍCULOS ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Vehículos</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirModalVehiculo()">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+      <app-data-table
+        [columns]="columnasVehiculos"
+        [data]="vehiculos()"
+        [loading]="cargando()">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('placas') { <span class="cell-nombre">{{ item.placas }}</span> }
+            @case ('ultimoKilometraje') { <span class="cell-nombre">{{ item.ultimoKilometraje }}</span> }
+            @case ('activo') {
+              <app-badge
+                [label]="item.activo ? 'Activo' : 'Inactivo'"
+                [variant]="item.activo ? 'green' : 'red'">
+              </app-badge>
+            }
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menuVehiculo" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menuVehiculo="matMenu" class="custom-mat-menu">
+                <button mat-menu-item (click)="abrirModalVehiculo(item)">
+                  <i class="bi bi-pencil me-2"></i> Editar
+                </button>
+                <button mat-menu-item (click)="toggleEstadoVehiculo(item)">
+                  <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                  {{ item.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+              </mat-menu>
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+
+    <!-- ══════════════════════ SUCURSALES ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Sucursales</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirModalSucursal()">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+      <app-data-table
+        [columns]="columnasSucursales"
+        [data]="sucursales()"
+        [loading]="cargando()">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('nombre') { <span class="cell-nombre">{{ item.nombre }}</span> }
+            @case ('activo') { <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'" [variant]="item.activo ? 'green' : 'red'"></app-badge> }
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menuSucursal" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menuSucursal="matMenu" class="custom-mat-menu">
+                <button mat-menu-item (click)="abrirModalSucursal(item)"><i class="bi bi-pencil me-2"></i> Editar</button>
+                <button mat-menu-item (click)="toggleEstadoSucursal(item)"><i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>{{ item.activo ? 'Desactivar' : 'Activar' }}</button>
+              </mat-menu>
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+
+    <!-- ══════════════════════ CHOFERES ══════════════════════ -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Choferes</span>
+        <button class="btn btn-primary btn-sm" (click)="abrirModalChofer()">
+          <i class="bi bi-plus-lg"></i> Agregar
+        </button>
+      </div>
+      <app-data-table
+        [columns]="columnasChoferes"
+        [data]="choferes()"
+        [loading]="cargando()">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('nombre') { <span class="cell-nombre">{{ item.nombre }}</span> }
+            @case ('activo') { <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'" [variant]="item.activo ? 'green' : 'red'"></app-badge> }
+            @case ('acciones') {
+              <button mat-icon-button [matMenuTriggerFor]="menuChofer" class="btn-ghost btn-sm">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <mat-menu #menuChofer="matMenu" class="custom-mat-menu">
+                <button mat-menu-item (click)="abrirModalChofer(item)"><i class="bi bi-pencil me-2"></i> Editar</button>
+                <button mat-menu-item (click)="toggleEstadoChofer(item)"><i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>{{ item.activo ? 'Desactivar' : 'Activar' }}</button>
+              </mat-menu>
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+
+    <!-- ══════════════════════ ZONAS DE DAÑO ══════════════════════ -->
+    <!-- Zonas de Daño (solo lectura) -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Zonas de Daño</span>
+        <!-- Sin botón Agregar -->
+      </div>
+      <app-data-table
+        [columns]="columnasZonas"
+        [data]="zonas()"
+        [loading]="cargando()">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('nombre') { <span class="cell-nombre">{{ item.nombre }}</span> }
+            @case ('activo') {
+              <app-badge
+                [label]="item.activo ? 'Activo' : 'Inactivo'"
+                [variant]="item.activo ? 'green' : 'red'">
+              </app-badge>
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL GENÉRICO PARA CREAR/EDITAR (reutilizado para todos)       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="modalAbierto().abierto" size="md" (closed)="cerrarModal()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi" [ngClass]="{
+        'bi-truck': modalAbierto().tipo === 'vehiculo',
+        'bi-building': modalAbierto().tipo === 'sucursal',
+        'bi-person-badge': modalAbierto().tipo === 'chofer',
+        'bi-bandaid': modalAbierto().tipo === 'zona'
+      }"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">
+        {{ editandoId() ? 'Editar' : 'Nuevo' }}
+        @switch (modalAbierto().tipo) {
+          @case ('vehiculo') { Vehículo }
+          @case ('sucursal') { Sucursal }
+          @case ('chofer') { Chofer }
+          @case ('zona') { Zona de Daño }
+        }
+      </h2>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="formModal" (ngSubmit)="
+      modalAbierto().tipo === 'vehiculo' ? guardarVehiculo() :
+      modalAbierto().tipo === 'sucursal' ? guardarSucursal() :
+      modalAbierto().tipo === 'chofer' ? guardarChofer() : null
+    ">
+      @if (modalAbierto().tipo === 'vehiculo') {
+        <div class="mb-3">
+          <label class="form-label">Placas <span class="req">*</span></label>
+          <input type="text" class="form-control text-mono" formControlName="placas" placeholder="ABC-123">
+        </div>
+      } @else if (modalAbierto().tipo === 'sucursal') {
+        <div class="mb-3">
+          <label class="form-label">Nombre <span class="req">*</span></label>
+          <input type="text" class="form-control text-mono" formControlName="nombre" placeholder="Nombre Sucursal">
+        </div>
+      } @else {
+        <div class="mb-3">
+          <label class="form-label">Nombre <span class="req">*</span></label>
+          <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre del chofer">
+        </div>
+      }
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="formModal.invalid">
+          {{ editandoId() ? 'Guardar cambios' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

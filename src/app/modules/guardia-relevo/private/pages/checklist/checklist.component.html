@@ -1,0 +1,151 @@
+<div class="page-content fade-in">
+  <div class="info-message">
+    <i class="bi bi-info-circle-fill"></i>
+    <span>Listado de rondines realizados por los guardias. Usa los filtros para buscar por guardia o rango de fechas.</span>
+  </div>
+
+  <div class="section-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-bold">Rondines</span>
+      <span class="text-muted text-mono">Total: {{ rondinesFiltrados().length }}</span>
+    </div>
+    <div class="card-body p-0">
+      <app-data-table
+        [columns]="columnas"
+        [data]="rondinesPagina()"
+        [loading]="cargando()"
+        [currentPage]="paginaActual()"
+        [totalPages]="totalPaginas()"
+        (pageChange)="cambiarPagina($event)">
+        <ng-template #cellTemplate let-item let-col="column">
+          @switch (col.key) {
+            @case ('fechaHoraLocal') {
+              <span class="text-mono">{{ formatFecha(item.fechaHoraLocal) }}</span>
+            }
+            @case ('todoOk') {
+              <app-badge [label]="getEstadoTexto(item.todoOk)" [variant]="getEstadoBadge(item.todoOk)"></app-badge>
+            }
+            @case ('tieneFirma') {
+              <i class="bi" [class.bi-check-lg]="item.tieneFirma" [class.bi-x-lg]="!item.tieneFirma"></i>
+            }
+            @case ('acciones') {
+              <button class="btn-ghost btn-sm" (click)="verDetalle(item.id)">
+                <i class="bi bi-eye"></i>
+              </button>
+            }
+            @default {
+              {{ item[col.key] }}
+            }
+          }
+        </ng-template>
+      </app-data-table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DETALLE -->
+<app-modal [isOpen]="modalAbierto()" size="lg" (closed)="cerrarModal()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-clipboard-check-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">Detalle del rondín</h2>
+      <p class="modal-subtitle">
+        {{ detalleActual()?.guardia }} - {{ formatFecha(detalleActual()?.fechaHoraLocal || '') }}
+      </p>
+    </div>
+  </ng-container>
+  <ng-container body>
+    @if (cargandoDetalle()) {
+      <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+    } @else if (detalleActual(); as detalle) {
+      <mat-tab-group>
+        <mat-tab label="Información general">
+          <div class="p-3">
+            <p><strong>Tipo:</strong> {{ detalle.descripcionRondin }} ({{ detalle.tipoRondin }})</p>
+            <p><strong>Observaciones:</strong> {{ detalle.observacion || 'Ninguna' }}</p>
+            <p><strong>Firma:</strong> {{ detalle.tieneFirma ? 'Adjuntada' : 'No adjuntada' }}</p>
+
+            <!-- Mostrar la firma si existe -->
+            @if (detalle.firma && detalle.firma.length) {
+              <div class="mt-3">
+                <strong>Imagen de la firma:</strong><br>
+                <img [src]="'data:image/png;base64,' + detalle.firma"
+                    class="img-fluid border mt-1"
+                    style="max-width: 250px; max-height: 150px;">
+              </div>
+            }
+          </div>
+        </mat-tab>
+        <mat-tab label="Puntos del checklist">
+          <div class="p-3">
+            @if (detalle.puntos.length) {
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr><th>Categoría</th><th>Punto</th><th>Estado</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (p of detalle.puntos; track p.idPunto) {
+                      <tr>
+                        <td>{{ p.categoria }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>
+                          <app-badge [label]="p.estado ? 'OK' : 'Problema'"
+                                     [variant]="p.estado ? 'green' : 'red'"></app-badge>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="text-muted text-center">No hay puntos registrados</div>
+            }
+          </div>
+        </mat-tab>
+        <mat-tab label="Incidencias generadas">
+          <div class="p-3">
+            @if (incidenciasDelChecklist(); as incidencias) {
+              @if (incidencias.length) {
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr><th>Punto</th><th>Guardia saliente</th><th>Guardia entrante</th><th>Estado</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                      @for (inc of incidencias; track inc.id) {
+                        <tr>
+                          <td>{{ inc.punto }}</td>
+                          <td>{{ inc.guardiaSaliente }}</td>
+                          <td>{{ inc.guardiaEntrante }}</td>
+                          <td>
+                            <app-badge [label]="inc.resuelta ? 'Resuelta' : 'Abierta'"
+                                       [variant]="inc.resuelta ? 'green' : 'red'"></app-badge>
+                          </td>
+                          <td>
+                            @if (!inc.resuelta && puedeAdministrar()) {
+                              <button class="btn-rocland btn-sm" (click)="resolverIncidencia(inc.id)">
+                                Resolver
+                              </button>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="text-muted text-center">No hay incidencias asociadas a este rondín</div>
+              }
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    }
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="cerrarModal()">Cerrar</button>
+  </ng-container>
+</app-modal>

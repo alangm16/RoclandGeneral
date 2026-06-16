@@ -1,12 +1,10 @@
 import {
-  Component, OnInit, OnDestroy, inject, signal, computed,
-  Injector
+  Component, OnInit, OnDestroy, inject, signal, computed
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, combineLatest, firstValueFrom } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { GuardiaRelevoService } from '../../../services/guardia-relevo.service';
 import { AlertService } from '../../../../../shared/components/swal-alert/alert.service';
@@ -18,13 +16,7 @@ import { BadgeComponent } from '../../../../../shared/components/badge/badge-com
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import {
-  IncidenciaListResponse,
-  IncidenciaResponse,
-  FiltrarIncidenciasRequest,
-  ResolverIncidenciaRequest,
-  ChecklistPuntoItem,
-} from '../../../models/guardia-relevo.models';
+import { IncidenciaDto } from '../../../models/guardia-relevo.models';
 
 @Component({
   selector: 'app-guardia-relevo-incidencias',
@@ -45,83 +37,61 @@ export class IncidenciasComponent implements OnInit, OnDestroy {
   private layoutSvc = inject(LayoutService);
   private grService = inject(GuardiaRelevoService);
   private alert = inject(AlertService);
-  private injector = inject(Injector);
   private destroy$ = new Subject<void>();
 
-  // ── Datos de la tabla ──
-  incidencias = signal<IncidenciaListResponse[]>([]);
-  totalRegistros = signal(0);
+  // Datos originales
+  todasIncidencias = signal<IncidenciaDto[]>([]);
+  incidenciasFiltradas = signal<IncidenciaDto[]>([]);
   cargando = signal(false);
+
+  // Paginación cliente
   paginaActual = signal(1);
   readonly porPagina = 15;
-  totalPaginas = computed(() => Math.max(1, Math.ceil(this.totalRegistros() / this.porPagina)));
+  totalPaginas = computed(() => Math.max(1, Math.ceil(this.incidenciasFiltradas().length / this.porPagina)));
+  incidenciasPagina = computed(() => {
+    const start = (this.paginaActual() - 1) * this.porPagina;
+    return this.incidenciasFiltradas().slice(start, start + this.porPagina);
+  });
 
-  // ── Columnas de la tabla ──
+  // Columnas de la tabla
   columnas: DataTableColumn[] = [
-    { key: 'fechaRelevo', label: 'FECHA', cellClass: 'text-mono' },
-    { key: 'nombrePunto', label: 'PUNTO' },
-    { key: 'tipoOrigen', label: 'TIPO' },
-    { key: 'estado', label: 'ESTADO', cellClass: 'text-center' },
+    { key: 'fechaDeteccionLocal', label: 'FECHA', cellClass: 'text-mono' },
+    { key: 'punto', label: 'PUNTO' },
+    { key: 'categoria', label: 'CATEGORÍA' },
+    { key: 'guardiaSaliente', label: 'SALIENTE' },
+    { key: 'guardiaEntrante', label: 'ENTRANTE' },
+    { key: 'resuelta', label: 'ESTADO', cellClass: 'text-center' },
     { key: 'acciones', label: '', cellClass: 'text-end' },
   ];
 
-  // ── Opciones para filtros dinámicos ──
-  puntosOptions = signal<{ label: string; value: string }[]>([]);
-
-  // ── Modal de detalle ──
+  // Modal de detalle
   modalDetalleAbierto = signal(false);
-  incidenciaDetalle = signal<IncidenciaResponse | null>(null);
-  cargandoDetalle = signal(false);
-
-  // ── Modal de resolución ──
-  modalResolverAbierto = signal(false);
-  incidenciaResolverId = signal<number | null>(null);
-  resolverNota = signal('');
-  resolverPorId = signal<number | null>(null);
-  perfilesDisponibles = signal<{ id: number; nombre: string }[]>([]);
+  incidenciaSeleccionada = signal<IncidenciaDto | null>(null);
 
   ngOnInit(): void {
     this.layoutSvc.setSubheader({
       title: 'Incidencias',
-      showSearch: true,
-      searchPlaceholder: 'Buscar por punto, descripción...',
+      showSearch: false,
       filters: [
         { type: 'date', key: 'fechaDesde', placeholder: 'Fecha desde' },
         { type: 'date', key: 'fechaHasta', placeholder: 'Fecha hasta' },
         {
           type: 'select',
-          key: 'tipoOrigen',
-          placeholder: 'Todos los tipos',
-          options: [
-            { label: 'No OK', value: 'NoOk' },
-            { label: 'Discrepancia', value: 'Discrepancia' },
-          ],
-        },
-        {
-          type: 'select',
-          key: 'estado',
+          key: 'resuelta',
           placeholder: 'Todos los estados',
           options: [
-            { label: 'Abierta', value: 'Abierta' },
-            { label: 'Resuelta', value: 'Resuelta' },
+            { label: 'Abierta', value: 'false' },
+            { label: 'Resuelta', value: 'true' },
           ],
-        },
-        {
-          type: 'select',
-          key: 'puntoId',
-          placeholder: 'Todos los puntos',
-          options: [], // se llenará dinámicamente
         },
       ],
       actions: [
-        { label: 'Buscar', icon: 'bi-search', variant: 'flat', handler: () => this.ejecutarBusqueda() },
+        { label: 'Buscar', icon: 'bi-search', variant: 'flat', handler: () => this.aplicarFiltros() },
         { label: 'Limpiar', icon: 'bi-arrow-counterclockwise', variant: 'stroked', handler: () => this.limpiarFiltros() },
       ],
     });
 
-    this.cargarOpcionesPuntos();
     this.cargarIncidencias();
-    this.setupFiltros();
   }
 
   ngOnDestroy(): void {
@@ -130,159 +100,90 @@ export class IncidenciasComponent implements OnInit, OnDestroy {
     this.layoutSvc.resetSubheader();
   }
 
-  private cargarOpcionesPuntos(): void {
-    this.grService.getChecklistPuntosActivos().subscribe({
-      next: (puntos) => {
-        const opts = puntos.map(p => ({ label: `${p.categoria} - ${p.nombre}`, value: p.id.toString() }));
-        this.puntosOptions.set(opts);
-        const currentFilters = this.layoutSvc.subheaderFilters();
-        const idx = currentFilters.findIndex(f => f.key === 'puntoId');
-        if (idx !== -1) {
-          const updated = [...currentFilters];
-          updated[idx] = { ...updated[idx], options: opts };
-          this.layoutSvc.subheaderFilters.set(updated);
-        }
-      },
-      error: () => console.error('Error cargando puntos para filtro'),
-    });
-  }
-
-  private setupFiltros(): void {
-    combineLatest([
-      toObservable(this.layoutSvc.searchValue, { injector: this.injector }),
-      toObservable(this.layoutSvc.filterValues, { injector: this.injector }),
-    ])
-      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.paginaActual.set(1);
-        this.cargarIncidencias();
-      });
-  }
-
-  private cargarIncidencias(): void {
+  private async cargarIncidencias(): Promise<void> {
     this.cargando.set(true);
-    const filtros: FiltrarIncidenciasRequest = {
-      page: this.paginaActual(),
-      pageSize: this.porPagina,
-      fechaDesde: this.layoutSvc.filterValues()['fechaDesde'] || undefined,
-      fechaHasta: this.layoutSvc.filterValues()['fechaHasta'] || undefined,
-      tipoOrigen: this.layoutSvc.filterValues()['tipoOrigen'] || undefined,
-      estado: this.layoutSvc.filterValues()['estado'] || undefined,
-      puntoId: this.layoutSvc.filterValues()['puntoId'] ? +this.layoutSvc.filterValues()['puntoId'] : undefined,
-    };
-    // Búsqueda global (si el backend la soporta, se puede añadir)
-    // Por ahora, usamos solo los filtros.
+    try {
+      const data = await firstValueFrom(this.grService.getIncidencias(null));
+      this.todasIncidencias.set(data);
+      this.aplicarFiltros();
+    } catch (error) {
+      this.alert.error('No se pudieron cargar las incidencias');
+    } finally {
+      this.cargando.set(false);
+    }
+  }
 
-    this.grService
-      .getIncidenciasPaginadas(filtros)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          this.incidencias.set(res.items);
-          this.totalRegistros.set(res.totalCount);
-          this.cargando.set(false);
-        },
-        error: () => {
-          this.cargando.set(false);
-          this.alert.error('No se pudieron cargar las incidencias');
-        },
-      });
+  aplicarFiltros(): void {
+    const filtros = this.layoutSvc.filterValues();
+    const desde = filtros['fechaDesde'] ? new Date(filtros['fechaDesde']) : null;
+    const hasta = filtros['fechaHasta'] ? new Date(filtros['fechaHasta']) : null;
+    const resueltaStr = filtros['resuelta'];
+    const soloResuelta = resueltaStr !== undefined && resueltaStr !== '' ? resueltaStr === 'true' : null;
+
+    let filtradas = [...this.todasIncidencias()];
+
+    if (desde) {
+      filtradas = filtradas.filter(i => new Date(i.fechaDeteccionLocal) >= desde);
+    }
+    if (hasta) {
+      filtradas = filtradas.filter(i => new Date(i.fechaDeteccionLocal) <= hasta);
+    }
+    if (soloResuelta !== null) {
+      filtradas = filtradas.filter(i => i.resuelta === soloResuelta);
+    }
+
+    this.incidenciasFiltradas.set(filtradas);
+    this.paginaActual.set(1);
+  }
+
+  limpiarFiltros(): void {
+    this.layoutSvc.filterValues.set({});
+    this.aplicarFiltros();
   }
 
   cambiarPagina(delta: number): void {
     const nueva = this.paginaActual() + delta;
     if (nueva >= 1 && nueva <= this.totalPaginas()) {
       this.paginaActual.set(nueva);
-      this.cargarIncidencias();
     }
   }
 
-  ejecutarBusqueda(): void {
-    this.paginaActual.set(1);
-    this.cargarIncidencias();
-  }
-
-  limpiarFiltros(): void {
-    this.layoutSvc.searchValue.set('');
-    this.layoutSvc.filterValues.set({});
-    this.paginaActual.set(1);
-    this.cargarIncidencias();
-  }
-
-  // ── Modal de detalle ──
-  async verDetalle(incidenciaId: number): Promise<void> {
+  verDetalle(incidencia: IncidenciaDto): void {
+    this.incidenciaSeleccionada.set(incidencia);
     this.modalDetalleAbierto.set(true);
-    this.cargandoDetalle.set(true);
-    try {
-      const detalle = await firstValueFrom(this.grService.getIncidenciaDetalle(incidenciaId));
-      this.incidenciaDetalle.set(detalle);
-    } catch (error) {
-      this.alert.error('No se pudo cargar el detalle de la incidencia');
-    } finally {
-      this.cargandoDetalle.set(false);
-    }
   }
 
   cerrarModalDetalle(): void {
     this.modalDetalleAbierto.set(false);
-    this.incidenciaDetalle.set(null);
+    this.incidenciaSeleccionada.set(null);
   }
 
-  // ── Modal de resolución ──
-  async abrirModalResolver(incidenciaId: number): Promise<void> {
-    // Verificar que la incidencia esté abierta (doble control)
-    const incidencia = this.incidencias().find(i => i.id === incidenciaId);
-    if (incidencia?.estado === 'Resuelta') {
-      this.alert.error('La incidencia ya está resuelta');
+  async resolverIncidencia(incidencia: IncidenciaDto): Promise<void> {
+    if (incidencia.resuelta) {
+      this.alert.advertencia('Esta incidencia ya está resuelta');
       return;
     }
-    this.incidenciaResolverId.set(incidenciaId);
-    this.resolverNota.set('');
-    this.resolverPorId.set(null);
+    const confirm = await this.alert.confirmar({ texto: '¿Marcar esta incidencia como resuelta?' });
+    if (!confirm) return;
     try {
-      const perfiles = await firstValueFrom(this.grService.getPerfilesActivos());
-      this.perfilesDisponibles.set(perfiles?.map(p => ({ id: p.id, nombre: p.nombreCompleto })) ?? []);
-      this.modalResolverAbierto.set(true);
+      await firstValueFrom(this.grService.resolverIncidencia(incidencia.id));
+      this.alert.exito('Incidencia resuelta');
+      // Recargar lista
+      await this.cargarIncidencias();
     } catch (error) {
-      this.alert.error('No se pudieron cargar los guardias');
+      this.alert.error('No se pudo resolver la incidencia');
     }
   }
 
-  async confirmarResolver(): Promise<void> {
-    const id = this.incidenciaResolverId();
-    const nota = this.resolverNota();
-    const resueltaPorId = this.resolverPorId();
-    if (!id || !nota.trim()) {
-      this.alert.error('Debes escribir una nota de resolución');
-      return;
-    }
-    if (!resueltaPorId) {
-      this.alert.error('Selecciona el responsable de la resolución');
-      return;
-    }
-    const dto: ResolverIncidenciaRequest = { resueltaPorId, notaResolucion: nota };
-    this.grService.resolverIncidencia(id, dto).subscribe({
-      next: () => {
-        this.alert.exito('Incidencia resuelta correctamente');
-        this.modalResolverAbierto.set(false);
-        this.cargarIncidencias(); // refrescar lista
-      },
-      error: () => this.alert.error('No se pudo resolver la incidencia'),
-    });
+  getEstadoBadge(resuelta: boolean): string {
+    return resuelta ? 'green' : 'red';
   }
 
-  // ── Helper para badge de estado ──
-  getEstadoVariant(estado: string): string {
-    return estado === 'Abierta' ? 'red' : 'green';
+  getEstadoTexto(resuelta: boolean): string {
+    return resuelta ? 'Resuelta' : 'Abierta';
   }
 
-  getTipoVariant(tipo: string): string {
-    return tipo === 'NoOk' ? 'red' : 'amber';
-  }
-
-  // ── Helper para formatear fecha ──
   formatFecha(fecha: string): string {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleDateString('es-MX');
+    return new Date(fecha).toLocaleString('es-MX');
   }
 }

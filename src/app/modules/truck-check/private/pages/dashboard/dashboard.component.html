@@ -1,0 +1,296 @@
+<div class="dashboard-kpi-grid">
+  <div class="dashboard-kpi-card green">
+    <div class="dashboard-kpi-icon"><i class="bi bi-truck"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Camiones fuera</div>
+      <div class="dashboard-kpi-value">{{ kpis.totalCamionesAfuera }}</div>
+      <div class="dashboard-kpi-sub">unidades fuera actualmente</div>
+    </div>
+  </div>
+  <div class="dashboard-kpi-card blue">
+    <div class="dashboard-kpi-icon"><i class="bi bi-arrow-right-circle-fill"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Salidas hoy</div>
+      <div class="dashboard-kpi-value">{{ kpis.totalSalidasHoy}}</div>
+      <div class="dashboard-kpi-sub">movimientos de salida</div>
+    </div>
+  </div>
+  <div class="dashboard-kpi-card amber">
+    <div class="dashboard-kpi-icon"><i class="bi bi-clock-history"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Promedio fuera</div>
+      <div class="dashboard-kpi-value">{{ formatMinutos(kpis.promedioMinutosFuera) }}</div>
+      <div class="dashboard-kpi-sub">minutos promedio por viaje</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCIÓN: CAMIONES DENTRO Y FUERA -->
+<div class="section-card mt-4">
+  <div class="section-header">
+    <div class="section-title">
+      <i class="bi bi-geo-alt-fill"></i>
+      <h3>Estado actual de unidades</h3>
+    </div>
+    <div class="section-actions">
+      <button class="btn btn-outline btn-sm" (click)="cargarDatosCompletos()">
+        <i class="bi bi-arrow-clockwise"></i> Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Camiones DENTRO -->
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">Camiones dentro</span>
+      <span class="badge badge-blue">{{ camionesDentro.length }}</span>
+    </div>
+    <div class="cards-grid">
+      <div *ngIf="camionesDentro.length === 0" class="empty-state">
+        No hay camiones dentro actualmente.
+      </div>
+
+      <div class="truck-card internal-card tc-gauge-trigger" *ngFor="let c of camionesDentro">
+
+        <div class="tc-header">
+          <div class="tc-avatar blue"><i class="bi bi-truck"></i></div>
+          <div class="tc-plates">{{ c.placas }}</div>
+          <div class="tc-badge blue">{{ formatMinutos(c.minutosDentro) }}</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-row">
+            <i class="bi bi-person-fill"></i>
+            <span class="tc-chofer">{{ c.nombreChofer }}</span>
+          </div>
+          <div class="tc-row">
+            <i class="bi bi-clock"></i>
+            <span>{{ fmtHora(c.fechaEntrada) }}</span>
+          </div>
+          <div class="tc-row">
+            <i class="bi bi-building"></i>
+            <span>{{ c.sucursalOrigen }}</span>
+          </div>
+        </div>
+
+        <!-- Gauge tooltip — aparece al hover sobre toda la card -->
+        <div class="tc-gauge-tooltip">
+          <div class="gauge-container">
+            <div class="fuel-indicator">
+              <i class="bi bi-fuel-pump-fill"
+                 [style.color]="obtenerColorCombustible(c.nivelCombustible)"></i>
+              <span class="fuel-text"
+                    [style.color]="obtenerColorCombustible(c.nivelCombustible)"
+                    [style.border-color]="obtenerColorCombustible(c.nivelCombustible)">
+                {{ parsearNumero(c.nivelCombustible) }}%
+              </span>
+            </div>
+            <svg viewBox="0 0 100 85" class="gauge-svg">
+              <defs>
+                <linearGradient [attr.id]="'fuelGrad-dentro-' + c.placas" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"      stop-color="#E53935" />
+                  <stop offset="14.65%" stop-color="#E53935" />
+                  <stop offset="14.65%" stop-color="#FB8C00" />
+                  <stop offset="50%"    stop-color="#FB8C00" />
+                  <stop offset="50%"    stop-color="#FBC02D" />
+                  <stop offset="85.35%" stop-color="#FBC02D" />
+                  <stop offset="85.35%" stop-color="#43A047" />
+                  <stop offset="100%"   stop-color="#43A047" />
+                </linearGradient>
+              </defs>
+              <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-bg"
+                    stroke-width="7" stroke-linecap="round"/>
+              <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-fill"
+                    stroke-width="7" stroke-linecap="round"
+                    [attr.stroke]="'url(#fuelGrad-dentro-' + c.placas + ')'"
+                    [style.stroke-dasharray]="125.6"
+                    [style.stroke-dashoffset]="125.6 - (125.6 * (parsearNumero(c.nivelCombustible) / 100))"/>
+              <text x="10" y="65" class="gauge-label-text" text-anchor="middle">0%</text>
+              <text x="90" y="65" class="gauge-label-text" text-anchor="middle">100%</text>
+              <g [style.transform]="'rotate(' + (-90 + (1.8 * parsearNumero(c.nivelCombustible))) + 'deg)'"
+                 style="transform-origin: 50px 50px; transition: transform 1s cubic-bezier(0.34,1.56,0.64,1);">
+                <polygon points="48.5,50 51.5,50 50,18" fill="#2C2C2C"/>
+                <circle cx="50" cy="50" r="4.5" fill="#3D3D3D"/>
+                <circle cx="50" cy="50" r="1.5" fill="#F2F2F2"/>
+              </g>
+            </svg>
+            <div class="digital-box">
+              <span class="digital-val">{{ c.ultimoKilometraje }}</span>
+              <span class="digital-unit">KM</span>
+            </div>
+          </div>
+          <div class="tc-gauge-arrow"></div>
+        </div>
+
+        <div class="tc-popup">
+          <div class="tc-popup-plates">
+            <i class="bi bi-truck-front-fill"></i> {{ c.placas }}
+          </div>
+          <div class="tc-popup-divider"></div>
+          <div class="tc-popup-row">
+            <i class="bi bi-person-fill"></i>
+            <span>{{ c.nombreChofer }}</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-clock-fill"></i>
+            <span>Entrada: {{ fmtHora(c.fechaEntrada) }}</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-stopwatch-fill"></i>
+            <span>{{ formatMinutos(c.minutosDentro) }} dentro</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-building"></i>
+            <span>{{ c.sucursalOrigen }}</span>
+          </div>
+          <div class="tc-popup-arrow"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Camiones FUERA -->
+  <div class="subsection">
+    <div class="subsection-header">
+      <span class="subsection-title">Camiones fuera</span>
+      <span class="badge badge-amber">{{ camionesAfuera.length }}</span>
+    </div>
+    <div class="cards-grid">
+      <div *ngIf="camionesAfuera.length === 0" class="empty-state">
+        No hay camiones fuera actualmente.
+      </div>
+
+      <div class="truck-card provider-card tc-gauge-trigger" *ngFor="let c of camionesAfuera">
+
+        <div class="tc-header">
+          <div class="tc-avatar amber"><i class="bi bi-truck"></i></div>
+          <div class="tc-plates">{{ c.placas }}</div>
+          <div class="tc-badge amber">{{ formatMinutos(c.minutosFuera) }}</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-row">
+            <i class="bi bi-person-fill"></i>
+            <span class="tc-chofer">{{ c.nombreChofer }}</span>
+          </div>
+          <div class="tc-row">
+            <i class="bi bi-arrow-right-circle-fill"></i>
+            <span>{{ fmtHora(c.fechaSalida) }}</span>
+          </div>
+          <div class="tc-row">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>{{ c.sucursalDestino }}</span>
+          </div>
+        </div>
+
+        <!-- Gauge tooltip — aparece al hover sobre toda la card -->
+        <div class="tc-gauge-tooltip">
+          <div class="gauge-container">
+            <div class="fuel-indicator">
+              <i class="bi bi-fuel-pump-fill"
+                 [style.color]="obtenerColorCombustible(c.nivelCombustible)"></i>
+              <span class="fuel-text"
+                    [style.color]="obtenerColorCombustible(c.nivelCombustible)"
+                    [style.border-color]="obtenerColorCombustible(c.nivelCombustible)">
+                {{ parsearNumero(c.nivelCombustible) }}%
+              </span>
+            </div>
+            <svg viewBox="0 0 100 85" class="gauge-svg">
+              <defs>
+                <linearGradient [attr.id]="'fuelGrad-fuera-' + c.placas" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"      stop-color="#E53935" />
+                  <stop offset="14.65%" stop-color="#E53935" />
+                  <stop offset="14.65%" stop-color="#FB8C00" />
+                  <stop offset="50%"    stop-color="#FB8C00" />
+                  <stop offset="50%"    stop-color="#FBC02D" />
+                  <stop offset="85.35%" stop-color="#FBC02D" />
+                  <stop offset="85.35%" stop-color="#43A047" />
+                  <stop offset="100%"   stop-color="#43A047" />
+                </linearGradient>
+              </defs>
+              <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-bg"
+                    stroke-width="7" stroke-linecap="round"/>
+              <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-fill"
+                    stroke-width="7" stroke-linecap="round"
+                    [attr.stroke]="'url(#fuelGrad-fuera-' + c.placas + ')'"
+                    [style.stroke-dasharray]="125.6"
+                    [style.stroke-dashoffset]="125.6 - (125.6 * (parsearNumero(c.nivelCombustible) / 100))"/>
+              <text x="10" y="65" class="gauge-label-text" text-anchor="middle">0%</text>
+              <text x="90" y="65" class="gauge-label-text" text-anchor="middle">100%</text>
+              <g [style.transform]="'rotate(' + (-90 + (1.8 * parsearNumero(c.nivelCombustible))) + 'deg)'"
+                 style="transform-origin: 50px 50px; transition: transform 1s cubic-bezier(0.34,1.56,0.64,1);">
+                <polygon points="48.5,50 51.5,50 50,18" fill="#2C2C2C"/>
+                <circle cx="50" cy="50" r="4.5" fill="#3D3D3D"/>
+                <circle cx="50" cy="50" r="1.5" fill="#F2F2F2"/>
+              </g>
+            </svg>
+            <div class="digital-box">
+              <span class="digital-val">{{ c.ultimoKilometraje }}</span>
+              <span class="digital-unit">KM</span>
+            </div>
+          </div>
+          <div class="tc-gauge-arrow"></div>
+        </div>
+
+        <div class="tc-popup">
+          <div class="tc-popup-plates">
+            <i class="bi bi-truck-front-fill"></i> {{ c.placas }}
+          </div>
+          <div class="tc-popup-divider"></div>
+          <div class="tc-popup-row">
+            <i class="bi bi-person-fill"></i>
+            <span>{{ c.nombreChofer }}</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-arrow-right-circle-fill"></i>
+            <span>Salida: {{ fmtHora(c.fechaSalida) }}</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-stopwatch-fill"></i>
+            <span>{{ formatMinutos(c.minutosFuera) }} fuera</span>
+          </div>
+          <div class="tc-popup-row">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>{{ c.sucursalDestino }}</span>
+          </div>
+          <div class="tc-popup-arrow"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GRÁFICAS (flujo por hora y sucursales más visitadas) -->
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Flujo por hora — hoy</h3>
+    </div>
+    <div class="chart-container">
+      <canvas #canvasHoras></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Sucursales más visitadas (30 días)</h3>
+    </div>
+    <div class="chart-container">
+      <canvas #canvasSucursales></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVA GRÁFICA: Viajes por camión y horas fuera -->
+<div class="chart-card full-width">
+  <div class="chart-header">
+    <h3 class="chart-title">Camiones activos en {{ anioActual }}</h3>
+    <div class="chart-filters">
+      <select class="select-sm" [(ngModel)]="anioActual" (change)="cargarViajesPorCamion()">
+        <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="chart-container large">
+    <canvas #canvasCamiones></canvas>
+  </div>
+</div>

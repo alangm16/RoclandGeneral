@@ -1,0 +1,303 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Historial de Checklists</span>
+      <span class="text-muted text-mono">Total: {{ totalRegistros() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columnas"
+      [data]="registros()"
+      [loading]="cargando()"
+      [currentPage]="paginaActual()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="cambiarPagina($event)">
+
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('fechaHoraLocal') {
+            <span class="text-mono">{{ formatFecha(item.fechaHoraLocal) }}</span>
+          }
+          @case ('tipoRegistro') {
+            <app-badge
+              [label]="item.tipoRegistro"
+              [variant]="item.tipoRegistro === 'Entrada' ? 'blue' : 'purple'">
+            </app-badge>
+          }
+          @case ('acciones') {
+            <div class="dropdown-wrapper" (clickOutside)="cerrarDropdown(item.id)">
+              <button
+                class="btn-dropdown-trigger"
+                (click)="toggleDropdown($event, item.id)"
+                title="Opciones">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              @if (dropdownAbierto() === item.id) {
+                <div class="dropdown-menu-custom">
+                  <button
+                    class="dropdown-item-custom"
+                    (click)="verDetalle(item.id); cerrarDropdown(item.id)">
+                    <i class="bi bi-eye"></i>
+                    <span>Ver detalle</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+          @default {
+            {{ item[col.key] ?? '—' }}
+          }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>
+
+<!-- Modal de detalle -->
+<app-modal [isOpen]="modalAbierto()" size="lg" (closed)="cerrarModal()">
+  <ng-container header>
+    <div class="modal-header-content">
+      <div class="modal-avatar">
+        <i class="bi bi-clipboard-check-fill"></i>
+      </div>
+      <div class="modal-header-text">
+        <h2 class="modal-title">Detalle del Checklist</h2>
+        <p class="modal-subtitle">
+          <i class="bi bi-calendar3"></i>
+          {{ formatFecha(detalleSeleccionado()?.fechaHoraLocal ?? '') }}
+        </p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container body>
+    @if (cargandoDetalle()) {
+      <div class="modal-loading">
+        <div class="spinner-border text-success"></div>
+        <span>Cargando detalle...</span>
+      </div>
+    } @else if (detalleSeleccionado(); as detalle) {
+
+      <!-- Info principal -->
+      <div class="detalle-grid">
+        <div class="detalle-field">
+          <label><i class="bi bi-building"></i> Sucursal</label>
+          <span>{{ detalle.sucursal }}</span>
+        </div>
+        <div class="detalle-field">
+          <label><i class="bi bi-truck"></i> Vehículo</label>
+          <span>{{ detalle.placas }}</span>
+        </div>
+        <div class="detalle-field">
+          <label><i class="bi bi-person-fill"></i> Chofer</label>
+          <span>{{ detalle.nombreChofer }}</span>
+        </div>
+        <div class="detalle-field">
+          <label><i class="bi bi-shield-fill"></i> Guardia</label>
+          <span>{{ detalle.guardia }}</span>
+        </div>
+
+        <div class="detalle-field detalle-field--tipo">
+          <label><i class="bi bi-arrow-left-right"></i> Tipo de registro</label>
+          <app-badge
+            [label]="detalle.tipoRegistro"
+            [variant]="detalle.tipoRegistro === 'Entrada' ? 'blue' : 'purple'">
+          </app-badge>
+        </div>
+      </div>
+
+      <!-- Verificaciones -->
+      <div class="detalle-seccion">
+        <h4><i class="bi bi-check2-square"></i> Verificaciones</h4>
+        <div class="verificaciones-grid">
+
+          <div class="verificacion-item" [class.ok]="detalle.candados" [class.fail]="!detalle.candados">
+            <div class="verif-icon">
+              <i class="bi" [ngClass]="detalle.candados ? 'bi-lock-fill' : 'bi-lock'"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Candados</span>
+              <span class="verif-status">{{ detalle.candados ? 'OK' : 'Falta' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.candados ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="verificacion-item" [class.ok]="detalle.licencia" [class.fail]="!detalle.licencia">
+            <div class="verif-icon">
+              <i class="bi" [ngClass]="detalle.licencia ? 'bi-card-text' : 'bi-card-text'"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Licencia</span>
+              <span class="verif-status">{{ detalle.licencia ? 'OK' : 'Falta' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.licencia ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="verificacion-item" [class.ok]="detalle.sinDaniosNuevos" [class.fail]="!detalle.sinDaniosNuevos">
+            <div class="verif-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Sin daños nuevos</span>
+              <span class="verif-status">{{ detalle.sinDaniosNuevos ? 'OK' : 'Hay daños' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.sinDaniosNuevos ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="verificacion-item" [class.ok]="detalle.llantasBienEstado" [class.fail]="!detalle.llantasBienEstado">
+            <div class="verif-icon">
+              <i class="bi bi-circle"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Llantas</span>
+              <span class="verif-status">{{ detalle.llantasBienEstado ? 'Buen estado' : 'Revisar' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.llantasBienEstado ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="verificacion-item" [class.ok]="detalle.lucesFuncionando" [class.fail]="!detalle.lucesFuncionando">
+            <div class="verif-icon">
+              <i class="bi bi-lightning-fill"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Luces</span>
+              <span class="verif-status">{{ detalle.lucesFuncionando ? 'Funcionando' : 'Revisar' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.lucesFuncionando ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="verificacion-item" [class.ok]="detalle.sinFugasVisibles" [class.fail]="!detalle.sinFugasVisibles">
+            <div class="verif-icon">
+              <i class="bi bi-droplet-fill"></i>
+            </div>
+            <div class="verif-body">
+              <span class="verif-label">Sin fugas</span>
+              <span class="verif-status">{{ detalle.sinFugasVisibles ? 'Sin fugas' : 'Hay fuga' }}</span>
+            </div>
+            <i class="bi verif-check"
+               [ngClass]="detalle.sinFugasVisibles ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+          </div>
+
+          <div class="odometer-widget">
+            <div class="gauge-container">
+              
+              <div class="fuel-indicator">
+                <i class="bi bi-fuel-pump-fill" 
+                  [style.color]="obtenerColorCombustible(detalle.nivelCombustible)"></i>
+                <span class="fuel-text"
+                      [style.color]="obtenerColorCombustible(detalle.nivelCombustible)"
+                      [style.border-color]="obtenerColorCombustible(detalle.nivelCombustible)">
+                  {{ parsearNumero(detalle.nivelCombustible) }}%
+                </span>
+              </div>
+
+              <svg viewBox="0 0 100 85" class="gauge-svg">
+                <defs>
+                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+                  </filter>
+
+                  <linearGradient id="fuelColors" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#E53935" />
+                    <stop offset="14.65%" stop-color="#E53935" />
+                    
+                    <stop offset="14.65%" stop-color="#FB8C00" />
+                    <stop offset="50%" stop-color="#FB8C00" />
+                    
+                    <stop offset="50%" stop-color="#FBC02D" />
+                    <stop offset="85.35%" stop-color="#FBC02D" />
+                    
+                    <stop offset="85.35%" stop-color="#43A047" />
+                    <stop offset="100%" stop-color="#43A047" />
+                  </linearGradient>
+                </defs>
+
+                <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-bg" stroke-width="7" stroke-linecap="round"/>
+
+                <path d="M 10 50 A 40 40 0 0 1 90 50" class="gauge-fill" stroke-width="7" stroke-linecap="round"
+                      stroke="url(#fuelColors)"
+                      [style.stroke-dasharray]="125.6"
+                      [style.stroke-dashoffset]="125.6 - (125.6 * (parsearNumero(detalle.nivelCombustible) / 100))" />
+
+                <text x="10" y="65" class="gauge-label-text" text-anchor="middle">0%</text>
+                <text x="90" y="65" class="gauge-label-text" text-anchor="middle">100%</text>
+
+                <g [style.transform]="'rotate(' + (-90 + (1.8 * parsearNumero(detalle.nivelCombustible))) + 'deg)'"
+                  style="transform-origin: 50px 50px; transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                  <polygon points="48.5,50 51.5,50 50,18" fill="#2C2C2C" filter="url(#shadow)" />
+                  <circle cx="50" cy="50" r="4.5" fill="#3D3D3D" />
+                  <circle cx="50" cy="50" r="1.5" fill="#F2F2F2" />
+                </g>
+              </svg>
+
+              <div class="digital-box">
+                <span class="digital-val text-mono">{{ detalle.kilometraje }}</span>
+                <span class="digital-unit">KM</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mapa de daños del camión -->
+      <!-- <div class="detalle-seccion">
+        <h4><i class="bi bi-geo-alt-fill"></i> Mapa de daños</h4>
+        <div class="truck-damage-wrapper">
+          <iframe
+            #truckDamageIframe
+            src="assets/truck_damage.html"
+            class="truck-damage-iframe"
+            scrolling="no"
+            frameborder="0"
+            title="Mapa de daños">
+          </iframe>
+        </div>
+        @if (!detalle.daniosReportados || detalle.daniosReportados.length === 0) {
+          <div class="no-danios">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Sin daños registrados en este checklist</span>
+          </div>
+        }
+      </div> -->
+
+      @if (detalle.observacion) {
+        <div class="detalle-seccion">
+          <h4><i class="bi bi-chat-left-text-fill"></i> Observación</h4>
+          <p class="observacion-text">{{ detalle.observacion }}</p>
+        </div>
+      }
+
+      @if (detalle.daniosReportados; as danios) {
+        @if (danios.length > 0) {
+          <div class="detalle-seccion">
+            <h4><i class="bi bi-exclamation-triangle-fill"></i> Daños reportados</h4>
+            <div class="danios-lista">
+              @for (danio of danios; track danio.id) {
+                <div class="danio-item">
+                  <span class="danio-dot"></span>
+                  <span class="danio-zona">{{ danio.nombreZona }}</span>
+                  @if (danio.notas) {
+                    <span class="danio-notas">{{ danio.notas }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+    }
+  </ng-container>
+
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="cerrarModal()">
+      <i class="bi bi-x-lg"></i> Cerrar
+    </button>
+  </ng-container>
+</app-modal>

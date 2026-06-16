@@ -47,6 +47,10 @@ export class PersonasComponent implements OnInit, OnDestroy {
   cargandoDetalle    = signal(false);
   mostrarModal       = signal(false);
 
+  modoFoto = signal(false);
+  fotoUrl = signal<string | null>(null);
+  fotoCargando = signal(false);
+
   // ── Columnas ──
   readonly tableColumns: DataTableColumn[] = [
     { key: 'indice',               label: '#',             headerClass: 'col-index',   cellClass: 'text-mono text-muted col-index' },
@@ -141,6 +145,7 @@ export class PersonasComponent implements OnInit, OnDestroy {
   async abrirDetalles(persona: PersonaPerfilDto): Promise<void> {
     await this.layoutSvc.openModal();
 
+    this.modoFoto.set(false);
     this.mostrarModal.set(true);
     this.cargandoDetalle.set(true);
     this.perfilSeleccionado.set(null);
@@ -160,11 +165,42 @@ export class PersonasComponent implements OnInit, OnDestroy {
     }
   }
 
+  async verIdentificacion(persona: PersonaPerfilDto): Promise<void> {
+    await this.layoutSvc.openModal();
+
+    this.modoFoto.set(true);
+    this.mostrarModal.set(true);
+    this.fotoCargando.set(true);
+    this.fotoUrl.set(null);
+    this.perfilSeleccionado.set(persona); // para mostrar nombre en el header
+
+    try {
+      const blob = await this.adminSvc.getFotoPersona(persona.id).toPromise();
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        this.fotoUrl.set(url);
+      } else {
+        console.error('No se recibió blob');
+      }
+    } catch (error) {
+      console.error('Error al cargar la foto', error);
+    } finally {
+      this.fotoCargando.set(false);
+    }
+  }
+
   /**
    * Cierra el modal y restaura el sidenav.
    */
   cerrarModal(): void {
+    // Liberar la URL del objeto si existe
+    const currentUrl = this.fotoUrl();
+    if (currentUrl) {
+      URL.revokeObjectURL(currentUrl);
+      this.fotoUrl.set(null);
+    }
     this.mostrarModal.set(false);
+    this.modoFoto.set(false);
     this.layoutSvc.closeModal();
   }
 

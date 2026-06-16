@@ -11,7 +11,8 @@ import {
   SesionActiva,
   ProyectoAcceso,
   LoginMaestroRequest,
-  LoginDirectoRequest
+  LoginDirectoRequest,
+  CambiarProyectoRequest
 } from './auth.models';
 
 const STORAGE_KEY = 'rocland_sesion_sa';
@@ -36,7 +37,7 @@ export class AuthService {
   readonly proyectoActivo = computed(() => this._sesion()?.proyectoActivo);
   readonly nombreUsuario = computed(() => this._sesion()?.usuario?.nombreCompleto ?? '');
 
-  // ── Descubrir proyectos por username (sin contraseña) ─────────────
+  // ── Descubrir proyectos por username (sin contraseña) ─────────────────────
   descubrirProyectos(username: string): Observable<ProyectoAcceso[]> {
     const params = new HttpParams().set('username', username);
     return this.http.get<ProyectoAcceso[]>(
@@ -45,7 +46,7 @@ export class AuthService {
     );
   }
 
-  // ── Login Maestro (orquestador) ──────────────────────────────────
+  // ── Login Maestro (orquestador) ──────────────────────────────────────────
   loginMaestro(creds: LoginMaestroRequest): Observable<AuthMaestroResponse> {
     const url = `${environment.apiUrl}/api/superadmin/auth/login-maestro`;
     return this.http.post<AuthMaestroResponse>(url, creds).pipe(
@@ -70,19 +71,18 @@ export class AuthService {
         }
         this.router.navigate(['/private/super-admin/dashboard']);
         this.guardarSesion(sesion);
-        // No navegar aquí; lo hará el componente
       })
     );
   }
 
-  // ── Login Directo (a un proyecto específico) ─────────────────────
+  // ── Login Directo (a un proyecto específico) ─────────────────────────────
   loginDirecto(creds: LoginDirectoRequest): Observable<AuthResultResponse> {
     const url = `${environment.apiUrl}/api/superadmin/auth/login-directo`;
     return this.http.post<AuthResultResponse>(url, creds).pipe(
       tap(response => {
         const claims = this.decodificarToken(response.accessToken);
         const proyecto: ProyectoAcceso = {
-          id: +claims['proyectoId'] || 0,          // ahora sí obtiene el ID real
+          id: +claims['proyectoId'] || 0,
           codigo: claims['codigoProyecto'] || creds.codigoProyecto,
           nombre: creds.codigoProyecto,
           plataforma: claims['plataforma'] || creds.plataforma,
@@ -96,28 +96,38 @@ export class AuthService {
           refreshToken: response.refreshToken,
           expiracion: response.expiracion,
           usuario: response.usuario,
-          proyectosAccesibles: [],
+          proyectosAccesibles: [],   // se llena justo después con actualizarProyectosAccesibles()
           proyectoActivo: proyecto
         };
         this.guardarSesion(sesion);
         if (sesion.proyectoActivo) {
-        this.superAdminSvc.registrarDispositivo({ deviceToken: 'web' }).subscribe({
-          error: (err) => console.warn('No se pudo registrar dispositivo', err)
-        });
-      }
-        // ← Sin navegación aquí; la hace el componente
+          this.superAdminSvc.registrarDispositivo({ deviceToken: 'web' }).subscribe({
+            error: (err) => console.warn('No se pudo registrar dispositivo', err)
+          });
+        }
       })
     );
   }
 
-  // ── Seleccionar proyecto activo (para tokens maestros) ───────────
+  /**
+   * Persiste la lista completa de proyectos accesibles en la sesión activa.
+   * Se llama desde LoginComponent justo después de loginDirecto(), donde
+   * la lista ya fue cargada por descubrirProyectos().
+   */
+  actualizarProyectosAccesibles(proyectos: ProyectoAcceso[]): void {
+    const s = this._sesion();
+    if (!s) return;
+    this.guardarSesion({ ...s, proyectosAccesibles: proyectos });
+  }
+
+  // ── Seleccionar proyecto activo (para tokens maestros) ───────────────────
   seleccionarProyecto(proyecto: ProyectoAcceso): void {
     const s = this._sesion();
     if (!s) return;
     this.guardarSesion({ ...s, proyectoActivo: proyecto });
   }
 
-  // ── Logout ────────────────────────────────────────────────────────
+  // ── Logout ────────────────────────────────────────────────────────────────
   logout(): void {
     this.limpiarSesion();
     this.router.navigate(['/auth/login']);
@@ -127,7 +137,7 @@ export class AuthService {
     return this._sesion()?.token ?? null;
   }
 
-  // ── Persistencia local ────────────────────────────────────────────
+  // ── Persistencia local ────────────────────────────────────────────────────
   private guardarSesion(sesion: SesionActiva): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sesion));
@@ -161,11 +171,37 @@ export class AuthService {
     }
   }
 
-  // ── Decodificar JWT (payload) ─────────────────────────────────────
+  // ── Decodificar JWT (payload) ─────────────────────────────────────────────
   private decodificarToken(token: string): Record<string, any> {
     try {
       const payload = token.split('.')[1];
       return JSON.parse(atob(payload));
     } catch { return {}; }
+  }
+
+  cambiarProyecto(codigoProyecto: string): Observable<AuthResultResponse> {
+    const url = `${environment.apiUrl}/api/superadmin/auth/cambiar-proyecto`;
+    const body: CambiarProyectoRequest = { codigoProyecto, plataforma: 'Web' };
+    return this.http.post<AuthResultResponse>(url, body).pipe(
+      tap(response => {
+        const claims = this.decodificarToken(response.accessToken);
+        const proyecto: ProyectoAcceso = {
+          id:             +claims['proyectoId']      || 0,
+          codigo:         claims['codigoProyecto']   || codigoProyecto,
+          nombre:         claims['nombreProyecto']   || codigoProyecto,
+          plataforma:     claims['plataforma']       || 'Web',
+          rolEnProyecto:  claims['nombreRol']        || '',
+          nivelRol:       +claims['nivelRol']        || 0,
+        };
+        const s = this._sesion()!;
+        this.guardarSesion({
+          ...s,
+          token:         response.accessToken,
+          refreshToken:  response.refreshToken,
+          expiracion:    response.expiracion,
+          proyectoActivo: proyecto,
+        });
+      })
+    );
   }
 }

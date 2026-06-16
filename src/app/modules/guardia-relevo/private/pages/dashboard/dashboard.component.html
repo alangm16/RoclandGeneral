@@ -10,129 +10,53 @@
       <div class="dashboard-kpi-card green">
         <div class="dashboard-kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
         <div class="dashboard-kpi-content">
-          <div class="dashboard-kpi-label">Relevos hoy</div>
-          <div class="dashboard-kpi-value">{{ totalRelevosHoy() }}</div>
-          <div class="dashboard-kpi-sub">total turnos</div>
+          <div class="dashboard-kpi-label">Rondines hoy</div>
+          <div class="dashboard-kpi-value">{{ totalRondinesHoy() }}</div>
+          <div class="dashboard-kpi-sub">total registros</div>
         </div>
       </div>
       <div class="dashboard-kpi-card blue">
         <div class="dashboard-kpi-icon"><i class="bi bi-check-circle"></i></div>
         <div class="dashboard-kpi-content">
-          <div class="dashboard-kpi-label">Completados</div>
-          <div class="dashboard-kpi-value">{{ relevosCompletadosHoy() }}</div>
-          <div class="dashboard-kpi-sub">turnos finalizados</div>
+          <div class="dashboard-kpi-label">Rondines salientes</div>
+          <div class="dashboard-kpi-value">{{ totalChecklistsSalientes() }}</div>
+          <div class="dashboard-kpi-sub">AMS + AVS</div>
+        </div>
+      </div>
+      <div class="dashboard-kpi-card purple">
+        <div class="dashboard-kpi-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+        <div class="dashboard-kpi-content">
+          <div class="dashboard-kpi-label">Rondines entrantes</div>
+          <div class="dashboard-kpi-value">{{ totalChecklistsEntrantes() }}</div>
+          <div class="dashboard-kpi-sub">BME + BVE</div>
         </div>
       </div>
       <div class="dashboard-kpi-card red">
         <div class="dashboard-kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
         <div class="dashboard-kpi-content">
           <div class="dashboard-kpi-label">Incidencias abiertas</div>
-          <div class="dashboard-kpi-value">{{ incidenciasAbiertas() }}</div>
+          <div class="dashboard-kpi-value">{{ totalIncidenciasAbiertas() }}</div>
           <div class="dashboard-kpi-sub">requieren atención</div>
-        </div>
-      </div>
-      <div class="dashboard-kpi-card purple">
-        <div class="dashboard-kpi-icon"><i class="bi bi-graph-up"></i></div>
-        <div class="dashboard-kpi-content">
-          <div class="dashboard-kpi-label">Cumplimiento checklist</div>
-          <div class="dashboard-kpi-value">{{ cumplimientoChecklist() }}%</div>
-          <div class="dashboard-kpi-sub">últimos 7 días</div>
         </div>
       </div>
     </div>
 
-    <!-- Tarjetas de turnos del día -->
+    <!-- Tarjetas de resumen de rondines por tipo (opcional) -->
     <div class="row g-4 mb-4">
       <div class="col-12 col-md-6">
         <div class="section-card h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="m-0 fw-bold">Turno Diurno</h5>
-            <app-badge [label]="relevoDiurno()?.estado ?? 'Sin datos'" [variant]="'info'"></app-badge>
-          </div>
-          <div class="card-body p-3">
-            @if (relevoDiurno(); as rel) {
-              <div class="row g-3">
-                <div class="col-6 text-center">
-                  <div class="fw-bold">Saliente</div>
-                  <div>{{ rel.saliente?.nombreGuardia ?? '—' }}</div>
-                  <small class="text-muted">{{ rel.saliente?.estado ?? 'Pendiente' }}</small>
-                </div>
-                <div class="col-6 text-center">
-                  <div class="fw-bold">Entrante</div>
-                  <div>{{ rel.entrante?.nombreGuardia ?? '—' }}</div>
-                  <small class="text-muted">{{ rel.entrante?.estado ?? 'Pendiente' }}</small>
-                </div>
-                <div class="col-12">
-                  <div class="progress mt-2" style="height: 8px;">
-                    <div class="progress-bar" role="progressbar" [style.width.%]="(rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0)"></div>
-                  </div>
-                  <div class="d-flex justify-content-between mt-1">
-                    <span>OK: {{ (rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0) }}</span>
-                    <span>No OK: {{ (rel.saliente?.totalNoOk ?? 0) + (rel.entrante?.totalNoOk ?? 0) }}</span>
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="text-center text-muted py-3">No hay relevo programado para hoy</div>
-            }
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-6">
-        <div class="section-card h-100">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="m-0 fw-bold">Turno Nocturno</h5>
-            <app-badge [label]="relevoNocturno()?.estado ?? 'Sin datos'" [variant]="'warning'"></app-badge>
-          </div>
-          <div class="card-body p-3">
-            @if (relevoNocturno(); as rel) {
-              <div class="row g-3">
-                <div class="col-6 text-center">
-                  <div class="fw-bold">Saliente</div>
-                  <div>{{ rel.saliente?.nombreGuardia ?? '—' }}</div>
-                  <small class="text-muted">{{ rel.saliente?.estado ?? 'Pendiente' }}</small>
-                </div>
-                <div class="col-6 text-center">
-                  <div class="fw-bold">Entrante</div>
-                  <div>{{ rel.entrante?.nombreGuardia ?? '—' }}</div>
-                  <small class="text-muted">{{ rel.entrante?.estado ?? 'Pendiente' }}</small>
-                </div>
-                <div class="col-12">
-                  <div class="progress mt-2" style="height: 8px;">
-                    <div class="progress-bar" role="progressbar" [style.width.%]="(rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0)"></div>
-                  </div>
-                  <div class="d-flex justify-content-between mt-1">
-                    <span>OK: {{ (rel.saliente?.totalOk ?? 0) + (rel.entrante?.totalOk ?? 0) }}</span>
-                    <span>No OK: {{ (rel.saliente?.totalNoOk ?? 0) + (rel.entrante?.totalNoOk ?? 0) }}</span>
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="text-center text-muted py-3">No hay relevo programado para hoy</div>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Incidencias recientes + Gráfico -->
-    <div class="row g-4">
-      <div class="col-12 col-lg-7">
-        <div class="section-card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="m-0 fw-bold text-danger">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>Últimas incidencias
-            </h5>
-            <a routerLink="/private/guardia-relevo/historial" class="btn btn-sm btn-outline">Ver todas</a>
+            <h5 class="m-0 fw-bold">Rondines recientes</h5>
+            <a routerLink="/private/guardia-relevo/historial" class="btn btn-sm btn-outline">Ver todos</a>
           </div>
           <div class="card-body p-0">
-            <app-data-table [columns]="columnasIncidencias" [data]="incidenciasRecientes()">
+            <app-data-table [columns]="columnasRondines" [data]="rondinesRecientes()">
               <ng-template #cellTemplate let-item let-col="column">
-                @if (col.key === 'fechaRelevo') {
-                  {{ item.fechaRelevo | date:'dd/MM/yyyy' }}
-                } @else if (col.key === 'estado') {
-                  <span [class.text-success]="item.estado === 'Resuelta'" [class.text-danger]="item.estado === 'Abierta'">
-                    {{ item.estado }}
+                @if (col.key === 'fechaHoraLocal') {
+                  {{ item.fechaHoraLocal | date:'dd/MM/yyyy HH:mm' }}
+                } @else if (col.key === 'todoOk') {
+                  <span [class.text-success]="item.todoOk" [class.text-danger]="!item.todoOk">
+                    {{ item.todoOk ? 'Todo OK' : 'Problemas' }}
                   </span>
                 } @else {
                   {{ item[col.key] }}
@@ -142,12 +66,39 @@
           </div>
         </div>
       </div>
-      <div class="col-12 col-lg-5">
+      <div class="col-12 col-md-6">
         <div class="section-card h-100">
-          <div class="card-header">
-            <h5 class="m-0 fw-bold">Actividad por hora</h5>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="m-0 fw-bold text-danger">Últimas incidencias</h5>
+            <a routerLink="/private/guardia-relevo/incidencias" class="btn btn-sm btn-outline">Ver todas</a>
           </div>
-          <div class="card-body p-3" style="height: 260px;">
+          <div class="card-body p-0">
+            <app-data-table [columns]="columnasIncidencias" [data]="incidenciasRecientes()">
+              <ng-template #cellTemplate let-item let-col="column">
+                @if (col.key === 'fechaDeteccionLocal') {
+                  {{ item.fechaDeteccionLocal | date:'dd/MM/yyyy HH:mm' }}
+                } @else if (col.key === 'resuelta') {
+                  <span [class.text-success]="item.resuelta" [class.text-danger]="!item.resuelta">
+                    {{ item.resuelta ? 'Resuelta' : 'Abierta' }}
+                  </span>
+                } @else {
+                  {{ item[col.key] }}
+                }
+              </ng-template>
+            </app-data-table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de actividad (rondines por día) -->
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="section-card">
+          <div class="card-header">
+            <h5 class="m-0 fw-bold">Evolución de rondines</h5>
+          </div>
+          <div class="card-body p-3" style="height: 300px;">
             <canvas #actividadChart></canvas>
           </div>
         </div>

@@ -1,0 +1,565 @@
+// ─────────────────────────────────────────────
+//  TABLE CARD
+// ─────────────────────────────────────────────
+
+.table-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.text-mono {
+  font-family: var(--font-mono, 'ui-monospace', monospace);
+}
+
+
+// ─────────────────────────────────────────────
+//  DROPDOWN ACCIONES
+// ─────────────────────────────────────────────
+
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-dropdown-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 7px;
+  color: var(--rocland-gray, #6b7280);
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+
+  i { font-size: 16px; }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.07);
+    color: var(--rocland-dark, #1a1a1a);
+  }
+}
+
+.dropdown-menu-custom {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  min-width: 170px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 11px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownIn 0.13s ease;
+
+  @keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-5px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
+  }
+}
+
+.dropdown-item-custom {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rocland-dark, #1a1a1a);
+  text-align: left;
+  transition: background 0.12s;
+
+  i {
+    font-size: 15px;
+    color: var(--rocland-gray, #6b7280);
+    transition: color 0.12s;
+  }
+
+  &:hover {
+    background: var(--surface-alt, #f3f4f6);
+    i { color: var(--rocland-green, #4a9c1f); }
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  MODAL HEADER  (fondo negro/oscuro del modal)
+// ─────────────────────────────────────────────
+
+.modal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.modal-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.modal-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.60);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono, 'ui-monospace', monospace);
+
+  i { font-size: 11px; }
+}
+
+
+// ─────────────────────────────────────────────
+//  MODAL BODY — LOADING
+// ─────────────────────────────────────────────
+
+.modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 20px;
+  color: var(--rocland-gray, #6b7280);
+  font-size: 14px;
+}
+
+
+// ─────────────────────────────────────────────
+//  DETALLE INFO GRID
+// ─────────────────────────────────────────────
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 20px;
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  background: var(--surface-alt, #f8fafc);
+  border-radius: 13px;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.detalle-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rocland-silver, #9ca3af);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    i { font-size: 11px; }
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rocland-dark, #111827);
+  }
+}
+
+.detalle-field--tipo {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border, #e5e7eb);
+  padding-top: 12px;
+  margin-top: 2px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+
+  label {
+    min-width: 120px;
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  SECCIÓN GENÉRICA
+// ─────────────────────────────────────────────
+
+.detalle-seccion {
+  margin-top: 24px;
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rocland-gray, #6b7280);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+
+    i { font-size: 13px; }
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  VERIFICACIONES — TARJETAS
+// ─────────────────────────────────────────────
+
+.verificaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 10px;
+}
+
+.verificacion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: box-shadow 0.15s;
+
+  .verif-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i { font-size: 15px; }
+  }
+
+  .verif-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .verif-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .verif-status {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  .verif-check {
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  &.ok {
+    background: rgba(34, 197, 94, 0.07);
+    border-color: rgba(34, 197, 94, 0.22);
+    color: #15803d;
+
+    .verif-icon {
+      background: rgba(34, 197, 94, 0.12);
+      i { color: #16a34a; }
+    }
+
+    .verif-check { color: #22c55e; }
+  }
+
+  &.fail {
+    background: rgba(239, 68, 68, 0.07);
+    border-color: rgba(239, 68, 68, 0.22);
+    color: #b91c1c;
+
+    .verif-icon {
+      background: rgba(239, 68, 68, 0.10);
+      i { color: #dc2626; }
+    }
+
+    .verif-check { color: #ef4444; }
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  MAPA DE DAÑOS — IFRAME
+// ─────────────────────────────────────────────
+
+.truck-damage-wrapper {
+  border-radius: 13px;
+  overflow: hidden;
+  border: 1px solid var(--border, #e5e7eb);
+  background: #F5F5F3;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.truck-damage-iframe {
+  width: 100%;
+  height: 430px;
+  display: block;
+  border: none;
+  background: transparent;
+}
+
+.no-danios {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #16a34a;
+
+  i {
+    font-size: 15px;
+    color: #22c55e;
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  OBSERVACIÓN
+// ─────────────────────────────────────────────
+
+.observacion-text {
+  background: var(--surface-alt, #f8fafc);
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--rocland-dark, #111827);
+  border-left: 3px solid var(--rocland-green, #4a9c1f);
+}
+
+
+// ─────────────────────────────────────────────
+//  DAÑOS LISTA
+// ─────────────────────────────────────────────
+
+.danios-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.danio-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.20);
+  border-radius: 20px;
+  padding: 5px 13px 5px 10px;
+
+  .danio-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ef4444;
+    flex-shrink: 0;
+  }
+
+  .danio-zona {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b91c1c;
+  }
+
+  .danio-notas {
+    font-size: 11px;
+    font-weight: 400;
+    color: #9ca3af;
+    font-style: italic;
+  }
+}
+
+
+// ─────────────────────────────────────────────
+//  BOTONES FOOTER MODAL
+// ─────────────────────────────────────────────
+
+.btn-rocland {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--rocland-green, #4a9c1f);
+  color: #fff;
+  transition: background 0.18s, box-shadow 0.18s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--rocland-green, #4a9c1f) 85%, black);
+    box-shadow: 0 2px 8px rgba(74, 156, 31, 0.3);
+  }
+
+  &.btn-secondary {
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--rocland-dark, #374151);
+    border: 1px solid var(--border, #e5e7eb);
+
+    &:hover {
+      background: #e5e7eb;
+      box-shadow: none;
+    }
+  }
+}
+
+/* Para odometro */
+
+// ─────────────────────────────────────────────
+//  ODÓMETRO (COMBUSTIBLE + KILOMETRAJE)
+// ─────────────────────────────────────────────
+
+.odometer-widget {
+  grid-column: 1 / -1; // Ocupa ambas columnas del grid
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0 5px 0;
+  margin-top: 5px;
+  background: var(--surface, #ffffff);
+  border-radius: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.gauge-container {
+  position: relative;
+  width: 270px; // Tamaño ideal para asegurar legibilidad
+  max-width: 100%;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+
+  .gauge-bg { 
+    fill: none;
+    stroke: var(--surface-alt, #e5e7eb); 
+  }
+  
+  .gauge-fill { 
+    fill: none;
+  }
+
+  .gauge-label-text {
+    font-size: 8.5px;
+    font-weight: 700;
+    fill: var(--rocland-gray, #6b7280);
+    font-family: var(--font-mono, 'ui-monospace', monospace);
+  }
+}
+
+// Indicador central numérico de combustible
+.fuel-indicator {
+  position: absolute;
+  top: 32%; // Posicionado estratégicamente arriba del eje de la aguja
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 5;
+
+  i {
+    font-size: 18px;
+  }
+
+  .fuel-text {
+    font-size: 12px;
+    font-weight: 800;
+    font-family: var(--font-mono, 'ui-monospace', monospace);
+    background: var(--surface, #ffffff);
+    padding: 2px 8px;
+    border-radius: 12px; 
+    border: 1.5px solid transparent; // El color del borde lo maneja el [style.border-color]
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Pantallita digital incrustada en el tablero
+.digital-box {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827; // Fondo de pantalla oscura
+  border: 3px solid #374151; // Marco plástico gris oscuro
+  border-radius: 6px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.06);
+  z-index: 10;
+
+  .digital-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: #10b981; // Verde LED brillante
+    letter-spacing: 1px;
+  }
+
+  .digital-unit {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9ca3af;
+  }
+}

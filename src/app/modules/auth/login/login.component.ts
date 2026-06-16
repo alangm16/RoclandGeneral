@@ -35,7 +35,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route  = inject(ActivatedRoute);
 
-  // ── Formulario con los 3 campos obligatorios ──────────────────────────────
   form: FormGroup = this.fb.group({
     usuario:    ['', [Validators.required, Validators.minLength(3)]],
     password:   ['', [Validators.required, Validators.minLength(4)]],
@@ -52,7 +51,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   readonly year = new Date().getFullYear();
 
-  // ── Ciclo de vida ──────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.auth.limpiarSesionExpirada();
     if (this.auth.estaLogueado()) {
@@ -60,13 +58,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Cada vez que cambia el campo "usuario" buscamos los proyectos disponibles
     this.form.get('usuario')!.valueChanges.pipe(
       takeUntil(this.destroy$),
       debounceTime(400),
       distinctUntilChanged(),
       switchMap((username: string) => {
-        // Resetear selector de proyectos
         this.proyectos = [];
         this.form.get('proyectoId')!.setValue(null, { emitEvent: false });
 
@@ -79,14 +75,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         return this.auth.descubrirProyectos(username.trim()).pipe(
           finalize(() => (this.buscando = false))
         );
-        
       })
     ).subscribe({
       next: (proyectos) => {
         this.proyectos = proyectos;
-
         const ctrl = this.form.get('proyectoId')!;
-
         if (proyectos.length === 0) {
           ctrl.disable({ emitEvent: false });
         } else {
@@ -105,7 +98,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Helpers de template ───────────────────────────────────────────────────
   get botonDeshabilitado(): boolean {
     return this.loading || this.buscando || this.form.invalid;
   }
@@ -119,7 +111,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.mostrarPass = !this.mostrarPass;
   }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
   onSubmit(): void {
     this.submitted = true;
     this.errorMsg  = '';
@@ -128,7 +119,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     const { usuario, password, proyectoId } = this.form.value;
 
-    // Encontrar el proyecto seleccionado por su id
     const proyecto = this.proyectos.find((p) => p.id === +proyectoId);
     if (!proyecto) {
       this.errorMsg = 'Selecciona un módulo válido.';
@@ -146,6 +136,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.auth.loginDirecto(creds).subscribe({
       next: () => {
+        // ✅ Guardar todos los proyectos accesibles que ya teníamos cargados.
+        // Esto alimenta el selector de proyectos del topbar sin llamadas extra.
+        this.auth.actualizarProyectosAccesibles(this.proyectos);
+
         this.loading = false;
         this.navegarPostLogin();
       },
@@ -153,7 +147,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Navegación post-login ─────────────────────────────────────────────────
   private navegarPostLogin(): void {
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
     const proyecto  = this.auth.proyectoActivo();
@@ -165,7 +158,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Manejo de errores HTTP ────────────────────────────────────────────────
   private manejarError(err: any): void {
     this.loading = false;
     if (err.status === 401 || err.status === 400) {
@@ -176,5 +168,4 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.errorMsg = err?.error?.mensaje || 'Error al iniciar sesión.';
     }
   }
-  
 }

@@ -55,6 +55,9 @@
               <button mat-menu-item (click)="abrirDetalles(item._raw)">
                 <i class="bi bi-clock-history me-2"></i> Ver Historial
               </button>
+              <button mat-menu-item (click)="verIdentificacion(item._raw)">
+                <i class="bi bi-card-image me-2"></i> Ver Identificación
+              </button>
             </mat-menu>
           }
 
@@ -69,7 +72,7 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════
-     MODAL DE DETALLE
+     MODAL UNIFICADO (Detalle + Identificación)
 ══════════════════════════════════════════════════════════ -->
 <app-modal
   [isOpen]="mostrarModal()"
@@ -79,12 +82,14 @@
 
   <ng-container header>
     <div class="modal-avatar">
-      <i class="bi bi-person-fill"></i>
+      <i class="bi" [class.bi-person-fill]="!modoFoto()" [class.bi-card-image]="modoFoto()"></i>
     </div>
     <div style="min-width: 0;">
       @if (perfilSeleccionado(); as perfil) {
         <h2 class="modal-title">{{ perfil.nombre }}</h2>
-        <p class="modal-subtitle">{{ perfil.tipoIdentificacion }} &nbsp;·&nbsp; {{ perfil.numeroIdentificacion }}</p>
+        <p class="modal-subtitle">
+          {{ modoFoto() ? 'Identificación oficial' : (perfil.tipoIdentificacion + ' · ' + perfil.numeroIdentificacion) }}
+        </p>
       } @else {
         <h2 class="modal-title">Cargando...</h2>
       }
@@ -92,75 +97,84 @@
   </ng-container>
 
   <ng-container body>
-    @if (cargandoDetalle()) {
-      <div class="modal-loading">
-        <div class="modal-loading-spinner"></div>
-        <span>Cargando detalles...</span>
-      </div>
-
-    } @else if (perfilSeleccionado(); as perfil) {
-
-      <div class="kpi-grid">
-        <div class="kpi-card accent">
-          <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
-          <div class="kpi-value">{{ perfil.totalVisitas }}</div>
+    @if (modoFoto()) {
+      <!-- Modo foto -->
+      @if (fotoCargando()) {
+        <div class="modal-loading">
+          <div class="modal-loading-spinner"></div>
+          <span>Cargando imagen...</span>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
-          <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
+      } @else if (fotoUrl(); as url) {
+        <div class="foto-container">
+          <img [src]="url" alt="Identificación" class="foto-ine" />
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
-          <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
+      } @else {
+        <div class="modal-loading">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem; color: #f59e0b;"></i>
+          <span>No se pudo cargar la imagen o no existe.</span>
         </div>
-      </div>
+      }
+    } @else {
+      <!-- Modo perfil + historial (contenido original del primer modal) -->
+      @if (cargandoDetalle()) {
+        <div class="modal-loading">
+          <div class="modal-loading-spinner"></div>
+          <span>Cargando detalles...</span>
+        </div>
+      } @else if (perfilSeleccionado(); as perfil) {
+        <div class="kpi-grid">
+          <div class="kpi-card accent">
+            <div class="kpi-label"><i class="bi bi-bar-chart-fill me-2"></i>Visitas Totales</div>
+            <div class="kpi-value">{{ perfil.totalVisitas }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label"><i class="bi bi-building me-2"></i>Empresa</div>
+            <div class="kpi-value sm text-muted">{{ perfil.empresa || '—' }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label"><i class="bi bi-telephone me-2"></i>Teléfono</div>
+            <div class="kpi-value sm text-mono text-muted">{{ perfil.telefono || '—' }}</div>
+          </div>
+        </div>
 
-      <p class="section-label">
-        <i class="bi bi-clock-history"></i>
-        Historial Reciente
-      </p>
+        <p class="section-label">
+          <i class="bi bi-clock-history"></i>
+          Historial Reciente
+        </p>
 
-      <div class="history-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Motivo</th>
-              <th>Entrada</th>
-              <th>Salida</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (h of historialPersona(); track $index) {
+        <div class="history-table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td>
-                  <app-badge [label]="h.tipo" />
-                </td>
-                <td>{{ h.motivo }}</td>
-                <td class="text-mono text-muted">
-                  {{ (h.fechaEntrada | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Sin registro' }}
-                </td>
-                <td class="text-mono text-muted">
-                  {{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Aún adentro' }}
-                </td>
-                <td>
-                  <app-badge [label]="h.estadoAcceso" />
-                </td>
+                <th>Tipo</th>
+                <th>Motivo</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
               </tr>
-            }
-            @if (historialPersona().length === 0) {
-              <tr>
-                <td colspan="5" class="text-center text-muted" style="padding: 24px;">
-                  <i class="bi bi-inbox" style="font-size:18px; display:block; margin-bottom:6px;"></i>
-                  Sin registros de visitas.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              @for (h of historialPersona(); track $index) {
+                <tr>
+                  <td><app-badge [label]="h.tipo" /></td>
+                  <td>{{ h.motivo }}</td>
+                  <td class="text-mono text-muted">{{ (h.fechaEntrada | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Sin registro' }}</td>
+                  <td class="text-mono text-muted">{{ (h.fechaSalida | date:'dd/MM/yyyy hh:mm a':'UTC') || 'Aún adentro' }}</td>
+                  <td><app-badge [label]="h.estadoAcceso" /></td>
+                </tr>
+              }
+              @if (historialPersona().length === 0) {
+                <tr>
+                  <td colspan="5" class="text-center text-muted" style="padding: 24px;">
+                    <i class="bi bi-inbox" style="font-size:18px; display:block; margin-bottom:6px;"></i>
+                    Sin registros de visitas.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     }
   </ng-container>
-
 </app-modal>

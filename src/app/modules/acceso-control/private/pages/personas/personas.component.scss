@@ -28,3 +28,21 @@
 @media (max-width: 520px) {
   ::ng-deep .col-id { display: none !important; }
 }
+
+.foto-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-top: 0.5rem;
+}
+
+.foto-ine {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  object-fit: contain;
+}
