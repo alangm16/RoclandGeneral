@@ -14,6 +14,8 @@ import {
   VisitanteResponse,
   CrearProveedorRequest,
   ProveedorResponse,
+  CrearColaboradorRequest,
+  ColaboradorResponse
 } from '../models/acceso.models';
 
 @Injectable({ providedIn: 'root' })
@@ -36,8 +38,12 @@ export class AccesoService {
       .pipe(catchError(this.handleError));
   }
 
-  getMotivos(): Observable<MotivoVisita[]> {
-    return this.http.get<MotivoVisita[]>(`${this.base}/catalogos/motivos`)
+  getMotivos(tipoPersona?: string): Observable<MotivoVisita[]> {
+    let params = new HttpParams();
+    if (tipoPersona) {
+      params = params.set('tipoPersona', tipoPersona);
+    }
+    return this.http.get<MotivoVisita[]>(`${this.base}/catalogos/motivos`, { params })
       .pipe(catchError(this.handleError));
   }
 
@@ -59,6 +65,11 @@ export class AccesoService {
 
   registrarProveedor(payload: CrearProveedorRequest): Observable<ProveedorResponse> {
     return this.http.post<ProveedorResponse>(`${this.base}/proveedores`, payload)
+      .pipe(catchError(this.handleError));
+  }
+
+  registrarColaborador(payload: CrearColaboradorRequest): Observable<ColaboradorResponse> {
+    return this.http.post<ColaboradorResponse>(`${this.base}/colaboradores`, payload)
       .pipe(catchError(this.handleError));
   }
 

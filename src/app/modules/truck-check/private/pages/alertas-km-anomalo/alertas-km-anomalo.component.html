@@ -1,0 +1,23 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Alertas de Kilometraje Anómalo</span>
+      <span class="text-muted text-mono">Total: {{ alertas().length }}</span>
+    </div>
+    <app-data-table
+      [columns]="columnas"
+      [data]="alertas()"
+      [loading]="cargando()">
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('placas') { <span class="cell-nombre">{{ item.placas }}</span> }
+          @case ('fechaSalida') { <span class="text-mono">{{ formatFecha(item.fechaSalida) }}</span> }
+          @case ('kmRecorridos') { <span class="text-mono">{{ item.kmRecorridos }}</span> }
+          @case ('zscore') { <span class="text-mono" [style.color]="item.zscore > 3 ? 'var(--rocland-red)' : 'var(--rocland-orange)'">{{ item.zscore | number:'1.2-2' }}</span> }
+          @case ('umbralAlerta') { <span class="text-mono">{{ item.umbralAlerta }}</span> }
+          @default { {{ item[col.key] ?? '—' }} }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

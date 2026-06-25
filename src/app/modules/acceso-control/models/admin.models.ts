@@ -7,6 +7,7 @@ export interface DashboardKpis {
   accesosHoy: number;
   visitantesHoy: number;
   proveedoresHoy: number;
+  colaboradoresHoy: number;
   tiempoPromedio: number;
   solicitudesPendientes: number;
 }
@@ -39,6 +40,7 @@ export interface FlujoDiarioDto {
   fecha: string;
   visitantes: number;
   proveedores: number;
+  colaboradores: number;
 }
 
 // ── Personas ───────────────────────────────────────────────────────
@@ -113,6 +115,15 @@ export interface CatalogoCreateDto {
   nombre: string;
 }
 
+export interface MotivoDto extends CatalogoItem {
+  tipoPersona: string; // "Visitante" | "Proveedor" | "Colaborador"
+}
+
+export interface MotivoCreateDto {
+  nombre: string;
+  tipoPersona: string;
+}
+
 // ── Respuesta paginada de historial ────────────────────────────────
 export interface HistorialPaginado {
   items: HistorialAccesoItemDto[];
@@ -135,4 +146,8 @@ export interface CrearPerfilRequest {
   numeroEmpleado: string | null;
   turno: string | null;
   activo: boolean;
+}
+
+export interface MotivoDto extends CatalogoItem {
+  tipoPersona: string; // "Visitante" | "Proveedor" | "Colaborador"
 }

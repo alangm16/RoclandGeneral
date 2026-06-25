@@ -31,6 +31,14 @@
       <div class="dashboard-kpi-sub">hoy</div>
     </div>
   </div>
+  <div class="dashboard-kpi-card teal">
+    <div class="dashboard-kpi-icon"><i class="bi bi-wrench"></i></div>
+    <div class="dashboard-kpi-content">
+      <div class="dashboard-kpi-label">Colaboradores</div>
+      <div class="dashboard-kpi-value">{{ kpis?.colaboradoresHoy ?? '—' }}</div>
+      <div class="dashboard-kpi-sub">hoy</div>
+    </div>
+  </div>
   <div class="dashboard-kpi-card amber">
     <div class="dashboard-kpi-icon"><i class="bi bi-clock-fill"></i></div>
     <div class="dashboard-kpi-content">
@@ -74,7 +82,7 @@
   </div>
 
   <!-- Visitantes -->
-  <div class="subsection">
+  <div class="subsection" *ngIf="puedeVer()">
     <div class="subsection-header">
       <span class="subsection-title">Visitantes</span>
       <span class="badge badge-purple">{{ visitantesDentro.length }}</span>
@@ -151,7 +159,7 @@
   <!-- Internos -->
   <div class="subsection">
     <div class="subsection-header">
-      <span class="subsection-title">Internos</span>
+      <span class="subsection-title">Colaboradores</span>
       <span class="badge badge-blue">{{ internosDentro.length }}</span>
     </div>
     <div class="cards-grid">

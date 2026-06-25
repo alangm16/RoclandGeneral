@@ -15,6 +15,7 @@ export interface Area {
 export interface MotivoVisita {
   id: number;
   nombre: string;
+  tipoPersona?: string; // "Visitante" | "Proveedor" | "Colaborador"
 }
 
 // ── Autocompletado (GET /api/web/accesocontrol/personas/buscar) ─
@@ -29,6 +30,7 @@ export interface PersonaAutocompletado {
   email?: string;
   totalVisitas: number;
   fechaUltimaVisita?: string;
+  tieneFoto: boolean;
 }
 
 // ── Visitante ─────────────────────────────────────────────────────
@@ -88,4 +90,31 @@ export interface DatosConfirmacion {
   tipo: string;
   id: number;
   hora: string;
+}
+
+// ── Colaborador ─────────────────────────────────────────────────────
+export interface CrearColaboradorRequest {
+  nombre: string;
+  tipoIdentificacionId: number;
+  numeroIdentificacion: string;
+  telefono?: string;
+  email?: string;
+  empresaContratista?: string;   // outsourcing o contratista
+  motivoId: number;
+  unidadPlacas?: string;
+  consentimientoFirmado: boolean;
+  observaciones?: string;
+}
+
+export interface ColaboradorResponse {
+  registroId: number;
+  personaId: number;
+  nombre: string;
+  empresaContratista?: string;
+  motivo: string;
+  estadoAcceso: string;
+  fechaEntrada: string;
+  esRecurrente: boolean;
+  totalVisitasPrevias: number;
+  tieneFoto: boolean;
 }

@@ -7,14 +7,14 @@ import {
   OnDestroy,
   computed
 } from '@angular/core';
+import { Router } from '@angular/router'; // Agregamos el Router
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+// Ya no necesitamos MatDialogModule ni ProjectSwitcherDialogComponent
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UpperCasePipe } from '@angular/common';
-import { ProjectSwitcherDialogComponent } from './components/project-switcher-dialog/project-switcher-dialog.component';
 
 @Component({
   selector: 'app-topbar',
@@ -24,7 +24,6 @@ import { ProjectSwitcherDialogComponent } from './components/project-switcher-di
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatDialogModule,
     UpperCasePipe
   ],
   templateUrl: './topbar.component.html',
@@ -34,10 +33,11 @@ export class TopbarComponent implements OnDestroy {
   @Output() toggleSidenav = new EventEmitter<void>();
 
   currentTime = signal('');
+  isSwitching = signal(false); // Nuevo: Estado para saber si está cargando el cambio
   private clockInterval?: ReturnType<typeof setInterval>;
 
-  private readonly dialog = inject(MatDialog);
-  readonly authService    = inject(AuthService);
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.updateClock();
@@ -60,22 +60,36 @@ export class TopbarComponent implements OnDestroy {
     clearInterval(this.clockInterval);
   }
 
+  // Obtenemos directamente del servicio el listado de proyectos
   readonly userName       = computed(() => this.authService.nombreUsuario() || 'Usuario');
+  readonly proyectos      = computed(() => this.authService.proyectosAccesibles());
   readonly proyectoActivo = computed(() => this.authService.proyectoActivo());
   readonly projectName    = computed(() => this.proyectoActivo()?.nombre ?? '');
 
-  /** Muestra el botón de cambio sólo cuando hay más de un proyecto accesible. */
   readonly hasMultipleProjects = computed(
-    () => this.authService.proyectosAccesibles().length > 1
+    () => this.proyectos().length > 1
   );
 
-  abrirSelectorProyecto(): void {
-    this.dialog.open(ProjectSwitcherDialogComponent, {
-      panelClass:   'project-switcher-overlay',
-      maxWidth:     '460px',
-      width:        '100%',
-      disableClose: false,
-      autoFocus:    '#proyectoSelect'
+  /** Nueva función: Ejecuta el cambio de proyecto directamente en el header */
+  cambiarProyecto(codigo: string): void {
+    if (codigo === this.proyectoActivo()?.codigo) return;
+
+    this.isSwitching.set(true);
+
+    this.authService.cambiarProyecto(codigo).subscribe({
+      next: () => {
+        this.isSwitching.set(false);
+        const proyecto = this.authService.proyectoActivo();
+        if (proyecto) {
+          // Redirigir al dashboard del nuevo proyecto seleccionado
+          this.router.navigateByUrl(`/private/${proyecto.codigo}/dashboard`);
+        }
+      },
+      error: (err) => {
+        this.isSwitching.set(false);
+        console.error('Error al cambiar de módulo', err);
+        // Aquí podrías disparar tu servicio de alertas si lo deseas
+      }
     });
   }
 

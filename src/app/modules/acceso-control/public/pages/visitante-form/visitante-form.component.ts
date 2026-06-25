@@ -106,7 +106,7 @@ export class VisitanteFormComponent implements OnInit, OnDestroy {
     const sub = forkJoin({
       tipos  : this.service.getTiposIdentificacion(),
       areas  : this.service.getAreas(),
-      motivos: this.service.getMotivos(),
+      motivos: this.service.getMotivos('Visitante'),
     }).subscribe({
       next: ({ tipos, areas, motivos }) => {
         this.tiposIdentificacion = tipos;

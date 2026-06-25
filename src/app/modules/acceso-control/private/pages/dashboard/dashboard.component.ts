@@ -1,6 +1,6 @@
 import {
   Component, OnInit, inject, ViewChild, ElementRef,
-  OnDestroy, effect, PLATFORM_ID
+  OnDestroy, effect, PLATFORM_ID, computed
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { SignalrService, SignalRStatus } from '../../../services/signalr.service
 import { Subscription, interval } from 'rxjs';
 import { environment } from '../../../../../../environments/Environment';
 import { LayoutService } from '../../../../../core/services/layout.service';
+import { AuthService } from '../../../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +25,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly signalrService = inject(SignalrService);
   private readonly layoutService  = inject(LayoutService);
   private readonly platformId     = inject(PLATFORM_ID);
+  private authSvc = inject(AuthService);
 
   conexionStatus: SignalRStatus = 'disconnected';
   private subs: Subscription = new Subscription();
@@ -61,6 +63,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   fotoActivaUrl: string | null = null;
   fotoLoadingId: number | null = null;
   private fotoCache = new Map<number, string>(); // caché para no re-pedir la misma foto
+
+  puedeVer = computed(() => {
+    const rol = this.authSvc.proyectoActivo()?.rolEnProyecto;
+    return rol === 'Gerente';
+  });
 
   constructor() {
     effect(() => {
@@ -306,14 +313,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   cargarGraficaMes(): void {
     this.adminService.getFlujoDiario(this.anioActual, this.mesActual).subscribe(data => {
-      const labels        = data.map(d => d.fecha);
+      const labels = data.map(d => d.fecha);
       const valVisitantes = data.map(d => d.visitantes);
       const valProveedores = data.map(d => d.proveedores);
+      const valColaboradores = data.map(d => d.colaboradores);
 
       if (this.chartMes) {
         this.chartMes.data.labels = labels;
         this.chartMes.data.datasets[0].data = valVisitantes;
         this.chartMes.data.datasets[1].data = valProveedores;
+        this.chartMes.data.datasets[2].data = valColaboradores;
         this.chartMes.update();
         return;
       }
@@ -326,7 +335,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             labels,
             datasets: [
               { label: 'Visitantes',  data: valVisitantes,  borderColor: '#3B82F6', backgroundColor: '#3B82F622', fill: true, tension: 0.4 },
-              { label: 'Proveedores', data: valProveedores, borderColor: '#8B5CF6', backgroundColor: '#8B5CF622', fill: true, tension: 0.4 }
+              { label: 'Proveedores', data: valProveedores, borderColor: '#8B5CF6', backgroundColor: '#8B5CF622', fill: true, tension: 0.4 },
+              { label: 'Colaboradores', data: valColaboradores, borderColor: '#0D9488', backgroundColor: '#0D948822', fill: true, tension: 0.4 }
             ]
           },
           options: { responsive: true, maintainAspectRatio: false }

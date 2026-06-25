@@ -18,7 +18,9 @@ import {
   CatalogoItem,
   CatalogoCreateDto,
   UsuarioSinPerfil,
-  CrearPerfilRequest
+  CrearPerfilRequest,
+  MotivoDto,
+  MotivoCreateDto,
 } from '../models/admin.models';
 
 @Injectable({ providedIn: 'root' })
@@ -52,13 +54,14 @@ export class AdminService {
   }
 
   // ── Personas ───────────────────────────────────────────────────────
-  getPersonas(page: number, pageSize: number, busqueda?: string): Observable<PersonasPaginadas> {
+  getPersonas(page: number, pageSize: number, busqueda?: string, orden?: string): Observable<PersonasPaginadas> {
     let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
+        .set('page', page.toString())
+        .set('pageSize', pageSize.toString());
     if (busqueda) params = params.set('busqueda', busqueda);
+    if (orden) params = params.set('orden', orden);
     return this.http.get<PersonasPaginadas>(`${this.base}/admin/personas`, { params });
-  }
+}
 
   getPerfilPersona(id: number): Observable<PersonaPerfilDto> {
     return this.http.get<PersonaPerfilDto>(`${this.base}/admin/personas/${id}`);
@@ -103,12 +106,28 @@ export class AdminService {
   }
 
   // ── Catálogos administrativos ────────────────────────────────────
-  getCatalogo(tipo: 'areas' | 'motivos' | 'tiposid'): Observable<CatalogoItem[]> {
-    return this.http.get<CatalogoItem[]>(`${this.base}/admin/${tipo}`);
+  getAreasCatalogo(): Observable<CatalogoItem[]> {
+    return this.http.get<CatalogoItem[]>(`${this.base}/admin/areas`);
   }
 
-  crearCatalogo(tipo: 'areas' | 'motivos' | 'tiposid', dto: CatalogoCreateDto): Observable<CatalogoItem> {
-    return this.http.post<CatalogoItem>(`${this.base}/admin/${tipo}`, dto);
+  getMotivosCatalogo(): Observable<MotivoDto[]> {
+    return this.http.get<MotivoDto[]>(`${this.base}/admin/motivos`);
+  }
+
+  getTiposIdCatalogo(): Observable<CatalogoItem[]> {
+    return this.http.get<CatalogoItem[]>(`${this.base}/admin/tiposid`);
+  }
+
+  crearArea(dto: CatalogoCreateDto): Observable<CatalogoItem> {
+    return this.http.post<CatalogoItem>(`${this.base}/admin/areas`, dto);
+  }
+
+  crearMotivo(dto: MotivoCreateDto): Observable<MotivoDto> {
+    return this.http.post<MotivoDto>(`${this.base}/admin/motivos`, dto);
+  }
+
+  crearTipoId(dto: CatalogoCreateDto): Observable<CatalogoItem> {
+    return this.http.post<CatalogoItem>(`${this.base}/admin/tiposid`, dto);
   }
 
   toggleCatalogo(tipo: 'areas' | 'motivos' | 'tiposid', id: number): Observable<void> {

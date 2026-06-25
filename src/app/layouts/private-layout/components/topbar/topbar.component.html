@@ -1,7 +1,6 @@
 <mat-toolbar class="topbar">
   <div class="topbar-inner">
 
-    <!-- ── Izquierda ──────────────────────────────────────────────── -->
     <div class="topbar-left">
       <button mat-icon-button (click)="toggleSidenav.emit()" class="sidebar-toggle">
         <i class="bi bi-list"></i>
@@ -14,23 +13,47 @@
           <span class="brand-divider">|</span>
 
           @if (hasMultipleProjects()) {
-            <!-- Botón clicable que abre el dialog -->
-            <button class="project-switcher-btn" (click)="abrirSelectorProyecto()">
-              <i class="bi"
-                [class]="proyectoActivo()?.iconoCss ?? 'bi-grid-3x3-gap'"
-              ></i>
-              <span class="project-label">{{ projectName() }}</span>
-              <i class="bi bi-chevron-expand chevron-icon"></i>
+            
+            <button class="project-switcher-btn" [matMenuTriggerFor]="projectMenu" [disabled]="isSwitching()">
+              @if (isSwitching()) {
+                <i class="bi bi-arrow-repeat"></i>
+                <span class="project-label">Cambiando...</span>
+              } @else {
+                <i class="bi" [class]="proyectoActivo()?.iconoCss ?? 'bi-grid-3x3-gap'"></i>
+                <span class="project-label">{{ projectName() }}</span>
+                <i class="bi bi-chevron-expand chevron-icon"></i>
+              }
             </button>
+
+            <mat-menu #projectMenu="matMenu" class="custom-profile-menu">
+              <div class="menu-header">
+                <div class="menu-user-info">
+                  <span class="menu-name">Cambiar Módulo</span>
+                  <span class="menu-role">Selecciona tu destino</span>
+                </div>
+              </div>
+              <div class="menu-divider"></div>
+
+              @for (p of proyectos(); track p.id) {
+                <button mat-menu-item 
+                        (click)="cambiarProyecto(p.codigo)"
+                        [disabled]="p.codigo === proyectoActivo()?.codigo">
+                  <i class="bi bi-grid" style="margin-right: 8px;"></i>
+                  <span>{{ p.nombre }}</span>
+                  @if (p.codigo === proyectoActivo()?.codigo) {
+                    <small style="color: #6c757d; margin-left: auto;">(Actual)</small>
+                  }
+                </button>
+              }
+            </mat-menu>
+
           } @else {
-            <!-- Sin selector: nombre estático -->
             <span class="project-name">{{ projectName() }}</span>
           }
         }
       </div>
     </div>
 
-    <!-- ── Derecha ────────────────────────────────────────────────── -->
     <div class="topbar-right">
       <div class="clock">
         <i class="bi bi-clock"></i>

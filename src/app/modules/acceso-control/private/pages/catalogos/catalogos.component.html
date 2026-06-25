@@ -94,7 +94,7 @@
 
       @if (mostrarForm['motivos']) {
         <div class="catalogo-form">
-          <div class="catalogo-form-row">
+          <div class="catalogo-form-row" style="flex-wrap: wrap; gap: 8px;">
             <input
               type="text"
               id="input-motivos"
@@ -102,7 +102,16 @@
               placeholder="Nombre del motivo"
               [(ngModel)]="nuevoNombre['motivos']"
               (keyup.enter)="crearItem('motivos')"
-              style="flex:1;" />
+              style="flex:1; min-width:150px;" />
+            <select
+              class="filter-input"
+              [(ngModel)]="nuevoTipoPersona['motivos']"
+              style="flex:0 0 160px;">
+              <option value="">— Tipo —</option>
+              <option value="Visitante">Visitante</option>
+              <option value="Proveedor">Proveedor</option>
+              <option value="Colaborador">Colaborador</option>
+            </select>
             <button
               class="btn btn-primary btn-sm"
               [disabled]="guardando['motivos']"
@@ -124,6 +133,7 @@
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Tipo</th>        <!-- ← NUEVA COLUMNA -->
               <th>Estado</th>
               <th></th>
             </tr>
@@ -132,6 +142,7 @@
             @for (item of motivos(); track item.id) {
               <tr>
                 <td class="cell-nombre">{{ item.nombre }}</td>
+                <td><app-badge [label]="item.tipoPersona" variant="gray" /></td>
                 <td>
                   <app-badge
                     [label]="item.activo ? 'Activo' : 'Inactivo'"
@@ -154,7 +165,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="3" class="text-muted text-center empty-state">
+                <td colspan="4" class="text-muted text-center empty-state">
                   <i class="bi bi-inbox"></i>
                   Sin motivos registrados
                 </td>

@@ -47,79 +47,96 @@ export interface TruckChecklist {
     fechaCreacion: string;
 }
 
-// Dashboard
+export interface TruckAlertaKmAnomalo {
+    IdVehiculo: number;
+    Placas: string;
+    Marca?: string;
+    Modelo?: string;
 
-export interface KpiCamionesAfuera {
-    totalCamionesAfuera: number;
+    IdSalida: number;
+    FechaSalida: string;
+    FechaEntrada: string;
+    KmRecorridos: number;
+
+    NombreChofer: string;
+    SucursalOrigen?: string;
+    SucursalDestino?: string;
+
+    PromKmHistorico: number;
+    DesvEstKm: number;
+    TotalViajes: number;
+
+    Zscore: number;
+    UmbralAlerta: number;
 }
 
-export interface KpiSalidasHoy {
-    totalSalidasHoy: number;
+export interface TruckAlertaMantenimiento {
+    IdPrograma: number;
+    IdVehiculo: number;
+    Placas: string;
+    Marca?: string;
+    Modelo?: string;
+    UltimoKilometraje: number;
+    TipoMantenimiento: string;
+    IntervaloKm?: number;
+    IntervaloDias?: number;
+
+    FechaUltimoServicio?: string;
+    KmUltimoServicio?: number;
+    
+    KmProximoServicio?: number;
+    FechaProximoServicio?: string;
+
+    KmRestantes?: number;
+    DiasRestantes?: number;
+
+    Estado: string;
+    PrioridadAlerta: number;
 }
 
-export interface KpiPromedioMinutosFuera {
-    promedioMinutosFuera: number;
+export interface TruckRendimiento {
+    IdVehiculo: number;
+    Placas: string;
+    Marca?: string;
+    Modelo?: string;
+
+    TotalViajes: number;
+    KmTotales?: number;
+
+    PromKmPorViaje?: number;
+    PromLitrosPorViaje?: number;
+    PromLmPorLitro?: number;
+
+    PeorRendimiento?: number;
+    MejorRendimiento?: number;
+
+    PromDuracionMinutos?: number;
 }
 
-export interface CamionAfuera {
-    placas: string;
-    nombreChofer: string;
-    minutosFuera: number;
-    sucursalDestino: string;
-    fechaSalida: string;
-    ultimoKilometraje: number;
-    nivelCombustible: number;
-}
+export interface TruckViajeDto {
+    IdVehiculo : number;
+    Placas: string;
+    Marca?: string;
+    Modelo?: string;
+    CapacidadTanque: number;
+    IdSalida: number;
+    FechaSalida: string;
+    KmSalida: number;
+    NivelSalida: number;
+    IdSucursalOrigen: number;
+    SucursalOrigen?: string;
+    NombreChofer?: string;
+    IdEntrada: number;
+    FechaEntrada: string;
+    KmEntrada: number;
+    NivelEntrada: number;
+    IdSucursalDestino: number;
+    SucursalDestino?: string;
 
-export interface CamionDentro {
-    placas: string;
-    nombreChofer: string;
-    minutosDentro: number;
-    sucursalOrigen: string;
-    fechaEntrada: string;
-    ultimoKilometraje: number;
-    nivelCombustible: number;
-}
-
-export interface SucursalFrecuencia {
-    sucursal: string;
-    totalVisitas: number;
-}
-
-export interface VehiculoFrecuencia {
-    placas: string;
-    totalSalidas: number;
-}
-
-export interface FlujoHorario {
-    hora: number;
-    entradas: number;
-    salidas: number;
-}
-
-export interface FlujoMensual {
-    anio: number;
-    mes: number;
-    entradas: number;
-    salidas: number;
-}
-
-export interface ViajesCamionMensual {
-    placas: string;
-    totalViajes: number;
-    totalHorasFuera: number;
-}
-
-export interface DashboardResume {
-    kpiCamionesAfuera: KpiCamionesAfuera;
-    kpiSalidasHoy: KpiSalidasHoy;
-    kpiPromedioMinutosFuera: KpiPromedioMinutosFuera;
-    camionesAfuera: CamionAfuera[];
-    camionesDentro?: CamionDentro[];
-    sucursalesMasVisitadas: SucursalFrecuencia[];
-    camionesMasActivos: VehiculoFrecuencia[];
-    flujoPorHora: FlujoHorario[];
-    flujoMensual: FlujoMensual[];
+    DuracionMinutos: number;
+    KmRecorridos?: number;
+    LitrosConsumidos?: number;
+    KmPorLitro?: number;
 }
 
 // ChecklistDaniosDtos
@@ -213,6 +230,164 @@ export interface ChoferResponse {
     activo: boolean;
 }
 
+// Dashboard
+
+export interface KpiCamionesAfuera {
+    totalCamionesAfuera: number;
+}
+
+export interface KpiSalidasHoy {
+    totalSalidasHoy: number;
+}
+
+export interface KpiPromedioMinutosFuera {
+    promedioMinutosFuera: number;
+}
+
+export interface CamionAfuera {
+    placas: string;
+    nombreChofer: string;
+    minutosFuera: number;
+    sucursalDestino: string;
+    fechaSalida: string;
+    ultimoKilometraje: number;
+    nivelCombustible: number;
+}
+
+export interface CamionDentro {
+    placas: string;
+    nombreChofer: string;
+    minutosDentro: number;
+    sucursalOrigen: string;
+    fechaEntrada: string;
+    ultimoKilometraje: number;
+    nivelCombustible: number;
+}
+
+export interface SucursalFrecuencia {
+    sucursal: string;
+    totalVisitas: number;
+}
+
+export interface VehiculoFrecuencia {
+    placas: string;
+    totalSalidas: number;
+}
+
+export interface FlujoHorario {
+    hora: number;
+    entradas: number;
+    salidas: number;
+}
+
+export interface FlujoMensual {
+    anio: number;
+    mes: number;
+    entradas: number;
+    salidas: number;
+}
+
+export interface ViajesCamionMensual {
+    placas: string;
+    totalViajes: number;
+    totalHorasFuera: number;
+}
+
+export interface DashboardResume {
+    kpiCamionesAfuera: KpiCamionesAfuera;
+    kpiSalidasHoy: KpiSalidasHoy;
+    kpiPromedioMinutosFuera: KpiPromedioMinutosFuera;
+    camionesAfuera: CamionAfuera[];
+    camionesDentro?: CamionDentro[];
+    sucursalesMasVisitadas: SucursalFrecuencia[];
+    camionesMasActivos: VehiculoFrecuencia[];
+    flujoPorHora: FlujoHorario[];
+    flujoMensual: FlujoMensual[];
+}
+
+// Mantenimiento
+
+export interface CrearTipoMantenimiento {
+    nombre: string;
+}
+
+export interface ActualizarTipoMantenimiento {
+    Nombre: string;
+    Activo: boolean;
+}
+
+export interface CrearProgramaMantenimiento {
+    IdVehiculo: number;
+    IdTipoMantenimiento: number;
+    IntervaloKm?: number;
+    IntervaloDias?: number;
+}
+
+export interface ActualizarProgramaMantenimiento {
+    IntervaloKm?: number | null;
+    IntervaloDias: number | null;
+    Activo: boolean;
+}
+
+export interface CrearMantenimiento {
+    IdVehiculo: number;
+    IdTipoMantenimiento: number;
+    FechaRealizacion: string;
+    kmAlMomento: number;
+    Costo?: number;
+    Taller?: string;
+    Observaciones?: string;
+}
+
+export interface ActualizarMantenimiento {
+    FechaRealizacion: string;
+    KmAlMomento: number;
+    Costo?: number;
+    Taller?: string;
+    Observaciones?: string;
+}
+
+export interface FiltroHistorialMantenimiento {
+    IdVehiculo?: number;
+    TipoMantenimiento?: number;
+    FechaDesde?: string;
+    FechaHasta?: string;
+    Taller?: string;
+}
+
+export interface TipoMantenimiento {
+    id: number;
+    nombre: string;
+    activo: boolean;
+}
+
+export interface ProgramaMantenimiento {
+    Id: number;
+    IdVehiculo: number;
+    Placas: string;
+    IdTipoMantenimiento: number;
+    TipoMantenimiento: string;
+    IntervaloKm?: number;
+    IntervaloDias?: number;
+    Activo: boolean;
+}
+
+export interface Mantenimiento {
+    id: number;
+    idVehiculo: number;
+    placas: string;
+    idTipoMantenimiento: number;
+    tipoMantenimiento: string;
+    fechaRealizacion: string;
+    kmAlMomento: number;
+    costo?: number;
+    taller?: string;
+    observaciones?: string;
+    idSupervisor: number;
+    nombreSupervisor: string;
+    fechaCreacion: string;
+}
+
 // Sucursal
 
 export interface CrearSucursalRequest {
@@ -266,7 +441,8 @@ export interface ActualizarEstadoVehiculoRequest {
 export interface VehiculoResponse {
     id: number;
     placas: string;
-    ultimoKilometrake?: number;
+    marca?: string;
+    modelo?: string;
     activo: boolean;
 }
 

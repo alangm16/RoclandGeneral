@@ -1,0 +1,27 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Alertas de Mantenimiento</span>
+      <span class="text-muted text-mono">Total: {{ alertas().length }}</span>
+    </div>
+    <app-data-table
+      [columns]="columnas"
+      [data]="alertas()"
+      [loading]="cargando()">
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('placas') { <span class="cell-nombre">{{ item.placas }}</span> }
+          @case ('estado') {
+            <app-badge [label]="item.estado" [variant]="getEstadoVariant(item.estado)"></app-badge>
+          }
+          @case ('kmRestantes') { <span class="text-mono">{{ item.kmRestantes !== undefined && item.kmRestantes !== null ? item.kmRestantes : '—' }}</span> }
+          @case ('diasRestantes') { <span class="text-mono">{{ item.diasRestantes !== undefined && item.diasRestantes !== null ? item.diasRestantes : '—' }}</span> }
+          @case ('prioridadAlerta') {
+            <app-badge [label]="getPrioridadLabel(item.prioridadAlerta)" [variant]="getPrioridadVariant(item.prioridadAlerta)"></app-badge>
+          }
+          @default { {{ item[col.key] ?? '—' }} }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>

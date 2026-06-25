@@ -18,6 +18,10 @@ export const ACCESO_PUBLIC_ROUTES: Routes = [
         loadComponent: () => import('./pages/proveedor-form/proveedor-form.component').then(m => m.ProveedorFormComponent) 
       },
       { 
+        path: 'formularios/colaborador', 
+        loadComponent: () => import('./pages/colaboradores-form/colaboradores-form.component').then(m => m.ColaboradoresFormComponent) 
+      },
+      { 
         path: 'acceso-selector', 
         loadComponent: () => import('./pages/acceso-selector/acceso-selector.component').then(m => m.AccesoSelectorComponent) 
       },

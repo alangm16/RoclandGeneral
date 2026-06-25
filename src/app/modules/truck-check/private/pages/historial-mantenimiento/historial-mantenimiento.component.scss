@@ -1,0 +1,200 @@
+// ─────────────────────────────────────────────
+//  TABLE CARD
+// ─────────────────────────────────────────────
+
+.table-card {
+  background: var(--surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.text-mono {
+  font-family: var(--font-mono, 'ui-monospace', monospace);
+}
+
+// ─────────────────────────────────────────────
+//  MODAL HEADER (compartido para ambos modales)
+// ─────────────────────────────────────────────
+
+.modal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.modal-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.60);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono, 'ui-monospace', monospace);
+  i { font-size: 11px; }
+}
+
+// ─────────────────────────────────────────────
+//  MODAL BODY — DETALLE
+// ─────────────────────────────────────────────
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 20px;
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  background: var(--surface-alt, #f8fafc);
+  border-radius: 13px;
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.detalle-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rocland-silver, #9ca3af);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    i { font-size: 11px; }
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rocland-dark, #111827);
+  }
+}
+
+.detalle-seccion {
+  margin-top: 24px;
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rocland-gray, #6b7280);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    i { font-size: 13px; }
+  }
+}
+
+.observacion-text {
+  background: var(--surface-alt, #f8fafc);
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--rocland-dark, #111827);
+  border-left: 3px solid var(--rocland-green, #4a9c1f);
+}
+
+// ─────────────────────────────────────────────
+//  FORMULARIO DEL REGISTRO (dentro del modal)
+// ─────────────────────────────────────────────
+
+.form-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rocland-gray);
+  margin-bottom: 4px;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid var(--rocland-border);
+  font-size: 14px;
+  padding: 8px 12px;
+  width: 100%;
+  &:focus {
+    border-color: var(--rocland-green);
+    box-shadow: 0 0 0 3px rgba(74,156,31,0.12);
+    outline: none;
+  }
+}
+
+.req { color: #ef4444; margin-left: 2px; }
+
+.btn-rocland {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--rocland-green, #4a9c1f);
+  color: #fff;
+  transition: background 0.18s, box-shadow 0.18s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--rocland-green, #4a9c1f) 85%, black);
+    box-shadow: 0 2px 8px rgba(74, 156, 31, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &.btn-secondary {
+    background: var(--surface-alt, #f3f4f6);
+    color: var(--rocland-dark, #374151);
+    border: 1px solid var(--border, #e5e7eb);
+
+    &:hover {
+      background: #e5e7eb;
+      box-shadow: none;
+    }
+  }
+}
+
+.border-top {
+  border-top: 1px solid var(--rocland-border) !important;
+}

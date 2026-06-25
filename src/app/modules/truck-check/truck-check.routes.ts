@@ -39,6 +39,22 @@ export const TRUCK_CHECK_ROUTES: Routes = [
           import('./private/pages/catalogos/catalogos.component')
             .then(m => m.CatalogosTruckCheckComponent),
       },
+      {
+        path: 'gestion-mantenimiento',
+        loadComponent: () => import('./private/pages/gestion-mantenimiento/gestion-mantenimiento.component').then(m => m.GestionMantenimientoComponent)
+      },
+      {
+        path: 'historial-mantenimiento',
+        loadComponent: () => import('./private/pages/historial-mantenimiento/historial-mantenimiento.component').then(m => m.HistorialMantenimientoComponent)
+      },
+      {
+        path: 'alertas-mantenimiento',
+        loadComponent: () => import('./private/pages/alertas-mantenimiento/alertas-mantenimiento.component').then(m => m.AlertasMantenimientoComponent)
+      },
+      {
+        path: 'alertas-km-anomalo',
+        loadComponent: () => import('./private/pages/alertas-km-anomalo/alertas-km-anomalo.component').then(m => m.AlertasKmAnomaloComponent)
+      },
 
       // Wildcard — cualquier ruta desconocida vuelve al dashboard
       { path: '**', redirectTo: 'dashboard' },

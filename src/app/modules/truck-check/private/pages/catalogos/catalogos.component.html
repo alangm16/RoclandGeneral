@@ -17,7 +17,8 @@
         <ng-template #cellTemplate let-item let-col="column">
           @switch (col.key) {
             @case ('placas') { <span class="cell-nombre">{{ item.placas }}</span> }
-            @case ('ultimoKilometraje') { <span class="cell-nombre">{{ item.ultimoKilometraje }}</span> }
+            @case ('marca') { <span class="cell-nombre">{{ item.marca }}</span> }
+            @case ('modelo') { <span class="cell-nombre">{{ item.modelo }}</span> }
             @case ('activo') {
               <app-badge
                 [label]="item.activo ? 'Activo' : 'Inactivo'"

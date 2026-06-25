@@ -2,7 +2,7 @@
 
   <div class="table-card">
     <div class="table-header">
-      <span class="table-title">Personas Frecuentes</span>
+      <span class="table-title">Personas</span>
       <span class="text-muted text-mono" style="font-size: 12px;">Total: {{ totalPersonas() }}</span>
     </div>
 
@@ -115,7 +115,7 @@
         </div>
       }
     } @else {
-      <!-- Modo perfil + historial (contenido original del primer modal) -->
+      <!-- Modo perfil + historial -->
       @if (cargandoDetalle()) {
         <div class="modal-loading">
           <div class="modal-loading-spinner"></div>

@@ -7,7 +7,12 @@ import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { LayoutService } from '../../../../../core/services/layout.service';
 import { AdminService } from '../../../services/admin.service';
 import { BadgeComponent } from '../../../../../shared/components/badge/badge-component';
-import { CatalogoItem, CatalogoCreateDto } from '../../../models/admin.models';
+import {
+  CatalogoItem,
+  CatalogoCreateDto,
+  MotivoDto,
+  MotivoCreateDto,
+} from '../../../models/admin.models';
 
 @Component({
   selector: 'app-catalogos',
@@ -21,14 +26,15 @@ export class CatalogosComponent implements OnInit, OnDestroy {
   private readonly adminSvc = inject(AdminService);
   private readonly destroy$ = new Subject<void>();
 
-  // Datos
+  // ── Datos (con tipos específicos) ──
   areas   = signal<CatalogoItem[]>([]);
-  motivos = signal<CatalogoItem[]>([]);
+  motivos = signal<MotivoDto[]>([]);
   tiposId = signal<CatalogoItem[]>([]);
 
-  // Control de formularios inline
+  // ── Control de formularios inline ──
   mostrarForm: Record<string, boolean> = { areas: false, motivos: false, tiposid: false };
   nuevoNombre: Record<string, string>  = { areas: '',    motivos: '',    tiposid: '' };
+  nuevoTipoPersona: Record<string, string> = { motivos: '' };  // ← solo para motivos
   guardando:   Record<string, boolean> = { areas: false, motivos: false, tiposid: false };
 
   ngOnInit(): void {
@@ -44,9 +50,9 @@ export class CatalogosComponent implements OnInit, OnDestroy {
 
   private cargarCatalogos(): void {
     forkJoin({
-      areas:   this.adminSvc.getCatalogo('areas'),
-      motivos: this.adminSvc.getCatalogo('motivos'),
-      tiposid: this.adminSvc.getCatalogo('tiposid'),
+      areas:   this.adminSvc.getAreasCatalogo(),
+      motivos: this.adminSvc.getMotivosCatalogo(),
+      tiposid: this.adminSvc.getTiposIdCatalogo(),
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -70,6 +76,7 @@ export class CatalogosComponent implements OnInit, OnDestroy {
   cerrarForm(tipo: string): void {
     this.mostrarForm[tipo] = false;
     this.nuevoNombre[tipo] = '';
+    if (tipo === 'motivos') this.nuevoTipoPersona[tipo] = '';
   }
 
   crearItem(tipo: string): void {
@@ -77,21 +84,46 @@ export class CatalogosComponent implements OnInit, OnDestroy {
     if (!nombre) return;
 
     this.guardando[tipo] = true;
-    const dto: CatalogoCreateDto = { nombre };
 
-    this.adminSvc.crearCatalogo(tipo as any, dto)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          this.guardando[tipo] = false;
-          this.cerrarForm(tipo);
-          this.cargarCatalogos();
-        },
-        error: () => {
-          alert('Error al guardar. Intenta de nuevo.');
-          this.guardando[tipo] = false;
-        },
-      });
+    if (tipo === 'motivos') {
+      const tipoPersona = this.nuevoTipoPersona['motivos']?.trim();
+      if (!tipoPersona) {
+        alert('Debes seleccionar el tipo de persona para el motivo.');
+        this.guardando[tipo] = false;
+        return;
+      }
+      const dto: MotivoCreateDto = { nombre, tipoPersona };
+      this.adminSvc.crearMotivo(dto)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.guardando[tipo] = false;
+            this.cerrarForm(tipo);
+            this.cargarCatalogos();
+          },
+          error: () => {
+            alert('Error al guardar el motivo.');
+            this.guardando[tipo] = false;
+          },
+        });
+    } else {
+      const dto: CatalogoCreateDto = { nombre };
+      const metodo = tipo === 'areas'
+        ? this.adminSvc.crearArea(dto)
+        : this.adminSvc.crearTipoId(dto);
+      metodo.pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.guardando[tipo] = false;
+            this.cerrarForm(tipo);
+            this.cargarCatalogos();
+          },
+          error: () => {
+            alert('Error al guardar.');
+            this.guardando[tipo] = false;
+          },
+        });
+    }
   }
 
   toggleItem(tipo: string, id: number): void {

@@ -1,0 +1,164 @@
+<div class="page-content fade-in">
+  <div class="config-card">
+    <mat-tab-group [dynamicHeight]="true">
+
+      <!-- ═══ PESTAÑA 1 – TIPOS DE MANTENIMIENTO ═══ -->
+      <mat-tab label="Tipos de Mantenimiento">
+        <div class="tab-content">
+          <div class="table-header">
+            <span class="table-title">Catálogo de Tipos</span>
+            <button class="btn btn-primary btn-sm" (click)="abrirModalTipo()">
+              <i class="bi bi-plus-lg"></i> Agregar
+            </button>
+          </div>
+          <app-data-table
+            [columns]="columnasTipos"
+            [data]="tipos()"
+            [loading]="cargando()">
+            <ng-template #cellTemplate let-item let-col="column">
+              @switch (col.key) {
+                @case ('nombre') { <span class="cell-nombre">{{ item.nombre }}</span> }
+                @case ('activo') {
+                  <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'" [variant]="item.activo ? 'green' : 'red'"></app-badge>
+                }
+                @case ('acciones') {
+                  <button mat-icon-button [matMenuTriggerFor]="menuTipo" class="btn-ghost btn-sm">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuTipo="matMenu" class="custom-mat-menu">
+                    <button mat-menu-item (click)="abrirModalTipo(item)">
+                      <i class="bi bi-pencil me-2"></i> Editar
+                    </button>
+                    <button mat-menu-item (click)="toggleTipo(item)">
+                      <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                      {{ item.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                }
+              }
+            </ng-template>
+          </app-data-table>
+        </div>
+      </mat-tab>
+
+      <!-- ═══ PESTAÑA 2 – PROGRAMAS DE MANTENIMIENTO ═══ -->
+      <mat-tab label="Programas de Mantenimiento">
+        <div class="tab-content">
+          <div class="table-header">
+            <span class="table-title">Asignación de Intervalos</span>
+            <button class="btn btn-primary btn-sm" (click)="abrirModalPrograma()">
+              <i class="bi bi-plus-lg"></i> Agregar
+            </button>
+          </div>
+          <app-data-table
+            [columns]="columnasProgramas"
+            [data]="programas()"
+            [loading]="cargando()">
+            <ng-template #cellTemplate let-item let-col="column">
+              @switch (col.key) {
+                @case ('placas') { <span class="cell-nombre">{{ item.placas }}</span> }
+                @case ('tipoMantenimiento') { <span>{{ item.tipoMantenimiento }}</span> }
+                @case ('intervaloKm') { <span class="text-mono">{{ item.intervaloKm ?? '—' }}</span> }
+                @case ('intervaloDias') { <span class="text-mono">{{ item.intervaloDias ?? '—' }}</span> }
+                @case ('activo') {
+                  <app-badge [label]="item.activo ? 'Activo' : 'Inactivo'" [variant]="item.activo ? 'green' : 'red'"></app-badge>
+                }
+                @case ('acciones') {
+                  <button mat-icon-button [matMenuTriggerFor]="menuPrograma" class="btn-ghost btn-sm">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <mat-menu #menuPrograma="matMenu" class="custom-mat-menu">
+                    <button mat-menu-item (click)="abrirModalPrograma(item)">
+                      <i class="bi bi-pencil me-2"></i> Editar
+                    </button>
+                    <button mat-menu-item (click)="togglePrograma(item)">
+                      <i class="bi {{ item.activo ? 'bi-toggle-off' : 'bi-toggle-on' }} me-2"></i>
+                      {{ item.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </mat-menu>
+                }
+              }
+            </ng-template>
+          </app-data-table>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>
+
+<!-- ═══════ MODAL PARA TIPO ═══════ -->
+<app-modal [isOpen]="modalTipoAbierto()" size="md" (closed)="cerrarModalTipo()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-tag-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">{{ editandoTipoId() ? 'Editar' : 'Nuevo' }} Tipo</h2>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="formTipo" (ngSubmit)="guardarTipo()">
+      <div class="mb-3">
+        <label class="form-label">Nombre <span class="req">*</span></label>
+        <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Cambio de aceite">
+      </div>
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalTipo()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="formTipo.invalid">
+          {{ editandoTipoId() ? 'Guardar cambios' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>
+
+<!-- ═══════ MODAL PARA PROGRAMA ═══════ -->
+<app-modal [isOpen]="modalProgramaAbierto()" size="md" (closed)="cerrarModalPrograma()">
+  <ng-container header>
+    <div class="modal-avatar">
+      <i class="bi bi-calendar-check-fill"></i>
+    </div>
+    <div>
+      <h2 class="modal-title">{{ editandoProgramaId() ? 'Editar' : 'Nuevo' }} Programa</h2>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="formPrograma" (ngSubmit)="guardarPrograma()">
+      <div class="mb-3">
+        <label class="form-label">Vehículo <span class="req">*</span></label>
+        <select class="form-control" formControlName="idVehiculo">
+          <option value="">Seleccionar...</option>
+          @for (v of vehiculos(); track v.id) {
+            <option [value]="v.id">{{ v.placas }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipo de Mantenimiento <span class="req">*</span></label>
+        <select class="form-control" formControlName="idTipoMantenimiento">
+          <option value="">Seleccionar...</option>
+          @for (t of tiposDisponibles(); track t.id) {
+            <option [value]="t.id">{{ t.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">Intervalo (km)</label>
+          <input type="number" class="form-control" formControlName="intervaloKm" placeholder="Ej. 10000">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Intervalo (días)</label>
+          <input type="number" class="form-control" formControlName="intervaloDias" placeholder="Ej. 90">
+        </div>
+      </div>
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarModalPrograma()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="formPrograma.invalid">
+          {{ editandoProgramaId() ? 'Guardar cambios' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://localhost:7244',
+  apiUrl: 'https://app.rocland.mx',
   version: '1.0.0'
 };

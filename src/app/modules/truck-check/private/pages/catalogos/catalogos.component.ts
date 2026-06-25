@@ -66,7 +66,8 @@ export class CatalogosTruckCheckComponent implements OnInit, OnDestroy {
   // === Columnas ===
   columnasVehiculos: DataTableColumn[] = [
     { key: 'placas', label: 'PLACAS' },
-    { key: 'ultimoKilometraje', label: 'KILOMETRAJE'},
+    { key: 'marca' , label: 'MARCA' },
+    { key: 'modelo', label: 'MODELO'},
     { key: 'activo', label: 'ESTADO' },
     { key: 'acciones', label: '', cellClass: 'text-end' },
   ];

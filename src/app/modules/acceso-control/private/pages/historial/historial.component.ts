@@ -84,6 +84,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
           options: [
             { label: 'Visitante', value: 'Visitante' },
             { label: 'Proveedor', value: 'Proveedor' },
+            { label: 'Colaborador', value: 'Colaborador' },
           ],
         },
         {

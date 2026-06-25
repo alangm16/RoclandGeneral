@@ -1,0 +1,147 @@
+<div class="page-content fade-in">
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Historial de Mantenimientos</span>
+      <span class="text-muted text-mono">Total: {{ registros().length }}</span>
+    </div>
+    <app-data-table
+      [columns]="columnas"
+      [data]="registros()"
+      [loading]="cargando()">
+      <ng-template #cellTemplate let-item let-col="column">
+        @switch (col.key) {
+          @case ('fechaRealizacion') { <span class="text-mono">{{ formatFecha(item.fechaRealizacion) }}</span> }
+          @case ('kmAlMomento') { <span class="text-mono">{{ item.kmAlMomento }}</span> }
+          @case ('costo') { <span class="text-mono">{{ item.costo !== undefined && item.costo !== null ? (item.costo | currency:'MXN':'symbol':'1.2-2') : '—' }}</span> }
+          @case ('acciones') {
+            <button class="btn-ghost btn-sm" (click)="verDetalle(item)">
+              <i class="bi bi-eye"></i>
+            </button>
+          }
+          @default { {{ item[col.key] ?? '—' }} }
+        }
+      </ng-template>
+    </app-data-table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- MODAL DE DETALLE                                   -->
+<!-- ════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="modalDetalleAbierto()" size="lg" (closed)="cerrarModalDetalle()">
+  <ng-container header>
+    <div class="modal-header-content">
+      <div class="modal-avatar">
+        <i class="bi bi-tools"></i>
+      </div>
+      <div>
+        <h2 class="modal-title">Detalle del Mantenimiento</h2>
+        <p class="modal-subtitle text-mono">{{ detalleSeleccionado()?.placas }} - {{ detalleSeleccionado()?.tipoMantenimiento }}</p>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container body>
+    @if (detalleSeleccionado(); as m) {
+      <div class="detalle-grid">
+        <div class="detalle-field"><label>Fecha</label><span>{{ formatFecha(m.fechaRealizacion) }}</span></div>
+        <div class="detalle-field"><label>Kilometraje</label><span class="text-mono">{{ m.kmAlMomento }} km</span></div>
+        <div class="detalle-field"><label>Costo</label><span class="text-mono">{{ m.costo !== undefined && m.costo !== null ? (m.costo | currency:'MXN':'symbol':'1.2-2') : '—' }}</span></div>
+        <div class="detalle-field"><label>Taller</label><span>{{ m.taller || '—' }}</span></div>
+        <div class="detalle-field"><label>Supervisor</label><span>{{ m.nombreSupervisor || '—' }}</span></div>
+        <div class="detalle-field"><label>Registrado</label><span class="text-mono">{{ formatFecha(m.fechaCreacion) }}</span></div>
+      </div>
+      @if (m.observaciones) {
+        <div class="detalle-seccion">
+          <h4><i class="bi bi-chat-left-text-fill"></i> Observaciones</h4>
+          <p class="observacion-text">{{ m.observaciones }}</p>
+        </div>
+      }
+    }
+  </ng-container>
+  <ng-container footer>
+    <button class="btn-rocland btn-secondary" (click)="cerrarModalDetalle()">Cerrar</button>
+  </ng-container>
+</app-modal>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- MODAL DE REGISTRO DE MANTENIMIENTO                 -->
+<!-- ════════════════════════════════════════════════════ -->
+<app-modal [isOpen]="modalRegistroAbierto()" size="md" maxWidth="700px" (closed)="cerrarRegistroModal()">
+  <ng-container header>
+    <div class="modal-header-content">
+      <div class="modal-avatar">
+        <i class="bi bi-tools"></i>
+      </div>
+      <div>
+        <h2 class="modal-title">Registrar Mantenimiento</h2>
+        <p class="modal-subtitle">Ingresa los datos del servicio realizado</p>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container body>
+    <form [formGroup]="formRegistro" (ngSubmit)="guardarRegistro()">
+      <!-- Vehículo -->
+      <div class="mb-3">
+        <label class="form-label">Vehículo <span class="req">*</span></label>
+        <select class="form-control" formControlName="IdVehiculo">
+          <option value="">Seleccionar...</option>
+          @for (v of vehiculos(); track v.id) {
+            <option [value]="v.id">{{ v.placas }} {{ v.marca ? '- ' + v.marca : '' }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Tipo de mantenimiento -->
+      <div class="mb-3">
+        <label class="form-label">Tipo de mantenimiento <span class="req">*</span></label>
+        <select class="form-control" formControlName="IdTipoMantenimiento">
+          <option value="">Seleccionar...</option>
+          @for (t of tipos(); track t.id) {
+            <option [value]="t.id">{{ t.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Fecha y km -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fecha de realización <span class="req">*</span></label>
+          <input type="datetime-local" class="form-control" formControlName="FechaRealizacion">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Kilometraje al momento <span class="req">*</span></label>
+          <input type="number" class="form-control" formControlName="KmAlMomento" placeholder="Ej. 15230">
+        </div>
+      </div>
+
+      <!-- Costo y taller -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Costo (MXN)</label>
+          <input type="number" class="form-control" formControlName="Costo" placeholder="Ej. 2500.00" step="0.01">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Taller</label>
+          <input type="text" class="form-control" formControlName="Taller" placeholder="Nombre del taller">
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div class="mb-3">
+        <label class="form-label">Observaciones</label>
+        <textarea class="form-control" formControlName="Observaciones" rows="3" placeholder="Notas adicionales..."></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn-rocland btn-secondary" (click)="cerrarRegistroModal()">Cancelar</button>
+        <button type="submit" class="btn-rocland" [disabled]="formRegistro.invalid || enviandoRegistro()">
+          @if (enviandoRegistro()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          }
+          Registrar
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</app-modal>

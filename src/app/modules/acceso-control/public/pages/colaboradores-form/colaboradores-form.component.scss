@@ -1,0 +1,40 @@
+/* colaboradores-form.component.scss */
+
+/* El componente hereda el padding del .acceso-main — no se necesita padding extra aquí */
+
+/* ── Spinner de búsqueda ────────────────────────────────────────── */
+.spinner-icon {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--rocland-border);
+  border-top-color: var(--rocland-green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ── Campo de placas (mayúsculas + estilo diferenciado) ────────── */
+.placas-input {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-display);
+
+  &::placeholder {
+    text-transform: none;
+    font-weight: 400;
+    letter-spacing: normal;
+    font-family: var(--font-body);
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* En móvil, los campos col-sm-5 / col-sm-7 se apilan */
+@media (max-width: 575.98px) {
+  .row > .col-sm-5,
+  .row > .col-sm-7,
+  .row > .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
